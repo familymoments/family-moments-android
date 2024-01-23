@@ -47,8 +47,8 @@ Git pre-commit 훅이 설정되고, 커밋 전 ktlint를 사용하여 코드 스
 ktlint 를 위반하는 코드가 있으면 커밋이 불가
 
 ### (번외) 커밋하기 전 ktlint 적용하기
-ktlint 를 설치하고 **```ktlint -F```** 명령어를 실행하면 커밋하지 않아도 ktlint 로 코드 정렬할 수 있음
-### ktlint 설치
+ktlint 를 설치하고 **```ktlint -F```** 명령어를 실행하면 커밋하지 않아도 ktlint 명령어로 코드 정렬할 수 있음
+#### ktlint 설치 명령어
 ```bash
 curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.1.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
 ```
