@@ -53,3 +53,8 @@ pre-commit hook 등록
 cd .git/hooks
 rm ./pre-commit
 ```
+
+<br/>
+
+> ## 참고
+https://msyu1207.tistory.com/entry/%EA%B9%94%EB%81%94%ED%95%9C-%ED%8F%AC%EB%A7%B7%ED%8C%85%EC%9D%84-%EC%9C%84%ED%95%9C-ktlint-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0-feat-kotlin
