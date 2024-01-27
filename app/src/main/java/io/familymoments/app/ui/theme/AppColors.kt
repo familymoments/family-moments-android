@@ -30,5 +30,7 @@ object AppColors {
     val deepPurple1 = Color(0xFF5B6380)
     val deepPurple2 = Color(0xFF7C8299)
     val deepPurple3 = Color(0xFFA5A8BA)
+
+    val shadowColor = Color(0x1A000000)
 }
 

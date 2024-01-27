@@ -18,10 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -41,6 +39,7 @@ import androidx.navigation.compose.rememberNavController
 import io.familymoments.app.R
 import io.familymoments.app.ui.bottomnav.BottomNavDestination
 import io.familymoments.app.ui.bottomnav.model.BottomNavItem
+import io.familymoments.app.ui.bottomnav.ui.bottomNavShadow
 import io.familymoments.app.ui.theme.AppColors
 import io.familymoments.app.ui.theme.AppTypography.LB2_11
 
@@ -86,8 +85,8 @@ fun BottomNavigationBar(navController: NavHostController) {
 
     BottomNavigation(
         modifier = Modifier
+            .bottomNavShadow()
             .heightIn(min = 75.dp)
-            .shadow(elevation = 5.dp, shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
             .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)),
         backgroundColor = Color.White
     ) {
