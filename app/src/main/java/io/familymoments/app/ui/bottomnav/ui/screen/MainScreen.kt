@@ -39,6 +39,7 @@ import io.familymoments.app.ui.bottomnav.BottomNavDestination
 import io.familymoments.app.ui.bottomnav.model.BottomNavItem
 import io.familymoments.app.ui.bottomnav.ui.bottomNavShadow
 import io.familymoments.app.ui.component.AppBarScreen
+import io.familymoments.app.ui.home.ui.screen.HomeScreen
 import io.familymoments.app.ui.theme.AppColors
 import io.familymoments.app.ui.theme.AppTypography
 import io.familymoments.app.ui.theme.AppTypography.LB2_11
