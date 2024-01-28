@@ -8,10 +8,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,15 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -40,18 +38,35 @@ import io.familymoments.app.R
 import io.familymoments.app.ui.bottomnav.BottomNavDestination
 import io.familymoments.app.ui.bottomnav.model.BottomNavItem
 import io.familymoments.app.ui.bottomnav.ui.bottomNavShadow
+import io.familymoments.app.ui.component.AppBarScreen
 import io.familymoments.app.ui.theme.AppColors
+import io.familymoments.app.ui.theme.AppTypography
 import io.familymoments.app.ui.theme.AppTypography.LB2_11
 
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    Scaffold(
+    AppBarScreen(
+        title = { Text(text = "sweety home", style = AppTypography.SH3_16, color = AppColors.deepPurple1) },
+        navigationIcon = {
+            Box(
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .size(34.dp)
+                    .clip(shape = CircleShape)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.img_sample_dog),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "profile"
+                )
+            }
+        },
         bottomBar = { BottomNavigationBar(navController = navController) }
-    ) { innerPadding ->
-        NavHost(navController, startDestination = BottomNavItem.Home.route, Modifier.padding(innerPadding)) {
+    ) {
+        NavHost(navController, startDestination = BottomNavItem.Home.route) {
             composable(route = BottomNavDestination.Home.route) {
-                // HomeScreen()
+                HomeScreen()
             }
 
             composable(route = BottomNavDestination.Album.route) {
