@@ -3,7 +3,6 @@ package io.familymoments.app.feature.bottomnav.model
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import io.familymoments.app.R
-import io.familymoments.app.feature.bottomnav.BottomNavDestination
 
 sealed class BottomNavItem(
     val route: String,
@@ -24,4 +23,28 @@ sealed class BottomNavItem(
 
     data object MyPage :
         BottomNavItem(BottomNavDestination.MyPage.route, R.drawable.ic_bottom_nav_my_page, R.string.bottom_nav_label_my_page)
+}
+
+sealed interface BottomNavDestination {
+    val route: String
+
+    data object Home : BottomNavDestination {
+        override val route: String = "Home"
+    }
+
+    data object Album : BottomNavDestination {
+        override val route: String = "Album"
+    }
+
+    data object AddPost : BottomNavDestination {
+        override val route: String = "AddPost"
+    }
+
+    data object Calendar : BottomNavDestination {
+        override val route: String = "Calendar"
+    }
+
+    data object MyPage : BottomNavDestination {
+        override val route: String = "MyPage"
+    }
 }

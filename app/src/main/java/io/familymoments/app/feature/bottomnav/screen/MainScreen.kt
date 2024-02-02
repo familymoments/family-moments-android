@@ -26,7 +26,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -35,54 +37,86 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.familymoments.app.R
-import io.familymoments.app.feature.bottomnav.BottomNavDestination
-import io.familymoments.app.feature.bottomnav.model.BottomNavItem
-import io.familymoments.app.feature.bottomnav.component.bottomNavShadow
 import io.familymoments.app.core.component.AppBarScreen
-import io.familymoments.app.feature.home.screen.HomeScreen
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.AppTypography.LB2_11
+import io.familymoments.app.feature.bottomnav.component.bottomNavShadow
+import io.familymoments.app.feature.bottomnav.model.BottomNavItem
+import io.familymoments.app.feature.home.screen.HomeScreen
 
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    AppBarScreen(
-        title = { Text(text = "sweety home", style = AppTypography.SH3_16, color = AppColors.deepPurple1) },
-        navigationIcon = {
-            Box(
-                modifier = Modifier
-                    .padding(start = 12.dp)
-                    .size(34.dp)
-                    .clip(shape = CircleShape)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_sample_dog),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "profile"
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    val homeRoute = BottomNavItem.Home.route
+    val albumRoute = BottomNavItem.Album.route
+    val addPostRoute = BottomNavItem.AddPost.route
+    val calendarRoute = BottomNavItem.Calendar.route
+    val myPageRoute = BottomNavItem.MyPage.route
+
+    val navigationIcon = @Composable {
+        when (currentDestination?.route) {
+            homeRoute, albumRoute -> {
+                Box(
+                    modifier = Modifier
+                        .padding(start = 12.dp)
+                        .size(34.dp)
+                        .clip(shape = CircleShape)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_sample_dog),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = "profile"
+                    )
+                }
+            }
+
+            addPostRoute, calendarRoute, myPageRoute -> {
+                Icon(
+                    modifier = Modifier.padding(start = 12.dp),
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_app_bar_back),
+                    contentDescription = null,
+                    tint = AppColors.grey3
                 )
             }
+        }
+    }
+
+    val hasShadow =
+        currentDestination?.route == homeRoute || currentDestination?.route == addPostRoute
+
+    AppBarScreen(
+        title = { Text(text = "sweety home", style = AppTypography.SH3_16, color = AppColors.deepPurple1) },
+        navigationIcon = navigationIcon,
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                currentDestination = currentDestination
+            )
         },
-        bottomBar = { BottomNavigationBar(navController = navController) }
+        hasShadow = hasShadow
     ) {
-        NavHost(navController, startDestination = BottomNavItem.Home.route) {
-            composable(route = BottomNavDestination.Home.route) {
+        NavHost(navController, startDestination = homeRoute) {
+            composable(route = homeRoute) {
                 HomeScreen()
             }
 
-            composable(route = BottomNavDestination.Album.route) {
+            composable(route = albumRoute) {
                 // AlbumScreen()
             }
 
-            composable(route = BottomNavDestination.AddPost.route) {
+            composable(route = addPostRoute) {
                 // AddPostScreen()
             }
 
-            composable(route = BottomNavDestination.Calendar.route) {
+            composable(route = calendarRoute) {
                 // CalendarScreen()
             }
 
-            composable(route = BottomNavDestination.MyPage.route) {
+            composable(route = myPageRoute) {
                 // MyPageScreen()
             }
         }
@@ -90,7 +124,10 @@ fun MainScreen() {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
+private fun BottomNavigationBar(
+    navController: NavHostController,
+    currentDestination: NavDestination?
+) {
     val bottomNavItems = listOf(
         BottomNavItem.Home,
         BottomNavItem.Album,
@@ -106,8 +143,6 @@ fun BottomNavigationBar(navController: NavHostController) {
             .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)),
         backgroundColor = Color.White
     ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
         bottomNavItems.forEach { item ->
             val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
             Box(
@@ -130,7 +165,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(6.72.dp)
                 ) {
-                    if (item.route == BottomNavDestination.AddPost.route) {
+                    if (item.route == BottomNavItem.AddPost.route) {
                         Image(
                             imageVector = ImageVector.vectorResource(id = item.iconResId),
                             contentDescription = null
@@ -152,4 +187,10 @@ fun BottomNavigationBar(navController: NavHostController) {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun MainScreenPreview() {
+    MainScreen()
 }
