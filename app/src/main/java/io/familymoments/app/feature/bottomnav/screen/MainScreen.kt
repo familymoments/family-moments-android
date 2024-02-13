@@ -15,7 +15,6 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,14 +27,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import io.familymoments.app.LocalScaffoldState
 import io.familymoments.app.R
 import io.familymoments.app.core.component.AppBarScreen
 import io.familymoments.app.core.theme.AppColors
@@ -44,49 +40,36 @@ import io.familymoments.app.core.theme.AppTypography.LB2_11
 import io.familymoments.app.feature.bottomnav.component.bottomNavShadow
 import io.familymoments.app.feature.bottomnav.model.BottomNavItem
 import io.familymoments.app.feature.home.screen.HomeScreen
+import io.familymoments.app.getMainGraph
 
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-
-    val homeRoute = BottomNavItem.Home.route
-    val albumRoute = BottomNavItem.Album.route
-    val addPostRoute = BottomNavItem.AddPost.route
-    val calendarRoute = BottomNavItem.Calendar.route
-    val myPageRoute = BottomNavItem.MyPage.route
+    val scaffoldState = LocalScaffoldState.current
 
     val navigationIcon = @Composable {
-        when (currentDestination?.route) {
-            homeRoute, albumRoute -> {
-                Box(
-                    modifier = Modifier
-                        .padding(start = 12.dp)
-                        .size(34.dp)
-                        .clip(shape = CircleShape)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.img_sample_dog),
-                        contentScale = ContentScale.Crop,
-                        contentDescription = "profile"
-                    )
-                }
-            }
-
-            addPostRoute, calendarRoute, myPageRoute -> {
-                Icon(
-                    modifier = Modifier.padding(start = 12.dp),
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_app_bar_back),
-                    contentDescription = null,
-                    tint = AppColors.grey3
+        if (scaffoldState.hasBackButton) {
+            Icon(
+                modifier = Modifier.padding(start = 12.dp),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_app_bar_back),
+                contentDescription = null,
+                tint = AppColors.grey3
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .size(34.dp)
+                    .clip(shape = CircleShape)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.img_sample_dog),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "profile"
                 )
             }
         }
     }
-
-    val hasShadow =
-        currentDestination?.route == homeRoute || currentDestination?.route == addPostRoute
 
     AppBarScreen(
         title = { Text(text = "sweety home", style = AppTypography.SH3_16, color = AppColors.deepPurple1) },
@@ -94,39 +77,21 @@ fun MainScreen() {
         bottomBar = {
             BottomNavigationBar(
                 navController = navController,
-                currentDestination = currentDestination
             )
         },
-        hasShadow = hasShadow
+        hasShadow = scaffoldState.hasShadow
     ) {
-        NavHost(navController, startDestination = homeRoute) {
-            composable(route = homeRoute) {
-                HomeScreen()
-            }
-
-            composable(route = albumRoute) {
-                // AlbumScreen()
-            }
-
-            composable(route = addPostRoute) {
-                // AddPostScreen()
-            }
-
-            composable(route = calendarRoute) {
-                // CalendarScreen()
-            }
-
-            composable(route = myPageRoute) {
-                // MyPageScreen()
-            }
-        }
+        NavHost(
+            navController = navController,
+            startDestination = BottomNavItem.Home.route,
+            builder = getMainGraph(navController = navController),
+        )
     }
 }
 
 @Composable
 private fun BottomNavigationBar(
     navController: NavHostController,
-    currentDestination: NavDestination?
 ) {
     val bottomNavItems = listOf(
         BottomNavItem.Home,
@@ -136,6 +101,8 @@ private fun BottomNavigationBar(
         BottomNavItem.MyPage
     )
 
+    val scaffoldState = LocalScaffoldState.current
+
     BottomNavigation(
         modifier = Modifier
             .bottomNavShadow()
@@ -144,7 +111,7 @@ private fun BottomNavigationBar(
         backgroundColor = Color.White
     ) {
         bottomNavItems.forEach { item ->
-            val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
+            val selected = scaffoldState.selectedBottomNav == item.route
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -152,7 +119,7 @@ private fun BottomNavigationBar(
                     .clickable {
                         navController.navigate(item.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                                saveState = false
                             }
                             launchSingleTop = true
                             restoreState = true

@@ -3,6 +3,7 @@ package io.familymoments.app.feature.home.screen
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,9 +43,12 @@ import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    modifier: Modifier,
+    navigateToPostDetail: () -> Unit
+) {
     LazyColumn(
-        modifier = Modifier.padding(horizontal = 16.dp)
+        modifier = modifier.padding(horizontal = 16.dp)
     ) {
         item {
             HomeScreenTitle()
@@ -55,7 +59,7 @@ fun HomeScreen() {
                 PostItemHeader()
                 Spacer(modifier = Modifier.height(10.dp))
                 Box(modifier = Modifier.postItemContentShadow()) {
-                    PostItemContent()
+                    PostItemContent(navigateToPostDetail = navigateToPostDetail)
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -126,13 +130,16 @@ fun PostItemHeader() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PostItemContent() {
+fun PostItemContent(
+    navigateToPostDetail: () -> Unit
+) {
     Column(
         modifier = Modifier
             .padding(horizontal = 11.dp)
             .heightIn(min = 282.dp)
             .clip(shape = RoundedCornerShape(10.dp))
             .background(AppColors.grey6)
+            .clickable { navigateToPostDetail() }
     ) {
         Box(
             modifier = Modifier
@@ -213,5 +220,5 @@ fun PostItemContent() {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+    HomeScreen(modifier = Modifier, navigateToPostDetail = {})
 }
