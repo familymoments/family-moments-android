@@ -2,15 +2,15 @@ package io.familymoments.app.feature.login.viewmodel
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.feature.login.model.uistate.LoginUiState
-import io.familymoments.app.repository.UserRepository
 import io.familymoments.app.core.base.BaseViewModel
+import io.familymoments.app.core.network.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+    private val authRepository: AuthRepository,
 ) : BaseViewModel() {
 
     private val _loginUiState = MutableStateFlow(LoginUiState())
@@ -18,7 +18,7 @@ class LoginViewModel @Inject constructor(
 
     fun loginUser(username: String, password: String) {
         async(
-                operation = { userRepository.loginUser(username, password) },
+                operation = { authRepository.loginUser(username, password) },
                 onSuccess = {
                     _loginUiState.value = _loginUiState.value.copy(
                             isSuccess = true,

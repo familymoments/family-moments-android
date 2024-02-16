@@ -6,11 +6,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.familymoments.app.core.network.UserService
-import io.familymoments.app.repository.UserRepository
-import io.familymoments.app.repository.TokenRepository
-import io.familymoments.app.repository.impl.UserRepositoryImpl
-import io.familymoments.app.repository.impl.TokenRepositoryImpl
+import io.familymoments.app.core.network.api.AuthService
+import io.familymoments.app.core.network.datasource.TokenPreferencesDataSource
+import io.familymoments.app.core.network.datasource.TokenPreferencesDataSourceImpl
+import io.familymoments.app.core.network.repository.AuthRepository
+import io.familymoments.app.core.network.repository.impl.AuthRepositoryImpl
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -19,15 +19,14 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(userService: UserService, tokenRepository: TokenRepository): UserRepository {
-        return UserRepositoryImpl(userService, tokenRepository)
+    fun provideAuthRepository(authService: AuthService, tokenPreferencesDataSource: TokenPreferencesDataSource): AuthRepository {
+        return AuthRepositoryImpl(authService, tokenPreferencesDataSource)
     }
 
     @Provides
     @Singleton
-    fun provideTokenRepository(@ApplicationContext context: Context): TokenRepository {
+    fun provideTokenPreferencesDataSource(@ApplicationContext context: Context): TokenPreferencesDataSource {
         val preferences = context.getSharedPreferences("token", Context.MODE_PRIVATE)
-        return TokenRepositoryImpl(preferences)
+        return TokenPreferencesDataSourceImpl(preferences)
     }
-
 }

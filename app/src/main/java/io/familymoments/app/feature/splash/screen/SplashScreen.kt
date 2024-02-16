@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.familymoments.app.R
-import io.familymoments.app.model.response.UserErrorResponse
+import io.familymoments.app.core.network.model.AuthErrorResponse
 import io.familymoments.app.feature.splash.model.SplashUiState
 import io.familymoments.app.feature.login.activity.LoginActivity
 import io.familymoments.app.feature.bottomnav.activity.MainActivity
@@ -52,12 +52,12 @@ suspend fun checkValidate(check: () -> Unit, uiState: State<SplashUiState>, cont
         context.startActivity(intent)
     } else if (uiState.value.isSuccess == false) {
         when(uiState.value.error){
-            is UserErrorResponse.RefreshTokenExpiration -> {
+            is AuthErrorResponse.RefreshTokenExpiration -> {
                 val intent = Intent(context, LoginActivity::class.java)
                 intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
                 context.startActivity(intent)
             }
-            is UserErrorResponse.CommonError -> {
+            is AuthErrorResponse.CommonError -> {
             }
         }
     }

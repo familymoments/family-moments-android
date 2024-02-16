@@ -6,8 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.familymoments.app.BuildConfig
 import io.familymoments.app.core.network.AuthInterceptor
-import io.familymoments.app.core.network.UserService
-import io.familymoments.app.repository.TokenRepository
+import io.familymoments.app.core.network.api.AuthService
+import io.familymoments.app.core.network.datasource.TokenPreferencesDataSource
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -73,10 +73,10 @@ object AppModule {
     @Provides
     @Singleton
     @AuthOkHttpClient
-    fun provideAuthOkHttpClient(tokenRepository: TokenRepository): OkHttpClient {
+    fun provideAuthOkHttpClient(tokenPreferencesDataSource: TokenPreferencesDataSource): OkHttpClient {
         return OkHttpClient.Builder()
             .cookieJar(JavaNetCookieJar(CookieManager()))
-            .addInterceptor(AuthInterceptor(tokenRepository))
+            .addInterceptor(AuthInterceptor(tokenPreferencesDataSource))
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.HEADERS
             })
@@ -85,7 +85,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserService(@AuthRetrofit retrofit: Retrofit): UserService {
-        return retrofit.create(UserService::class.java)
+    fun provideAuthService(@AuthRetrofit retrofit: Retrofit): AuthService {
+        return retrofit.create(AuthService::class.java)
     }
 }
