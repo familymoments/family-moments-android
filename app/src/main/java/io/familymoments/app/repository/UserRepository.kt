@@ -1,7 +1,7 @@
 package io.familymoments.app.repository
 
-import io.familymoments.app.model.response.LoginResponse
-import io.familymoments.app.network.Resource
+import io.familymoments.app.feature.login.model.response.LoginResponse
+import io.familymoments.app.core.network.Resource
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {

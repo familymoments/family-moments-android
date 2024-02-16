@@ -1,10 +1,10 @@
 package io.familymoments.app.repository.impl
 
-import io.familymoments.app.model.request.LoginRequest
-import io.familymoments.app.model.response.LoginResponse
+import io.familymoments.app.feature.login.model.request.LoginRequest
+import io.familymoments.app.feature.login.model.response.LoginResponse
 import io.familymoments.app.model.response.UserErrorResponse
-import io.familymoments.app.network.UserService
-import io.familymoments.app.network.Resource
+import io.familymoments.app.core.network.UserService
+import io.familymoments.app.core.network.Resource
 import io.familymoments.app.repository.UserRepository
 import io.familymoments.app.repository.TokenRepository
 import kotlinx.coroutines.flow.Flow

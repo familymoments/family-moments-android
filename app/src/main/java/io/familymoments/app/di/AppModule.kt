@@ -5,8 +5,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.familymoments.app.BuildConfig
-import io.familymoments.app.network.AuthInterceptor
-import io.familymoments.app.network.UserService
+import io.familymoments.app.core.network.AuthInterceptor
+import io.familymoments.app.core.network.UserService
 import io.familymoments.app.repository.TokenRepository
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient

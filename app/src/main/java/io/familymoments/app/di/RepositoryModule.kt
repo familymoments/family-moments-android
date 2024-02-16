@@ -6,7 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.familymoments.app.network.UserService
+import io.familymoments.app.core.network.UserService
 import io.familymoments.app.repository.UserRepository
 import io.familymoments.app.repository.TokenRepository
 import io.familymoments.app.repository.impl.UserRepositoryImpl
