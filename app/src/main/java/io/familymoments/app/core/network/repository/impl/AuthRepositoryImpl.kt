@@ -47,10 +47,10 @@ class AuthRepositoryImpl @Inject constructor(
             } else if (response.code() == 401) {
                 reissueAccessToken()
             }else{
-                emit(Resource.Fail(AuthErrorResponse.CommonError(response.message())))
+                emit(Resource.Fail(Throwable(response.message())))
             }
         }.catch { e ->
-            emit(Resource.Fail(AuthErrorResponse.CommonError(e.message?:"")))
+            emit(Resource.Fail(Throwable(e.message)))
         }
     }
 
@@ -64,10 +64,10 @@ class AuthRepositoryImpl @Inject constructor(
                 // 로그인 화면 전환
                 emit(Resource.Fail(AuthErrorResponse.RefreshTokenExpiration))
             }else{
-                emit(Resource.Fail(AuthErrorResponse.CommonError(response.message())))
+                emit(Resource.Fail(Throwable(response.message())))
             }
         }.catch { e ->
-            emit(Resource.Fail(AuthErrorResponse.CommonError(e.message?:"")))
+            emit(Resource.Fail(Throwable(e.message)))
         }
     }
 

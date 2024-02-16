@@ -57,7 +57,7 @@ suspend fun checkValidate(check: () -> Unit, uiState: State<SplashUiState>, cont
                 intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
                 context.startActivity(intent)
             }
-            is AuthErrorResponse.CommonError -> {
+            else -> {
             }
         }
     }
