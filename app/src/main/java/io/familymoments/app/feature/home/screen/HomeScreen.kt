@@ -1,4 +1,4 @@
-package io.familymoments.app.feature.home.ui.screen
+package io.familymoments.app.feature.home.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image

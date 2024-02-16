@@ -1,4 +1,4 @@
-package io.familymoments.app.feature.splash.ui.screen
+package io.familymoments.app.feature.splash.screen
 
 import android.content.Context
 import android.content.Intent
@@ -26,8 +26,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.familymoments.app.R
 import io.familymoments.app.model.response.UserErrorResponse
 import io.familymoments.app.feature.splash.model.SplashUiState
-import io.familymoments.app.feature.login.ui.activity.LoginActivity
-import io.familymoments.app.feature.bottomnav.ui.activity.MainActivity
+import io.familymoments.app.feature.login.activity.LoginActivity
+import io.familymoments.app.feature.bottomnav.activity.MainActivity
 import io.familymoments.app.core.theme.FamilyMomentsTheme
 import io.familymoments.app.feature.splash.viewmodel.SplashViewModel
 import kotlinx.coroutines.delay

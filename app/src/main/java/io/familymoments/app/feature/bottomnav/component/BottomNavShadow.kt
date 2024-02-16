@@ -1,4 +1,4 @@
-package io.familymoments.app.feature.bottomnav.ui
+package io.familymoments.app.feature.bottomnav.component
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind

@@ -1,4 +1,4 @@
-package io.familymoments.app.feature.forgotpassword.ui.screen
+package io.familymoments.app.feature.forgotpassword.screen
 
 import android.app.Activity
 import androidx.compose.foundation.background

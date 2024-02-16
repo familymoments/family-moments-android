@@ -16,7 +16,7 @@
         android:theme="@style/Theme.App.Starting"
         tools:targetApi="31">
         <activity
-            android:name="io.familymoments.app.feature.splash.ui.activity.SplashActivity"
+            android:name="io.familymoments.app.feature.splash.activity.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>
@@ -25,18 +25,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="io.familymoments.app.feature.login.ui.activity.LoginActivity"
+            android:name="io.familymoments.app.feature.login.activity.LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.FamilyMoments" />
         <activity
-            android:name="io.familymoments.app.feature.bottomnav.ui.activity.MainActivity"
+            android:name="io.familymoments.app.feature.bottomnav.activity.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.FamilyMoments">
 
         </activity>
 
         <activity
-            android:name="io.familymoments.app.feature.forgotpassword.ui.activity.ForgotPasswordActivity"
+            android:name="io.familymoments.app.feature.forgotpassword.activity.ForgotPasswordActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 

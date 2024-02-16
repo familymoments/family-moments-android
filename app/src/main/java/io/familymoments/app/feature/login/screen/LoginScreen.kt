@@ -1,4 +1,4 @@
-package io.familymoments.app.feature.login.ui.screen
+package io.familymoments.app.feature.login.screen
 
 import android.content.Intent
 import androidx.compose.foundation.Image
@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.familymoments.app.R
 import io.familymoments.app.feature.login.model.uistate.LoginUiState
-import io.familymoments.app.feature.bottomnav.ui.activity.MainActivity
+import io.familymoments.app.feature.bottomnav.activity.MainActivity
 import io.familymoments.app.core.component.AppBarScreen
 import io.familymoments.app.feature.login.viewmodel.LoginViewModel
 import io.familymoments.app.core.theme.AppColors
