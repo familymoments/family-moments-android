@@ -31,7 +31,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import io.familymoments.app.LocalScaffoldState
+import io.familymoments.app.core.util.LocalScaffoldState
 import io.familymoments.app.R
 import io.familymoments.app.core.component.AppBarScreen
 import io.familymoments.app.core.theme.AppColors
@@ -39,8 +39,7 @@ import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.AppTypography.LB2_11
 import io.familymoments.app.feature.bottomnav.component.bottomNavShadow
 import io.familymoments.app.feature.bottomnav.model.BottomNavItem
-import io.familymoments.app.feature.home.screen.HomeScreen
-import io.familymoments.app.getMainGraph
+import io.familymoments.app.core.graph.getMainGraph
 
 @Composable
 fun MainScreen() {

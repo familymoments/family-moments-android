@@ -1,4 +1,4 @@
-package io.familymoments.app
+package io.familymoments.app.core.util
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf

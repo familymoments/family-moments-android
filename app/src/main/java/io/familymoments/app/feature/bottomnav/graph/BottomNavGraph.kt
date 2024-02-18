@@ -1,9 +1,10 @@
-package io.familymoments.app
+package io.familymoments.app.feature.bottomnav.graph
 
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import io.familymoments.app.core.util.scaffoldState
 import io.familymoments.app.feature.bottomnav.model.BottomNavItem
 import io.familymoments.app.feature.home.screen.HomeScreen
 
