@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,12 +29,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import io.familymoments.app.R
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
+import io.familymoments.app.feature.profile.viewmodel.ProfileViewModel
 
 @Composable
-fun ProfileViewScreen(navigateToProfileEdit: () -> Unit) {
+fun ProfileViewScreen(
+    navigateToProfileEdit: () -> Unit,
+    viewModel: ProfileViewModel
+) {
+    val profileViewUiState = viewModel.profileViewUiState.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        viewModel.loadUserProfile()
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -57,13 +69,11 @@ fun ProfileViewScreen(navigateToProfileEdit: () -> Unit) {
             Box(
                 modifier = Modifier.padding(top = 4.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_profile_test),
+                AsyncImage(
+                    modifier = Modifier.size(80.dp).clip(CircleShape),
+                    model = profileViewUiState.value.profileImg,
                     contentDescription = "profile",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
                 )
             }
             Image(
@@ -76,13 +86,13 @@ fun ProfileViewScreen(navigateToProfileEdit: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "딸래미",
+            text = profileViewUiState.value.nickname,
             style = AppTypography.H2_24,
             color = AppColors.black4
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "bimalstha291@gmail.com",
+            text = profileViewUiState.value.email,
             style = AppTypography.B1_16,
             color = AppColors.grey7
         )
@@ -92,7 +102,10 @@ fun ProfileViewScreen(navigateToProfileEdit: () -> Unit) {
                 .fillMaxWidth()
                 .padding(top = 29.dp, bottom = 13.dp)
         )
-        InfoBox()
+        InfoBox(
+            totalUpload = profileViewUiState.value.totalUpload,
+            duration = profileViewUiState.value.duration
+        )
         Divider(
             color = AppColors.grey8, thickness = 0.6.dp,
             modifier = Modifier
@@ -103,7 +116,10 @@ fun ProfileViewScreen(navigateToProfileEdit: () -> Unit) {
 }
 
 @Composable
-private fun InfoBox() {
+private fun InfoBox(
+    totalUpload: Int = 0,
+    duration: Int = 0
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -143,7 +159,7 @@ private fun InfoBox() {
                             .background(Color.White)
                     ) {
                         Text(
-                            text = "8",
+                            text = totalUpload.toString(),
                             style = AppTypography.LB1_13,
                             color = AppColors.purple2,
                             modifier = Modifier.align(Alignment.Center)
@@ -188,7 +204,7 @@ private fun InfoBox() {
                             .background(Color.White)
                     ) {
                         Text(
-                            text = "134",
+                            text = duration.toString(),
                             style = AppTypography.LB1_13,
                             color = AppColors.pink1,
                             modifier = Modifier.align(Alignment.Center)
@@ -209,5 +225,8 @@ private object GradientColors {
 @Preview(showBackground = true)
 @Composable
 fun ProfileViewScreenPreview() {
-    ProfileViewScreen(navigateToProfileEdit = {})
+    ProfileViewScreen(
+        navigateToProfileEdit = {},
+        viewModel = hiltViewModel()
+    )
 }

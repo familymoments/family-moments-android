@@ -1,5 +1,6 @@
 package io.familymoments.app.feature.profile.graph
 
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -11,7 +12,8 @@ fun NavGraphBuilder.profileGraph(navController: NavController) {
         ProfileViewScreen(
             navigateToProfileEdit = {
                 navController.navigate(ProfileScreenRoute.Edit.name)
-            }
+            },
+            viewModel = hiltViewModel()
         )
     }
     composable(route = ProfileScreenRoute.Edit.name) {
