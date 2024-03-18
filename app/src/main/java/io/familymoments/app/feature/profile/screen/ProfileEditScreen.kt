@@ -1,5 +1,6 @@
 package io.familymoments.app.feature.profile.screen
 
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -25,20 +26,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import io.familymoments.app.R
 import io.familymoments.app.core.component.FMDropdownMenu
 import io.familymoments.app.core.component.FMTextField
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
+import io.familymoments.app.feature.profile.model.uistate.ProfileImage
+import io.familymoments.app.feature.profile.viewmodel.ProfileEditViewModel
 
 @Composable
-fun ProfileEditScreen(navigateBack: () -> Unit) {
+fun ProfileEditScreen(
+    navigateBack: () -> Unit,
+    viewModel: ProfileEditViewModel,
+) {
+    val defaultProfileImageBitmap = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.default_profile)
+    val profileEditUiState = viewModel.profileEditUiState.collectAsStateWithLifecycle()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -46,13 +59,12 @@ fun ProfileEditScreen(navigateBack: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = stringResource(id = R.string.edit_profile_title),
             style = AppTypography.B1_16,
-            color = AppColors.black1
+            color = AppColors.black1,
+            modifier = Modifier.padding(bottom = 18.dp)
         )
-        Spacer(modifier = Modifier.height(18.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -61,14 +73,28 @@ fun ProfileEditScreen(navigateBack: () -> Unit) {
             Box(
                 modifier = Modifier.padding(top = 4.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_profile_test),
-                    contentDescription = "profile",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                )
+                when (profileEditUiState.value.profileImg) {
+                    is ProfileImage.Url -> {
+                        AsyncImage(
+                            model = (profileEditUiState.value.profileImg as ProfileImage.Url).imgUrl,
+                            contentDescription = "profile",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                        )
+                    }
+                    is ProfileImage.Bitmap -> {
+                        Image(
+                            bitmap = (profileEditUiState.value.profileImg as ProfileImage.Bitmap).bitmap.asImageBitmap(),
+                            contentDescription = "profile",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                        )
+                    }
+                }
             }
         }
         Spacer(modifier = Modifier.height(22.dp))
@@ -82,13 +108,24 @@ fun ProfileEditScreen(navigateBack: () -> Unit) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.Start
         ) {
-            ProfileTextField(stringResource(id = R.string.profile_text_field_name), "홍길동", "이름 입력")
-            Spacer(modifier = Modifier.height(42.dp))
-            ProfileTextField(stringResource(id = R.string.profile_text_field_nickname), "딸내미", "닉네임 입력")
-            Spacer(modifier = Modifier.height(42.dp))
-            ProfileTextField(stringResource(id = R.string.profile_text_field_birth_date), "19990909", "생년월일 입력")
-            Spacer(modifier = Modifier.height(31.dp))
-
+            ProfileTextField(
+                modifier = Modifier.padding(bottom = 42.dp),
+                title = stringResource(id = R.string.profile_text_field_name),
+                value = profileEditUiState.value.profile.name,
+                hint = "이름 입력"
+            )
+            ProfileTextField(
+                modifier = Modifier.padding(bottom = 42.dp),
+                title = stringResource(id = R.string.profile_text_field_nickname),
+                value = profileEditUiState.value.profile.nickname,
+                hint = "닉네임 입력"
+            )
+            ProfileTextField(
+                modifier = Modifier.padding(bottom = 31.dp),
+                title = stringResource(id = R.string.profile_text_field_birth_date),
+                value = profileEditUiState.value.profile.birthdate,
+                hint = "생년월일 입력"
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -129,7 +166,12 @@ fun ProfileEditScreen(navigateBack: () -> Unit) {
 }
 
 @Composable
-private fun ProfileTextField(title: String, value: String, hint: String) {
+private fun ProfileTextField(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+    hint: String
+) {
     var textFieldValue by remember { mutableStateOf(TextFieldValue(value)) }
     Text(
         text = title,
@@ -138,6 +180,7 @@ private fun ProfileTextField(title: String, value: String, hint: String) {
         modifier = Modifier.padding(start = 1.dp, bottom = 2.dp)
     )
     FMTextField(
+        modifier = modifier,
         value = textFieldValue,
         onValueChange = { newValue -> textFieldValue = newValue },
         hint = hint,
@@ -147,5 +190,8 @@ private fun ProfileTextField(title: String, value: String, hint: String) {
 @Preview(showBackground = true)
 @Composable
 fun ProfileEditScreenPreview() {
-    ProfileEditScreen(navigateBack = {})
+    ProfileEditScreen(
+        navigateBack = {},
+        hiltViewModel()
+    )
 }

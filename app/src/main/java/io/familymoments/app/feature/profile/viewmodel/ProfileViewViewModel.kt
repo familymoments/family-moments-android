@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
 import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
-import io.familymoments.app.core.network.repository.UserRepository
 import io.familymoments.app.feature.profile.model.uistate.ProfileViewUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,10 +12,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+class ProfileViewViewModel @Inject constructor(
     private val userInfoPreferencesDataSource: UserInfoPreferencesDataSource
-): BaseViewModel() {
+) : BaseViewModel() {
     private val _profileViewUiState: MutableStateFlow<ProfileViewUiState> = MutableStateFlow(ProfileViewUiState())
     val profileViewUiState: StateFlow<ProfileViewUiState> = _profileViewUiState.asStateFlow()
 
@@ -26,11 +24,7 @@ class ProfileViewModel @Inject constructor(
                 val userProfile = userInfoPreferencesDataSource.loadUserProfile()
                 _profileViewUiState.value = _profileViewUiState.value.copy(
                     isSuccess = true,
-                    nickname = userProfile.nickName,
-                    email = userProfile.email,
-                    totalUpload = userProfile.totalUpload,
-                    duration = userProfile.duration,
-                    profileImg = userProfile.profileImg,
+                    userProfile = userProfile
                 )
             } catch (e: Exception) {
                 _profileViewUiState.value = _profileViewUiState.value.copy(

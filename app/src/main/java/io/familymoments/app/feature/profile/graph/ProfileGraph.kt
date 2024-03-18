@@ -4,23 +4,35 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import io.familymoments.app.core.graph.Route
 import io.familymoments.app.feature.profile.screen.ProfileEditScreen
 import io.familymoments.app.feature.profile.screen.ProfileViewScreen
 
 fun NavGraphBuilder.profileGraph(navController: NavController) {
     composable(route = ProfileScreenRoute.View.name) {
         ProfileViewScreen(
-            navigateToProfileEdit = {
-                navController.navigate(ProfileScreenRoute.Edit.name)
+            navigateToProfileEdit = { userProfile ->
+                navController.navigate(
+                    Route.ProfileEdit.getRoute(
+                        name = userProfile.name,
+                        nickname = userProfile.nickName,
+                        birthdate = userProfile.birthDate,
+                        profileImg = userProfile.profileImg
+                    )
+                )
             },
             viewModel = hiltViewModel()
         )
     }
-    composable(route = ProfileScreenRoute.Edit.name) {
+    composable(
+        route = Route.ProfileEdit.routeWithArgs,
+        arguments = Route.ProfileEdit.arguments
+    ) {
         ProfileEditScreen(
             navigateBack = {
                 navController.popBackStack()
-            }
+            },
+            viewModel = hiltViewModel()
         )
     }
 }

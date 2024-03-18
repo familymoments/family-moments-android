@@ -33,14 +33,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import io.familymoments.app.R
+import io.familymoments.app.core.network.model.UserProfile
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
-import io.familymoments.app.feature.profile.viewmodel.ProfileViewModel
+import io.familymoments.app.feature.profile.viewmodel.ProfileViewViewModel
 
 @Composable
 fun ProfileViewScreen(
-    navigateToProfileEdit: () -> Unit,
-    viewModel: ProfileViewModel
+    navigateToProfileEdit: (UserProfile) -> Unit,
+    viewModel: ProfileViewViewModel
 ) {
     val profileViewUiState = viewModel.profileViewUiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
@@ -60,10 +61,8 @@ fun ProfileViewScreen(
             color = AppColors.black1,
             modifier = Modifier.padding(bottom = 18.dp)
         )
-        UserProfile(
-            profileImg = profileViewUiState.value.profileImg,
-            nickname = profileViewUiState.value.nickname,
-            email = profileViewUiState.value.email,
+        Profile(
+            userProfile = profileViewUiState.value.userProfile,
             navigateToProfileEdit = navigateToProfileEdit
         )
         Divider(
@@ -73,8 +72,8 @@ fun ProfileViewScreen(
                 .padding(top = 29.dp, bottom = 13.dp)
         )
         InfoBoxes(
-            totalUpload = profileViewUiState.value.totalUpload,
-            duration = profileViewUiState.value.duration
+            totalUpload = profileViewUiState.value.userProfile.totalUpload,
+            duration = profileViewUiState.value.userProfile.duration
         )
         Divider(
             color = AppColors.grey3, thickness = 0.6.dp,
@@ -86,11 +85,9 @@ fun ProfileViewScreen(
 }
 
 @Composable
-private fun UserProfile(
-    profileImg: String,
-    nickname: String,
-    email: String,
-    navigateToProfileEdit: () -> Unit
+private fun Profile(
+    userProfile: UserProfile,
+    navigateToProfileEdit: (UserProfile) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -107,7 +104,7 @@ private fun UserProfile(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape),
-                model = profileImg,
+                model = userProfile.profileImg,
                 contentDescription = "profile",
                 contentScale = ContentScale.Crop,
             )
@@ -117,17 +114,17 @@ private fun UserProfile(
             contentDescription = "profile_modify_button",
             modifier = Modifier
                 .size(24.dp)
-                .clickable { navigateToProfileEdit() }
+                .clickable { navigateToProfileEdit(userProfile) }
         )
     }
     Text(
-        text = nickname,
+        text = userProfile.nickName,
         style = AppTypography.H2_24,
         color = AppColors.deepPurple1,
         modifier = Modifier.padding(bottom = 12.dp)
     )
     Text(
-        text = email,
+        text = userProfile.email,
         style = AppTypography.B1_16,
         color = AppColors.grey1
     )
@@ -223,7 +220,7 @@ private object GradientColors {
 @Composable
 fun ProfileViewScreenPreview() {
     ProfileViewScreen(
-        navigateToProfileEdit = {},
+        navigateToProfileEdit = { _ -> },
         viewModel = hiltViewModel()
     )
 }
