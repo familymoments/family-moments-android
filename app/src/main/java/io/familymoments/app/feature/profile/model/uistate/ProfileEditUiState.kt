@@ -6,7 +6,7 @@ data class ProfileEditUiState(
     val isSuccess: Boolean = false,
     val errorMessage: String? = null,
     val profile: ProfileEditRequest = ProfileEditRequest(),
-    val profileImg: ProfileImage
+    val profileImage: ProfileImage
 )
 
 sealed class ProfileImage {
