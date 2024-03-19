@@ -45,20 +45,22 @@ fun FMDropdownMenu(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true }
         ) {
             Text(
                 text = stringResource(id = R.string.profile_select_photo),
                 style = AppTypography.B1_16,
                 color = AppColors.purple2,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clickableWithoutRipple { expanded = true }
             )
         }
         if (expanded) {
             Popup(
                 alignment = Alignment.TopCenter,
                 properties = PopupProperties(focusable = true),
-                offset = IntOffset(0, with(LocalDensity.current) { 9.dp.toPx().roundToInt() })
+                offset = IntOffset(0, with(LocalDensity.current) { 9.dp.toPx().roundToInt() }),
+                onDismissRequest = { expanded = false }
             ) {
                 Box(
                     modifier = Modifier.dropShadow()
@@ -129,8 +131,8 @@ fun CustomDropdownMenuPreview() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         FMDropdownMenu(
-            onGallerySelected = {selectedItem = "갤러리에서 선택"},
-            onDefaultImageSelected = {selectedItem = "기본이미지로 하기"}
+            onGallerySelected = { selectedItem = "갤러리에서 선택" },
+            onDefaultImageSelected = { selectedItem = "기본이미지로 하기" }
         )
 
         selectedItem?.let {
