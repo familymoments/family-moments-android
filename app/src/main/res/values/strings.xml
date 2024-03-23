@@ -120,6 +120,9 @@
     <string name="profile_select_photo">사진 선택</string>
     <string name="profile_gallery_select_photo">갤러리에서 선택</string>
     <string name="profile_default_image_select">기본이미지로 하기</string>
+    <string name="profile_text_field_hint_name">ex) 홍길동</string>
+    <string name="profile_text_field_hint_nickname">ex) 아부지</string>
+    <string name="profile_text_field_hint_birth_date">ex) 19990101</string>
 
     <string name="my_page_title">마이페이지</string>
     <string name="my_page_account_group">Account</string>

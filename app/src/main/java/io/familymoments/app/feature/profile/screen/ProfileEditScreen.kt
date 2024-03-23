@@ -92,21 +92,21 @@ fun ProfileEditScreen(
                 modifier = Modifier.padding(bottom = 42.dp),
                 title = stringResource(id = R.string.profile_text_field_name),
                 value = profileEditUiState.value.profileEditInfoUiState.name,
-                hint = "이름 입력",
+                hint = stringResource(id = R.string.profile_text_field_hint_name),
                 onValueChanged = viewModel::nameChanged
             )
             ProfileTextField(
                 modifier = Modifier.padding(bottom = 42.dp),
                 title = stringResource(id = R.string.profile_text_field_nickname),
                 value = profileEditUiState.value.profileEditInfoUiState.nickname,
-                hint = "닉네임 입력",
+                hint = stringResource(id = R.string.profile_text_field_hint_nickname),
                 onValueChanged = viewModel::nicknameChanged
             )
             ProfileTextField(
                 modifier = Modifier.padding(bottom = 31.dp),
                 title = stringResource(id = R.string.profile_text_field_birth_date),
                 value = profileEditUiState.value.profileEditInfoUiState.birthdate,
-                hint = "생년월일 입력",
+                hint = stringResource(id = R.string.profile_text_field_hint_birth_date),
                 onValueChanged = viewModel::birthdateChanged
             )
         }
