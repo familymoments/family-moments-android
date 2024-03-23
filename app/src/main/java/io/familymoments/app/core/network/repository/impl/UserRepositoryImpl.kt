@@ -8,10 +8,13 @@ import io.familymoments.app.core.network.model.UserProfileResponse
 import io.familymoments.app.core.network.repository.UserRepository
 import io.familymoments.app.feature.login.model.request.LoginRequest
 import io.familymoments.app.feature.login.model.response.LoginResponse
+import io.familymoments.app.feature.profile.model.request.ProfileEditRequest
+import io.familymoments.app.feature.profile.model.response.ProfileEditResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import okhttp3.Headers
+import okhttp3.MultipartBody
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -95,6 +98,24 @@ class UserRepositoryImpl @Inject constructor(
                 emit(Resource.Fail(Throwable(responseBody.message)))
             }
 
+        }.catch { e ->
+            emit(Resource.Fail(e))
+        }
+    }
+
+    override suspend fun editProfile(
+        profileEditRequest: ProfileEditRequest,
+        profileImg: MultipartBody.Part
+    ): Flow<Resource<ProfileEditResponse>> {
+        return flow {
+            emit(Resource.Loading)
+            val response = userService.editProfile(profileEditRequest, profileImg)
+            val responseBody = response.body() ?: ProfileEditResponse()
+            if (responseBody.isSuccess) {
+                emit(Resource.Success(responseBody))
+            } else {
+                emit(Resource.Fail(Throwable(responseBody.message)))
+            }
         }.catch { e ->
             emit(Resource.Fail(e))
         }
