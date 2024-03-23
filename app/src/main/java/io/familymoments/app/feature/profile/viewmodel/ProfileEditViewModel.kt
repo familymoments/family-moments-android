@@ -18,8 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    userRepository: UserRepository,
-    userInfoPreferencesDataSource: UserInfoPreferencesDataSource
+    private val userRepository: UserRepository,
+    private val userInfoPreferencesDataSource: UserInfoPreferencesDataSource
 ) : BaseViewModel() {
     private val name: String = checkNotNull(savedStateHandle[Route.ProfileEdit.nameArg])
     private val nickname: String = checkNotNull(savedStateHandle[Route.ProfileEdit.nicknameArg])
