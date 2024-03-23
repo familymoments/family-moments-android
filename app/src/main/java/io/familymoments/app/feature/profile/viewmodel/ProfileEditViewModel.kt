@@ -2,6 +2,7 @@ package io.familymoments.app.feature.profile.viewmodel
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
@@ -24,8 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val userRepository: UserRepository,
-    private val userInfoPreferencesDataSource: UserInfoPreferencesDataSource
+    private val userRepository: UserRepository
 ) : BaseViewModel() {
     private val name: String = checkNotNull(savedStateHandle[Route.ProfileEdit.nameArg])
     private val nickname: String = checkNotNull(savedStateHandle[Route.ProfileEdit.nicknameArg])
@@ -78,7 +78,6 @@ class ProfileEditViewModel @Inject constructor(
             },
             onSuccess = {
                 _profileEditUiState.value = _profileEditUiState.value.copy(isSuccess = true)
-                // sharedPreferences update
                 navigateBack()
             },
             onFailure = {

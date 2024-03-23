@@ -112,6 +112,7 @@ class UserRepositoryImpl @Inject constructor(
             val response = userService.editProfile(profileEditRequest, profileImg)
             val responseBody = response.body() ?: ProfileEditResponse()
             if (responseBody.isSuccess) {
+                userInfoPreferencesDataSource.updateUserProfile(responseBody.result)
                 emit(Resource.Success(responseBody))
             } else {
                 emit(Resource.Fail(Throwable(responseBody.message)))
