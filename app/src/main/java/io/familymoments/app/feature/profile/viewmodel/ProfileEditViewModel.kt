@@ -1,5 +1,6 @@
 package io.familymoments.app.feature.profile.viewmodel
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -7,13 +8,17 @@ import io.familymoments.app.core.base.BaseViewModel
 import io.familymoments.app.core.graph.Route
 import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
 import io.familymoments.app.core.network.repository.UserRepository
-import io.familymoments.app.feature.profile.model.request.ProfileEditRequest
+import io.familymoments.app.core.util.bitmapToFile
+import io.familymoments.app.feature.profile.model.mapper.toRequest
 import io.familymoments.app.feature.profile.model.uistate.ProfileEditInfoUiState
 import io.familymoments.app.feature.profile.model.uistate.ProfileEditUiState
 import io.familymoments.app.feature.profile.model.uistate.ProfileImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,6 +62,31 @@ class ProfileEditViewModel @Inject constructor(
     fun birthdateChanged(birthdate: String) {
         _profileEditUiState.value = _profileEditUiState.value.copy(
             profileEditInfoUiState = profileEditUiState.value.profileEditInfoUiState.copy(birthdate = birthdate)
+        )
+    }
+
+    fun requestEditProfile(context: Context, navigateBack: () -> Unit) {
+        val imageFile = bitmapToFile((profileEditUiState.value.profileImage as ProfileImage.Bitmap).bitmap, context)
+        val imageRequestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+        val profileImgPart = MultipartBody.Part.createFormData("profileImg", imageFile.name, imageRequestBody)
+        async(
+            operation = {
+                userRepository.editProfile(
+                    profileEditRequest = _profileEditUiState.value.profileEditInfoUiState.toRequest(),
+                    profileImg = profileImgPart
+                )
+            },
+            onSuccess = {
+                _profileEditUiState.value = _profileEditUiState.value.copy(isSuccess = true)
+                // sharedPreferences update
+                navigateBack()
+            },
+            onFailure = {
+                _profileEditUiState.value = _profileEditUiState.value.copy(
+                    isSuccess = false,
+                    errorMessage = it.message
+                )
+            }
         )
     }
 }

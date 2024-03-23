@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ import io.familymoments.app.core.component.FMTextField
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.util.convertUriToBitmap
+import io.familymoments.app.core.util.urlToBitmap
 import io.familymoments.app.feature.profile.model.uistate.ProfileImage
 import io.familymoments.app.feature.profile.viewmodel.ProfileEditViewModel
 
@@ -61,6 +63,13 @@ fun ProfileEditScreen(
     val defaultProfileImageBitmap =
         BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.default_profile)
     val profileEditUiState = viewModel.profileEditUiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    LaunchedEffect(profileEditUiState.value.profileImage) {
+        if (profileEditUiState.value.profileImage is ProfileImage.Url) {
+            val bitmap = urlToBitmap((profileEditUiState.value.profileImage as ProfileImage.Url).imgUrl, context)
+            viewModel.imageChanged(bitmap)
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -124,7 +133,7 @@ fun ProfileEditScreen(
             Spacer(modifier = Modifier.width(34.dp))
             ProfileButton(
                 modifier = Modifier.weight(1f),
-                onClick = navigateBack,
+                onClick = { viewModel.requestEditProfile(context, navigateBack) },
                 colors = ButtonDefaults.buttonColors(AppColors.purple2, Color.White),
                 stringResId = R.string.profile_btn_done
             )

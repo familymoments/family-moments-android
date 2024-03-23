@@ -3,9 +3,15 @@ package io.familymoments.app.core.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Suppress("DEPRECATION")
 fun convertUriToBitmap(uri:Uri?,context: Context): Bitmap? {
@@ -21,4 +27,20 @@ fun convertUriToBitmap(uri:Uri?,context: Context): Bitmap? {
         }
     }
     return bitmap
+}
+
+suspend fun urlToBitmap(url: String, context: Context): Bitmap? {
+    return withContext(Dispatchers.IO) {
+        try {
+            val loader = ImageLoader(context)
+            val request = ImageRequest.Builder(context)
+                .data(url)
+                .build()
+            val result = (loader.execute(request) as SuccessResult).drawable
+            (result as BitmapDrawable).bitmap
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 }
