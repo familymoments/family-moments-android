@@ -1,13 +1,11 @@
 package io.familymoments.app.feature.profile.viewmodel
 
-import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
 import io.familymoments.app.core.graph.Route
 import io.familymoments.app.core.network.repository.UserRepository
-import io.familymoments.app.core.util.convertBitmapToFile
 import io.familymoments.app.feature.profile.model.mapper.toRequest
 import io.familymoments.app.feature.profile.model.uistate.ProfileEditInfoUiState
 import io.familymoments.app.feature.profile.model.uistate.ProfileEditUiState
@@ -18,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,8 +62,7 @@ class ProfileEditViewModel @Inject constructor(
         )
     }
 
-    fun editUserProfile(context: Context) {
-        val imageFile = convertBitmapToFile((profileEditUiState.value.profileImage as ProfileImage.Bitmap).bitmap, context)
+    fun editUserProfile(imageFile: File) {
         val imageRequestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
         val profileImgPart = MultipartBody.Part.createFormData("profileImg", imageFile.name, imageRequestBody)
         async(

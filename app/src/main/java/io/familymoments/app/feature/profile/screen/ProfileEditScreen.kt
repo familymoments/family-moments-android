@@ -50,6 +50,7 @@ import io.familymoments.app.core.component.FMDropdownMenu
 import io.familymoments.app.core.component.FMTextField
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
+import io.familymoments.app.core.util.convertBitmapToFile
 import io.familymoments.app.core.util.convertUriToBitmap
 import io.familymoments.app.core.util.convertUrlToBitmap
 import io.familymoments.app.feature.profile.model.uistate.ProfileImage
@@ -140,7 +141,13 @@ fun ProfileEditScreen(
             Spacer(modifier = Modifier.width(34.dp))
             ProfileButton(
                 modifier = Modifier.weight(1f),
-                onClick = { viewModel.editUserProfile(context) },
+                onClick = {
+                    val imageFile = convertBitmapToFile(
+                        bitmap = (profileEditUiState.value.profileImage as ProfileImage.Bitmap).bitmap,
+                        context = context
+                    )
+                    viewModel.editUserProfile(imageFile)
+                },
                 colors = ButtonDefaults.buttonColors(AppColors.purple2, Color.White),
                 stringResId = R.string.profile_btn_done
             )
