@@ -51,7 +51,7 @@ fun ProfileViewScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -59,7 +59,7 @@ fun ProfileViewScreen(
             text = stringResource(id = R.string.profile_title),
             style = AppTypography.B1_16,
             color = AppColors.black1,
-            modifier = Modifier.padding(bottom = 18.dp)
+            modifier = Modifier.padding(vertical = 18.dp)
         )
         UserProfileInfo(
             userProfile = profileViewUiState.value.userProfile,
@@ -79,7 +79,7 @@ fun ProfileViewScreen(
             color = AppColors.grey3, thickness = 0.6.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 138.dp, bottom = 100.dp)
+                .padding(top = 138.dp)
         )
     }
 }
@@ -219,8 +219,38 @@ private object GradientColors {
 @Preview(showBackground = true)
 @Composable
 fun ProfileViewScreenPreview() {
-    ProfileViewScreen(
-        navigateToProfileEdit = { _ -> },
-        viewModel = hiltViewModel()
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(id = R.string.profile_title),
+            style = AppTypography.B1_16,
+            color = AppColors.black1,
+            modifier = Modifier.padding(vertical = 18.dp)
+        )
+        UserProfileInfo(
+            userProfile = UserProfile(profileImg = "", name = "홍길동", nickName = "아부지", email = "familyMoments@gmail.com"),
+            navigateToProfileEdit = { }
+        )
+        Divider(
+            color = AppColors.grey3, thickness = 0.6.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 29.dp, bottom = 13.dp)
+        )
+        InfoBoxes(
+            totalUpload = 8,
+            duration = 134
+        )
+        Divider(
+            color = AppColors.grey3, thickness = 0.6.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 138.dp)
+        )
+    }
 }
