@@ -51,7 +51,7 @@ import io.familymoments.app.core.component.FMTextField
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.util.convertUriToBitmap
-import io.familymoments.app.core.util.urlToBitmap
+import io.familymoments.app.core.util.convertUrlToBitmap
 import io.familymoments.app.feature.profile.model.uistate.ProfileImage
 import io.familymoments.app.feature.profile.viewmodel.ProfileEditViewModel
 
@@ -66,10 +66,16 @@ fun ProfileEditScreen(
     val context = LocalContext.current
     LaunchedEffect(profileEditUiState.value.profileImage) {
         if (profileEditUiState.value.profileImage is ProfileImage.Url) {
-            val bitmap = urlToBitmap((profileEditUiState.value.profileImage as ProfileImage.Url).imgUrl, context)
+            val bitmap = convertUrlToBitmap((profileEditUiState.value.profileImage as ProfileImage.Url).imgUrl, context)
             viewModel.imageChanged(bitmap)
         }
     }
+    LaunchedEffect(profileEditUiState.value.isSuccess) {
+        if (profileEditUiState.value.isSuccess) {
+            navigateBack()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -133,7 +139,7 @@ fun ProfileEditScreen(
             Spacer(modifier = Modifier.width(34.dp))
             ProfileButton(
                 modifier = Modifier.weight(1f),
-                onClick = { viewModel.requestEditProfile(context, navigateBack) },
+                onClick = { viewModel.editUserProfile(context) },
                 colors = ButtonDefaults.buttonColors(AppColors.purple2, Color.White),
                 stringResId = R.string.profile_btn_done
             )

@@ -2,14 +2,12 @@ package io.familymoments.app.feature.profile.viewmodel
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
 import io.familymoments.app.core.graph.Route
-import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
 import io.familymoments.app.core.network.repository.UserRepository
-import io.familymoments.app.core.util.bitmapToFile
+import io.familymoments.app.core.util.convertBitmapToFile
 import io.familymoments.app.feature.profile.model.mapper.toRequest
 import io.familymoments.app.feature.profile.model.uistate.ProfileEditInfoUiState
 import io.familymoments.app.feature.profile.model.uistate.ProfileEditUiState
@@ -65,20 +63,19 @@ class ProfileEditViewModel @Inject constructor(
         )
     }
 
-    fun requestEditProfile(context: Context, navigateBack: () -> Unit) {
-        val imageFile = bitmapToFile((profileEditUiState.value.profileImage as ProfileImage.Bitmap).bitmap, context)
+    fun editUserProfile(context: Context) {
+        val imageFile = convertBitmapToFile((profileEditUiState.value.profileImage as ProfileImage.Bitmap).bitmap, context)
         val imageRequestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
         val profileImgPart = MultipartBody.Part.createFormData("profileImg", imageFile.name, imageRequestBody)
         async(
             operation = {
-                userRepository.editProfile(
+                userRepository.editUserProfile(
                     profileEditRequest = _profileEditUiState.value.profileEditInfoUiState.toRequest(),
                     profileImg = profileImgPart
                 )
             },
             onSuccess = {
                 _profileEditUiState.value = _profileEditUiState.value.copy(isSuccess = true)
-                navigateBack()
             },
             onFailure = {
                 _profileEditUiState.value = _profileEditUiState.value.copy(

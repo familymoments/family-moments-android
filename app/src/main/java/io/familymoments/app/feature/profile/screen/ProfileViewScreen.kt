@@ -61,7 +61,7 @@ fun ProfileViewScreen(
             color = AppColors.black1,
             modifier = Modifier.padding(bottom = 18.dp)
         )
-        Profile(
+        UserProfileInfo(
             userProfile = profileViewUiState.value.userProfile,
             navigateToProfileEdit = navigateToProfileEdit
         )
@@ -85,7 +85,7 @@ fun ProfileViewScreen(
 }
 
 @Composable
-private fun Profile(
+private fun UserProfileInfo(
     userProfile: UserProfile,
     navigateToProfileEdit: (UserProfile) -> Unit
 ) {

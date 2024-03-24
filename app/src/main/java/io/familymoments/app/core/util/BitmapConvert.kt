@@ -29,7 +29,7 @@ fun convertUriToBitmap(uri:Uri?,context: Context): Bitmap? {
     return bitmap
 }
 
-suspend fun urlToBitmap(url: String, context: Context): Bitmap? {
+suspend fun convertUrlToBitmap(url: String, context: Context): Bitmap? {
     return withContext(Dispatchers.IO) {
         try {
             val loader = ImageLoader(context)

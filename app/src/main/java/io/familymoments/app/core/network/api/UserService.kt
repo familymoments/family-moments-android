@@ -26,7 +26,7 @@ interface UserService {
 
     @Multipart
     @POST("/users/edit")
-    suspend fun editProfile(
+    suspend fun editUserProfile(
         @Part("PatchProfileReqRes") profileEditRequest: ProfileEditRequest,
         @Part profileImg: MultipartBody.Part
     ): Response<ProfileEditResponse>

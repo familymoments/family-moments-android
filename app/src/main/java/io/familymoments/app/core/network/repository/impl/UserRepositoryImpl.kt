@@ -103,13 +103,13 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun editProfile(
+    override suspend fun editUserProfile(
         profileEditRequest: ProfileEditRequest,
         profileImg: MultipartBody.Part
     ): Flow<Resource<ProfileEditResponse>> {
         return flow {
             emit(Resource.Loading)
-            val response = userService.editProfile(profileEditRequest, profileImg)
+            val response = userService.editUserProfile(profileEditRequest, profileImg)
             val responseBody = response.body() ?: ProfileEditResponse()
             if (responseBody.isSuccess) {
                 userInfoPreferencesDataSource.updateUserProfile(responseBody.result)

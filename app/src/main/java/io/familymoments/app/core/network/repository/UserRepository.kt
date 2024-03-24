@@ -14,7 +14,7 @@ interface UserRepository {
     suspend fun reissueAccessToken(): Flow<Resource<Unit>>
     suspend fun loadUserProfile(familyId:Long?):Flow<Resource<UserProfileResponse>>
 
-    suspend fun editProfile(
+    suspend fun editUserProfile(
         profileEditRequest: ProfileEditRequest,
         profileImg: MultipartBody.Part
     ): Flow<Resource<ProfileEditResponse>>
