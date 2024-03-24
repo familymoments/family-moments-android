@@ -38,11 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import io.familymoments.app.R
@@ -79,7 +79,7 @@ fun ProfileEditScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -88,19 +88,20 @@ fun ProfileEditScreen(
             text = stringResource(id = R.string.edit_profile_title),
             style = AppTypography.B1_16,
             color = AppColors.black1,
-            modifier = Modifier.padding(bottom = 18.dp)
+            modifier = Modifier.padding(vertical = 18.dp)
         )
-        ProfileImageRenderer(profileImage = profileEditUiState.value.profileImage)
-        Spacer(modifier = Modifier.height(22.dp))
+        ProfileImageRenderer(
+            modifier = Modifier.padding(bottom = 22.dp),
+            profileImage = profileEditUiState.value.profileImage
+        )
         ProfileDropdown(
             defaultProfileImageBitmap = defaultProfileImageBitmap,
             onImageChanged = viewModel::imageChanged,
         )
-        Spacer(modifier = Modifier.height(34.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 31.dp),
+                .padding(top = 34.dp),
             horizontalAlignment = Alignment.Start
         ) {
             ProfileTextField(
@@ -149,10 +150,11 @@ fun ProfileEditScreen(
 
 @Composable
 fun ProfileImageRenderer(
+    modifier: Modifier = Modifier,
     profileImage: ProfileImage,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.Top
     ) {
@@ -189,10 +191,10 @@ fun ProfileImageRenderer(
 @Composable
 private fun ProfileTextField(
     modifier: Modifier = Modifier,
-    title: String,
-    value: String,
-    hint: String,
-    onValueChanged: (String) -> Unit
+    title: String = "",
+    value: String = "",
+    hint: String = "",
+    onValueChanged: (String) -> Unit = {}
 ) {
     var textFieldValue by remember { mutableStateOf(TextFieldValue(value)) }
     Text(
@@ -240,7 +242,7 @@ fun ProfileDropdown(
 @Composable
 fun ProfileButton(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onClick: () -> Unit = {},
     colors: ButtonColors,
     @StringRes stringResId: Int,
 ) {
@@ -262,8 +264,71 @@ fun ProfileButton(
 @Preview(showBackground = true)
 @Composable
 fun ProfileEditScreenPreview() {
-    ProfileEditScreen(
-        navigateBack = {},
-        hiltViewModel()
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(id = R.string.edit_profile_title),
+            style = AppTypography.B1_16,
+            color = AppColors.black1,
+            modifier = Modifier.padding(vertical = 18.dp)
+        )
+        Image(
+            painter = painterResource(id = R.drawable.default_profile),
+            contentDescription = "profile",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(80.dp)
+                .clip(CircleShape)
+        )
+        Spacer(modifier = Modifier.height(22.dp))
+        Text(
+            text = stringResource(id = R.string.profile_select_photo),
+            style = AppTypography.B1_16,
+            color = AppColors.purple2,
+            modifier = Modifier.padding(bottom = 34.dp)
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.Start
+        ) {
+            ProfileTextField(
+                modifier = Modifier.padding(bottom = 42.dp),
+                title = stringResource(id = R.string.profile_text_field_name),
+                value = "홍길동",
+            )
+            ProfileTextField(
+                modifier = Modifier.padding(bottom = 42.dp),
+                title = stringResource(id = R.string.profile_text_field_nickname),
+                value = "아부지"
+            )
+            ProfileTextField(
+                modifier = Modifier.padding(bottom = 31.dp),
+                title = stringResource(id = R.string.profile_text_field_birth_date),
+                value = "19990101"
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 11.dp),
+        ) {
+            ProfileButton(
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(AppColors.purple1, Color.White),
+                stringResId = R.string.profile_btn_cancel
+            )
+            Spacer(modifier = Modifier.width(34.dp))
+            ProfileButton(
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(AppColors.purple2, Color.White),
+                stringResId = R.string.profile_btn_done
+            )
+        }
+    }
 }
