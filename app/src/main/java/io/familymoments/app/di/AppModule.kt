@@ -5,7 +5,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.familymoments.app.BuildConfig
+import io.familymoments.app.core.network.AuthErrorManager
 import io.familymoments.app.core.network.AuthInterceptor
+import io.familymoments.app.core.network.api.CommentService
+import io.familymoments.app.core.network.api.FamilyService
 import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
 import io.familymoments.app.core.network.api.SignInService
 import io.familymoments.app.core.network.api.UserService
@@ -87,6 +90,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideAuthErrorManager(): AuthErrorManager {
+        return AuthErrorManager()
+    }
+
+    @Provides
+    @Singleton
     fun provideUserService(@AuthRetrofit retrofit: Retrofit): UserService {
         return retrofit.create(UserService::class.java)
     }
@@ -101,5 +110,17 @@ object AppModule {
     @Singleton
     fun providePostService(@AuthRetrofit retrofit: Retrofit): PostService {
         return retrofit.create(PostService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommentService(@AuthRetrofit retrofit: Retrofit):CommentService{
+        return retrofit.create(CommentService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFamilyService(@AuthRetrofit retrofit: Retrofit): FamilyService {
+        return retrofit.create(FamilyService::class.java)
     }
 }

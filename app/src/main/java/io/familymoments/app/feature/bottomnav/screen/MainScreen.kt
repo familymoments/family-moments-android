@@ -1,12 +1,16 @@
 package io.familymoments.app.feature.bottomnav.screen
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -15,6 +19,7 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -38,18 +44,43 @@ import androidx.navigation.compose.rememberNavController
 import io.familymoments.app.R
 import io.familymoments.app.core.component.AppBarScreen
 import io.familymoments.app.core.graph.getMainGraph
+import io.familymoments.app.core.network.AuthErrorManager
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.AppTypography.LB2_11
 import io.familymoments.app.core.util.LocalScaffoldState
+import io.familymoments.app.core.util.keyboardAsState
 import io.familymoments.app.feature.bottomnav.component.bottomNavShadow
 import io.familymoments.app.feature.bottomnav.model.BottomNavItem
+import io.familymoments.app.feature.bottomnav.viewmodel.MainViewModel
 import io.familymoments.app.feature.home.screen.HomeScreenPreview
+import io.familymoments.app.feature.login.activity.LoginActivity
 
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: MainViewModel, authErrorManager: AuthErrorManager) {
     val navController = rememberNavController()
     val scaffoldState = LocalScaffoldState.current
+    val isKeyboardOpen by keyboardAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(authErrorManager.needReissueToken) {
+        authErrorManager.needReissueToken.collect { event ->
+            event.getContentIfNotHandled()?.let {
+                viewModel.reissueAccessToken(it)
+            }
+        }
+    }
+
+    LaunchedEffect(authErrorManager.needNavigateToLogin) {
+        authErrorManager.needNavigateToLogin.collect { event ->
+            event.getContentIfNotHandled()?.let {
+                val intent = Intent(context, LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                context.startActivity(intent)
+            }
+        }
+    }
 
     val navigationIcon = @Composable {
         if (scaffoldState.hasBackButton) {
@@ -93,7 +124,7 @@ fun MainScreen() {
         title = { Text(text = "sweety home", style = AppTypography.SH3_16, color = AppColors.deepPurple1) },
         navigationIcon = navigationIcon,
         bottomBar = {
-            if (isBottomNavItem) {
+            if (isBottomNavItem && !isKeyboardOpen) {
                 BottomNavigationBar(
                     navController = navController,
                     bottomNavItems = bottomNavItems,
@@ -104,7 +135,10 @@ fun MainScreen() {
         hasShadow = scaffoldState.hasShadow
     ) {
         NavHost(
-            modifier = Modifier.padding(bottom = if (isBottomNavItem) 75.dp else 0.dp),
+            modifier = Modifier
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(bottom = if (isBottomNavItem && !isKeyboardOpen) 75.dp else 0.dp),
             navController = navController,
             startDestination = BottomNavItem.Home.route,
             builder = getMainGraph(navController = navController),
@@ -121,7 +155,8 @@ fun BottomNavigationBar(
     BottomNavigation(
         modifier = Modifier
             .bottomNavShadow()
-            .heightIn(min = 75.dp)
+            .navigationBarsPadding()
+            .height(75.dp)
             .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)),
         backgroundColor = Color.White
     ) {

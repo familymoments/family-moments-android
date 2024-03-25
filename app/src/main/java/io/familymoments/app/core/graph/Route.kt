@@ -37,4 +37,38 @@ sealed interface Route {
             return "$route/$name/$nickname/$birthdate/$encodedProfileImgUrl"
         }
     }
+
+    data object AddPost : Route {
+        override val route: String = "AddPost"
+        const val modeArg = "mode"
+        const val editPostIdArg = "editPostId"
+        const val editImagesArg = "editImages"
+        const val editContentArg = "editContent"
+        val routeWithArgs = "$route?$modeArg={$modeArg}&$editPostIdArg={$editPostIdArg}?$editImagesArg={$editImagesArg}$editContentArg={$editContentArg}"
+        val arguments = listOf(
+            navArgument(modeArg) {
+                nullable = true
+                type = NavType.IntType
+            },
+            navArgument(editPostIdArg) {
+                nullable = true
+                type = NavType.IntType
+            },
+            navArgument(editImagesArg) {
+                nullable = true
+                type = NavType.StringArrayType
+            },
+            navArgument(editContentArg) {
+                nullable = true
+                type = NavType.StringType
+            }
+        )
+
+        fun getRoute(mode: Int, editPostId: Long, editImages: Array<String>, editContent: String): String {
+            val endcodedImageUrls: Array<String> =
+                editImages.map { URLEncoder.encode(it, StandardCharsets.UTF_8.toString()) }.toTypedArray()
+
+            return "$route/$mode/$editPostId/$endcodedImageUrls/$editContent"
+        }
+    }
 }

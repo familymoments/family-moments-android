@@ -27,7 +27,8 @@
         <activity
             android:name="io.familymoments.app.feature.login.activity.LoginActivity"
             android:exported="true"
-            android:theme="@style/Theme.FamilyMoments" />
+            android:theme="@style/Theme.FamilyMoments"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="io.familymoments.app.feature.bottomnav.activity.MainActivity"
             android:exported="true"
@@ -37,7 +38,8 @@
             android:name=".feature.signup.activity.SignUpActivity"
             android:exported="true"
             android:label="@string/title_activity_join"
-            android:theme="@style/Theme.FamilyMoments" />
+            android:theme="@style/Theme.FamilyMoments"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="io.familymoments.app.feature.forgotpassword.activity.ForgotPasswordActivity"
             android:screenOrientation="portrait"

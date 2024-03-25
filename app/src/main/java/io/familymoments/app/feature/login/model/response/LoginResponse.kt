@@ -5,7 +5,7 @@ data class LoginResponse(
     val isSuccess: Boolean = false,
     val code: Int = 0,
     val message: String = "",
-    val loginResult: LoginResult = LoginResult(),
+    val result: LoginResult = LoginResult(),
 )
 
 data class LoginResult(val familyId: Long? = null)

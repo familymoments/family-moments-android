@@ -151,4 +151,33 @@
 
     <string name="calendar_title">캘린더</string>
     <string name="calendar_day_no_post">공유된 순간이 없는 날입니다 :-(\n다른 날짜를 선택해주세요</string>
+
+    <string name="add_post_title">새 글 업로드</string>
+    <string name="add_post_write_content">글 작성</string>
+    <string name="add_post_write_content_hint">| 사진과 어울리는 내용을 작성하세요.</string>
+    <string name="add_post_btn">순간을 가족에게 공유하기</string>
+
+    <string name="logout_content">로그아웃 하시겠습니까?</string>
+    <string name="logout_btn">로그아웃</string>
+    <string name="logout_cancel_btn">취소</string>
+    <string name="post_detail_screen_show_heart">하트 보기</string>
+    <string name="post_detail_screen_comment_text_field_hint">댓글 작성 (50자 이내)</string>
+    <string name="post_detail_screen_comment_post_button">작성</string>
+    <string name="post_detail_screen_drop_down_menu_modify">수정하기</string>
+    <string name="post_detail_screen_drop_down_menu_report">신고하기</string>
+    <string name="post_detail_screen_drop_down_menu_delete">삭제하기</string>
+    <string name="report_pop_up_btn_report">신고하기</string>
+    <string name="report_pop_up_label_reason_for_report">신고사유</string>
+    <string name="report_pop_up_label_warning">신고는 반대 의견을 표시하는 기능이 아닙니다</string>
+    <string name="post_delete_pop_up_content">게시글을\n삭제하시겠습니까?</string>
+    <string name="post_delete_pop_up_btn_delete">삭제</string>
+    <string name="post_delete_pop_up_btn_cancel">취소</string>
+    <string name="complete_pop_up_btn_ok">확인</string>
+    <string name="love_list_pop_up_label">하트를 누른 사람</string>
+    <string name="post_detail_pop_up_delete_comment_label">댓글을\n삭제하시겠습니까?</string>
+    <string name="post_detail_delete_complete_pop_label">삭제가 완료되었습니다.</string>
+    <string name="post_detail_delete_post_pop_up_label">게시글을\n삭제하시겠습니까?</string>
+    <string name="edit_post_title">글 수정하기</string>
+    <string name="edit_post_btn">수정완료</string>
+    <string name="copy_invitation_link_message">링크가 복사되었습니다.</string>
 </resources>

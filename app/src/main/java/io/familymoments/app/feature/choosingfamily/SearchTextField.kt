@@ -25,7 +25,11 @@ import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 
 @Composable
-fun SearchTextField(hint:String, onValueChange: (TextFieldValue) -> Unit) {
+fun SearchTextField(
+    hint: String,
+    singleLine:Boolean = false,
+    onValueChange: (TextFieldValue) -> Unit
+) {
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue())
     }
@@ -49,6 +53,7 @@ fun SearchTextField(hint:String, onValueChange: (TextFieldValue) -> Unit) {
                     onValueChange(textFieldValue)
                 },
                 value = textFieldValue,
+                textStyle = AppTypography.LB1_13.copy(color = AppColors.black1),
                 decorationBox = { innerTextField ->
                     if (textFieldValue.text.isEmpty()) {
                         Text(
@@ -56,11 +61,10 @@ fun SearchTextField(hint:String, onValueChange: (TextFieldValue) -> Unit) {
                             style = AppTypography.LB1_13,
                             color = AppColors.grey2
                         )
-                    } else {
-                        Text(text = textFieldValue.text, style = AppTypography.LB1_13)
                     }
                     innerTextField()
                 },
+                singleLine = singleLine
             )
         }
 
@@ -69,6 +73,6 @@ fun SearchTextField(hint:String, onValueChange: (TextFieldValue) -> Unit) {
 
 @Preview
 @Composable
-fun SearchTextFieldPreview(){
+fun SearchTextFieldPreview() {
     SearchTextField(hint = "", onValueChange = {})
 }

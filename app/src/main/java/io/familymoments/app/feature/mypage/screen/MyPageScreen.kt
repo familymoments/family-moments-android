@@ -18,16 +18,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import io.familymoments.app.R
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
+import io.familymoments.app.feature.mypage.component.LogoutPopup
 import io.familymoments.app.feature.mypage.model.MyPageItem
 
 @Composable
@@ -35,6 +38,7 @@ fun MyPageScreen(
     modifier: Modifier = Modifier,
     onItemClick: (clickedItem: MyPageItem) -> Unit
 ) {
+    val showLogoutPopup = remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
@@ -50,9 +54,16 @@ fun MyPageScreen(
         MyPageGroup(
             groupNameResId = R.string.my_page_more_group,
             myPageItems = MyPageGroups.moreGroup,
-            onItemClick = onItemClick
+            onItemClick = onItemClick,
+            onLogoutItemClick = {showLogoutPopup.value = true}
         )
         Spacer(modifier = Modifier.padding(bottom = 27.dp))
+    }
+    if (showLogoutPopup.value) {
+        LogoutPopup(
+            onDismissRequest = { showLogoutPopup.value = false },
+            viewModel = hiltViewModel()
+        )
     }
 }
 
@@ -77,12 +88,16 @@ fun MyPageTitle() {
 fun MyPageGroup(
     @StringRes groupNameResId: Int,
     myPageItems: List<MyPageItem>,
-    onItemClick: (clickedItem: MyPageItem) -> Unit
+    onItemClick: (clickedItem: MyPageItem) -> Unit,
+    onLogoutItemClick: (clickedItem: MyPageItem) -> Unit = {}
 ) {
     Column {
         MyPageGroupHeader(groupNameResId = groupNameResId)
         myPageItems.forEach { item ->
-            MyPageGroupItem(item = item, onItemClick = onItemClick)
+            when (item.route) {
+                MyPageItem.Logout.route -> MyPageGroupItem(item = item, onItemClick = onLogoutItemClick)
+                else -> MyPageGroupItem(item = item, onItemClick = onItemClick)
+            }
         }
     }
 }

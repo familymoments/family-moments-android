@@ -161,6 +161,6 @@ fun ShowWarningText(
 
 @Preview(showBackground = true)
 @Composable
-private fun JoinTextFieldPreview() {
+private fun SignUpTextFieldPreview() {
     SignUpTextFieldArea(title = "", hint = "", isFocused = false, onValueChange = {})
 }

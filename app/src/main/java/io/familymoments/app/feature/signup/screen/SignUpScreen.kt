@@ -11,7 +11,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,7 +21,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
@@ -31,6 +31,7 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -61,21 +62,47 @@ import io.familymoments.app.core.network.repository.impl.SignInRepositoryImpl
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
-import io.familymoments.app.core.util.convertUriToBitmap
-import io.familymoments.app.feature.signup.model.SignUpInfoUiModel
-import io.familymoments.app.feature.signup.model.SignUpTermUiModel
+import io.familymoments.app.core.util.FileUtil.convertUriToBitmap
 import io.familymoments.app.feature.signup.model.request.CheckEmailRequest
 import io.familymoments.app.feature.signup.model.request.CheckIdRequest
 import io.familymoments.app.feature.signup.model.request.SignUpRequest
 import io.familymoments.app.feature.signup.model.response.CheckEmailResponse
 import io.familymoments.app.feature.signup.model.response.CheckIdResponse
 import io.familymoments.app.feature.signup.model.response.SignUpResponse
+import io.familymoments.app.feature.signup.model.uistate.SignUpInfoUiState
+import io.familymoments.app.feature.signup.model.uistate.SignUpTermUiState
 import io.familymoments.app.feature.signup.viewmodel.SignUpViewModel
 import okhttp3.MultipartBody
 
 @Composable
 fun SignUpScreen(viewModel: SignUpViewModel) {
     val context = LocalContext.current
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val userIdDuplicated = uiState.value.signUpValidatedUiState.userIdDuplicated
+    val emailDuplicated = uiState.value.signUpValidatedUiState.emailDuplicated
+    val defaultProfileImageBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.default_profile)
+
+    var password: String by remember { mutableStateOf("") }
+    var allEssentialTermsAgree by remember {
+        mutableStateOf(false)
+    }
+
+    var passwordSameCheck by remember {
+        mutableStateOf(false)
+    }
+    var signUpInfoUiState: SignUpInfoUiState by remember {
+        mutableStateOf(
+            SignUpInfoUiState(bitmap = defaultProfileImageBitmap)
+        )
+    }
+
+    LaunchedEffect(userIdDuplicated) {
+        showUserIdDuplicationCheckResult(userIdDuplicated, context)
+    }
+    LaunchedEffect(emailDuplicated) {
+        showEmailDuplicationCheckResult(emailDuplicated, context)
+    }
+
     AppBarScreen(
         title = {
             Text(
@@ -93,121 +120,82 @@ fun SignUpScreen(viewModel: SignUpViewModel) {
                 contentDescription = null,
                 tint = Color.Unspecified
             )
-        }) {
-        LazyColumn(
+        }
+    ) {
+        Column(
             modifier = Modifier
-                .background(color = Color.White)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
         ) {
-            item {
-                SignUpContentScreen(
-                    viewModel,
-                    context
-                )
+            Spacer(modifier = Modifier.height(43.dp))
+            IdField(
+                userIdFormatValidated = uiState.value.signUpValidatedUiState.userIdValidated,
+                checkIdFormat = viewModel::checkIdFormat,
+                checkIdDuplication = viewModel::checkIdDuplication
+            ) {
+                signUpInfoUiState = signUpInfoUiState.copy(id = it)
             }
+            FirstPasswordField(
+                passwordFormatValidated = uiState.value.signUpValidatedUiState.passwordValidated,
+                checkPasswordFormat = viewModel::checkPasswordFormat
+            ) {
+                password = it
+                signUpInfoUiState = signUpInfoUiState.copy(password = it)
+            }
+            SecondPasswordField(
+                firstPassword = signUpInfoUiState.password,
+                checkPasswordIsSame = { passwordSameCheck = it },
+            )
+            NameField { signUpInfoUiState = signUpInfoUiState.copy(name = it) }
+            EmailField(
+                checkEmailFormat = viewModel::checkEmailFormat,
+                checkEmailDuplication = viewModel::checkEmailDuplication,
+                emailFormatValidated = uiState.value.signUpValidatedUiState.emailValidated,
+            ) { signUpInfoUiState = signUpInfoUiState.copy(email = it) }
+            BirthDayField { signUpInfoUiState = signUpInfoUiState.copy(birthDay = it) }
+            NicknameField(
+                nicknameFormatValidated = uiState.value.signUpValidatedUiState.nicknameValidated,
+                checkNicknameFormat = viewModel::checkNicknameFormat,
+            ) { signUpInfoUiState = signUpInfoUiState.copy(nickname = it) }
+            ProfileImageField(defaultProfileImageBitmap) {
+                signUpInfoUiState = signUpInfoUiState.copy(bitmap = it)
+            }
+            Spacer(modifier = Modifier.height(53.dp))
+            TermsField { allEssentialTermsAgree = it }
+            StartButtonField(
+                viewModel::executeSignUp,
+                signUpInfoUiState,
+                userIdDuplicated ?: false,
+                passwordSameCheck,
+                emailDuplicated ?: false,
+                allEssentialTermsAgree
+            )
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
 
-
-@Composable
-fun SignUpContentScreen(
-    viewModel: SignUpViewModel,
-    context: Context
-) {
-    val signUpFormatValidatedUiState = viewModel.signUpFormatValidatedUiState.collectAsStateWithLifecycle()
-    val userIdDuplicationCheck = viewModel.userIdDuplicationCheck.collectAsStateWithLifecycle()
-    val emailDuplicationCheck = viewModel.emailDuplicationCheck.collectAsStateWithLifecycle()
-
-    val defaultProfileImageBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.default_profile)
-    showUserIdDuplicationCheckResult(userIdDuplicationCheck.value, context)
-    showEmailDuplicationCheckResult(emailDuplicationCheck.value, context)
-
-    var password: String by remember { mutableStateOf("") }
-    val bitmap: Bitmap = defaultProfileImageBitmap
-    var allEssentialTermsAgree by remember {
-        mutableStateOf(false)
-    }
-
-    var passwordSameCheck by remember {
-        mutableStateOf(false)
-    }
-    var signUpInfoUiModel: SignUpInfoUiModel by remember {
-        mutableStateOf(
-            SignUpInfoUiModel(bitmap = bitmap)
-        )
-    }
-
-    Column {
-        Spacer(modifier = Modifier.height(40.dp))
-        IdField(
-            userIdFormatValidated = signUpFormatValidatedUiState.value.userIdFormatValidated,
-            checkIdFormat = viewModel::checkIdFormat,
-            checkIdDuplication = viewModel::checkIdDuplication
-        ) { signUpInfoUiModel = signUpInfoUiModel.copy(id = it) }
-        FirstPasswordField(
-            passwordFormatValidated = signUpFormatValidatedUiState.value.passwordFormatValidated,
-            checkPasswordFormat = viewModel::checkPasswordFormat
-        ) {
-            password = it
-            signUpInfoUiModel = signUpInfoUiModel.copy(password = it)
-        }
-        SecondPasswordField(
-            firstPassword = signUpInfoUiModel.password,
-            checkPasswordIsSame = { passwordSameCheck = it },
-        )
-        NameField { signUpInfoUiModel = signUpInfoUiModel.copy(name = it) }
-        EmailField(
-            checkEmailFormat = viewModel::checkEmailFormat,
-            checkEmailDuplication = viewModel::checkEmailDuplication,
-            emailFormatValidated = signUpFormatValidatedUiState.value.emailFormatValidated,
-        ) { signUpInfoUiModel = signUpInfoUiModel.copy(email = it) }
-        BirthDayField { signUpInfoUiModel = signUpInfoUiModel.copy(birthDay = it) }
-        NicknameField(
-            nicknameFormatValidated = signUpFormatValidatedUiState.value.nicknameFormatValidated,
-            checkNicknameFormat = viewModel::checkNicknameFormat,
-        ) { signUpInfoUiModel = signUpInfoUiModel.copy(nickname = it) }
-        ProfileImageField(defaultProfileImageBitmap) {
-            signUpInfoUiModel = signUpInfoUiModel.copy(bitmap = it)
-        }
-        Spacer(modifier = Modifier.height(53.dp))
-        TermsField { allEssentialTermsAgree = it }
-        StartButtonField(
-            viewModel::executeSignUp,
-            signUpInfoUiModel,
-            viewModel.userIdDuplicationCheck.value ?: false,
-            passwordSameCheck,
-            viewModel.emailDuplicationCheck.value ?: false,
-            allEssentialTermsAgree
-        )
-        Spacer(modifier = Modifier.height(40.dp))
-    }
-}
-
-private fun showUserIdDuplicationCheckResult(userIdDuplicationCheck: Boolean?, context: Context) {
-    if (userIdDuplicationCheck == true) {
+private fun showUserIdDuplicationCheckResult(userIdDuplicated: Boolean?, context: Context) {
+    if (userIdDuplicated == true) {
         Toast.makeText(
             context,
             context.getString(R.string.sign_up_check_user_id_duplication_success),
             Toast.LENGTH_SHORT
         ).show()
-    }
-    if (userIdDuplicationCheck == false) {
+    } else if (userIdDuplicated == false) {
         Toast.makeText(context, context.getString(R.string.sign_up_check_user_id_duplication_fail), Toast.LENGTH_SHORT)
             .show()
     }
 }
 
-private fun showEmailDuplicationCheckResult(emailDuplicationCheck: Boolean?, context: Context) {
-
-    if (emailDuplicationCheck == true) {
+private fun showEmailDuplicationCheckResult(emailDuplicated: Boolean?, context: Context) {
+    if (emailDuplicated == true) {
         Toast.makeText(
             context,
             context.getString(R.string.sign_up_check_email_duplication_success),
             Toast.LENGTH_SHORT
         ).show()
-    }
-    if (emailDuplicationCheck == false) {
+    } else if (emailDuplicated == false) {
         Toast.makeText(context, context.getString(R.string.sign_up_check_email_duplication_fail), Toast.LENGTH_SHORT)
             .show()
     }
@@ -245,7 +233,7 @@ fun IdField(
             isFocused = isFocused
         )
     }
-    SignUpTextFieldVerticalSpacer()
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
@@ -274,7 +262,6 @@ fun FirstPasswordField(
         isFocused = isFocused
     )
     Spacer(modifier = Modifier.height(20.dp))
-    SignUpTextFieldVerticalSpacer()
 }
 
 @Composable
@@ -306,7 +293,7 @@ fun SecondPasswordField(
             isFocused = isFocused
         )
     }
-    SignUpTextFieldVerticalSpacer()
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
@@ -324,7 +311,7 @@ fun NameField(onValueChange: (String) -> Unit) {
         isFocused = isFocused
     )
 
-    SignUpTextFieldVerticalSpacer()
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
@@ -359,7 +346,7 @@ fun EmailField(
             validated = emailFormatValidated
         )
     }
-    SignUpTextFieldVerticalSpacer()
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
@@ -377,7 +364,7 @@ fun BirthDayField(onTextFieldChange: (String) -> Unit) {
         isFocused = isFocused
     )
 
-    SignUpTextFieldVerticalSpacer()
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
@@ -410,7 +397,7 @@ fun NicknameField(
             validated = nicknameFormatValidated
         )
     }
-    SignUpTextFieldVerticalSpacer()
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
@@ -522,13 +509,13 @@ fun ProfileImageField(defaultProfileImageBitmap: Bitmap, onBitmapChange: (Bitmap
                 Alignment.Center,
             ),
     )
-    SignUpTextFieldVerticalSpacer()
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
 fun StartButtonField(
-    onClick: (SignUpInfoUiModel) -> Unit,
-    signUpInfoUiModel: SignUpInfoUiModel,
+    onClick: (SignUpInfoUiState) -> Unit,
+    signUpInfoUiState: SignUpInfoUiState,
     idDuplicationCheck: Boolean,
     passwordSameCheck: Boolean,
     emailDuplicationCheck: Boolean,
@@ -540,7 +527,7 @@ fun StartButtonField(
     signUpEnable = idDuplicationCheck && passwordSameCheck && emailDuplicationCheck && allEssentialTermsAgree
     FMButton(
         modifier = Modifier.fillMaxWidth(),
-        onClick = { onClick(signUpInfoUiModel) },
+        onClick = { onClick(signUpInfoUiState) },
         enabled = signUpEnable,
         text = stringResource(R.string.sign_up_btn)
     )
@@ -570,7 +557,7 @@ fun TermItem(
 
 @Composable
 fun TermsList(
-    list: List<SignUpTermUiModel>,
+    list: List<SignUpTermUiState>,
     onTermCheckedChange: (Int, CheckedStatus) -> Unit,
     onTermsCheckedChange: (Boolean) -> Unit
 ) {
@@ -590,9 +577,9 @@ fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit) {
 
     val terms = remember {
         mutableStateListOf(
-            SignUpTermUiModel(true, R.string.sign_up_service_term_agree, CheckedStatus.UNCHECKED),
-            SignUpTermUiModel(true, R.string.sign_up_identification_term_agree, CheckedStatus.UNCHECKED),
-            SignUpTermUiModel(false, R.string.sign_up_marketing_alarm_term_agree, CheckedStatus.UNCHECKED)
+            SignUpTermUiState(true, R.string.sign_up_service_term_agree, CheckedStatus.UNCHECKED),
+            SignUpTermUiState(true, R.string.sign_up_identification_term_agree, CheckedStatus.UNCHECKED),
+            SignUpTermUiState(false, R.string.sign_up_marketing_alarm_term_agree, CheckedStatus.UNCHECKED)
         )
     }
 
@@ -612,12 +599,6 @@ fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit) {
             terms[index] = terms[index].copy(checkedStatus = checkedStatus)
         }) { onAllEssentialTermsAgree(it) }
     }
-    SignUpTextFieldVerticalSpacer()
-}
-
-
-@Composable
-fun SignUpTextFieldVerticalSpacer() {
     Spacer(modifier = Modifier.height(20.dp))
 }
 

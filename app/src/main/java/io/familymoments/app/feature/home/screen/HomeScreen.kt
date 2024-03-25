@@ -45,7 +45,7 @@ import io.familymoments.app.feature.home.viewmodel.HomeViewModel
 fun HomeScreen(
     modifier: Modifier,
     viewModel: HomeViewModel,
-    navigateToPostDetail: () -> Unit
+    navigateToPostDetail: (Int) -> Unit
 ) {
     val homeUiState = viewModel.homeUiState.collectAsStateWithLifecycle()
     val posts = homeUiState.value.posts

@@ -23,7 +23,7 @@ class LoginViewModel @Inject constructor(
                     _loginUiState.value = _loginUiState.value.copy(
                             isSuccess = true,
                             isLoading = isLoading.value,
-                            loginResult = it.loginResult
+                            loginResult = it.result
                     )
                 },
                 onFailure = {

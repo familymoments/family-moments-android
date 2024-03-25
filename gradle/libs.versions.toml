@@ -4,6 +4,7 @@ coil-compose = "2.5.0"
 core-splashscreen = "1.1.0-alpha02"
 hilt-navigation-compose = "1.2.0"
 lifecycle-runtime-compose = "2.8.0-alpha01"
+lottie-compose = "6.4.0"
 okhttp-urlconnection = "4.9.1"
 appcompat = "1.6.1"
 constraintlayout-compose = "1.0.1"
@@ -35,6 +36,7 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayout-compose" }
 appcompat = {group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat"}
 constraintlayout = {group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout"}
+lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie-compose" }
 material = {module = "com.google.android.material:material", version.ref = "material"}
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

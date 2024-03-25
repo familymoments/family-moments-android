@@ -1,6 +1,5 @@
 package io.familymoments.app.feature.joiningfamily.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,24 +20,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import io.familymoments.app.R
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.feature.choosingfamily.ChoosingFamilyHeaderButtonLayout
 import io.familymoments.app.feature.choosingfamily.MemberCheckBox
 import io.familymoments.app.feature.choosingfamily.SearchTextField
+import io.familymoments.app.feature.joiningfamily.model.SearchFamilyByInviteLinkResult
+import io.familymoments.app.feature.joiningfamily.viewmodel.JoinFamilyViewModel
 
 
 @Composable
-fun JoinScreen(navigate: () -> Unit = {}) {
-    var idTextFieldValue by remember {
+fun JoinFamilyScreen(
+    viewModel: JoinFamilyViewModel,
+    navigate: () -> Unit = {}
+) {
+    var inviteLinkTextFieldValue by remember {
         mutableStateOf(TextFieldValue())
     }
+    viewModel.searchFamilyByInviteLink(inviteLinkTextFieldValue.text)
+    val searchFamilyByInviteLinkUiState = viewModel.searchFamilyByInviteLinkUiState.collectAsStateWithLifecycle().value
     ChoosingFamilyHeaderButtonLayout(
         headerBottomPadding = 18.dp,
         header = stringResource(R.string.header_join_family),
@@ -47,42 +55,49 @@ fun JoinScreen(navigate: () -> Unit = {}) {
     ) {
         Column {
             SearchTextField(
+                singleLine = true,
                 hint = stringResource(R.string.family_invitation_link_text_field_hint)
-            ) { idTextFieldValue = it }
+            ) { inviteLinkTextFieldValue = it }
             Spacer(modifier = Modifier.height(36.dp))
-            Box(modifier = Modifier.background(color = AppColors.grey6)) {
-                FamilyProfile(resourceId = R.drawable.sample_member_image, name = "가족 이름")
+            if (searchFamilyByInviteLinkUiState.isSuccess == true) {
+                if (searchFamilyByInviteLinkUiState.result != null)
+                    Box(modifier = Modifier.background(color = AppColors.grey6)) {
+                        FamilyProfile(searchFamilyByInviteLinkUiState.result)
+                    }
             }
+
         }
 
     }
 }
 
 @Composable
-private fun FamilyProfile(resourceId: Int, name: String) {
+private fun FamilyProfile(searchFamilyByInviteLinkResult: SearchFamilyByInviteLinkResult) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 15.dp, vertical = 8.dp)
     ) {
-        Image(
+        AsyncImage(
+            model = searchFamilyByInviteLinkResult.representImg,
+            contentDescription = null,
             modifier = Modifier
                 .padding(end = 15.dp)
                 .clip(CircleShape)
-                .size(48.dp),
-            painter = painterResource(id = resourceId),
-            contentDescription = null
+                .size(48.dp)
         )
-        Text(text = name, style = AppTypography.B2_14, color = Color(0xFF1B1A57))
-        MemberCheckBox(modifier = Modifier
-            .weight(1f)
-            .size(28.dp))
+        Text(text = searchFamilyByInviteLinkResult.familyName, style = AppTypography.B2_14, color = Color(0xFF1B1A57))
+        MemberCheckBox(
+            modifier = Modifier
+                .weight(1f)
+                .size(28.dp)
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewJoinScreen() {
-    JoinScreen()
+    JoinFamilyScreen(hiltViewModel())
 }

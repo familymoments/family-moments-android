@@ -42,7 +42,7 @@ import io.familymoments.app.feature.calendar.viewmodel.CalendarDayViewModel
 fun CalendarDayScreen(
     modifier: Modifier,
     viewModel: CalendarDayViewModel,
-    navigateToPostDetail: () -> Unit
+    navigateToPostDetail: (Int) -> Unit
 ) {
     val calendarDayUiState = viewModel.calendarDayUiState.collectAsStateWithLifecycle()
     val initialDate = calendarDayUiState.value.selectedDate

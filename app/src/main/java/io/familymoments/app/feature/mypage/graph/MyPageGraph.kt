@@ -4,7 +4,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.feature.modifypassword.screen.ModifyPasswordScreen
 import io.familymoments.app.feature.profile.graph.profileGraph
 
@@ -26,9 +25,6 @@ fun NavGraphBuilder.myPageGraph(navController: NavController){
     }
     composable(route = MyPageRoute.FamilySettings.name) {
         // FamilySettings Screen
-    }
-    composable(route = MyPageRoute.Logout.name) {
-        // Logout Screen
     }
     composable(route = MyPageRoute.AccountDeletion.name) {
         // AccountDeletion Screen

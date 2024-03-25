@@ -3,13 +3,22 @@ package io.familymoments.app.core.network.repository.impl
 import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.api.PostService
 import io.familymoments.app.core.network.repository.PostRepository
+import io.familymoments.app.core.network.util.createPostInfoRequestBody
+import io.familymoments.app.feature.addpost.model.AddPostResponse
 import io.familymoments.app.feature.album.model.GetAlbumDetailResponse
 import io.familymoments.app.feature.album.model.GetAlbumResponse
 import io.familymoments.app.feature.calendar.model.GetPostsByMonthResponse
 import io.familymoments.app.feature.home.model.GetPostsResponse
+import io.familymoments.app.feature.postdetail.model.request.PostLovesRequest
+import io.familymoments.app.feature.postdetail.model.response.DeletePostLovesResponse
+import io.familymoments.app.feature.postdetail.model.response.DeletePostResponse
+import io.familymoments.app.feature.postdetail.model.response.GetPostDetailResponse
+import io.familymoments.app.feature.postdetail.model.response.GetPostLovesResponse
+import io.familymoments.app.feature.postdetail.model.response.PostPostLovesResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import okhttp3.MultipartBody
 
 class PostRepositoryImpl(
     private val postService: PostService
@@ -163,6 +172,108 @@ class PostRepositoryImpl(
                 if (responseBody.code != 404) {
                     emit(Resource.Fail(Throwable(responseBody.message)))
                 }
+            }
+        }.catch { e ->
+            emit(Resource.Fail(e))
+        }
+    }
+
+    override suspend fun addPost(
+        familyId: Long,
+        content: String,
+        imageFiles: List<MultipartBody.Part>?
+    ): Flow<Resource<AddPostResponse>> {
+        return flow {
+            emit(Resource.Loading)
+            val postInfo = createPostInfoRequestBody(content)
+
+            val response = postService.addPost(familyId, postInfo, imageFiles)
+            val responseBody = response.body() ?: AddPostResponse()
+
+            if (responseBody.isSuccess) {
+                emit(Resource.Success(responseBody))
+            } else {
+                emit(Resource.Fail(Throwable(responseBody.message)))
+            }
+        }.catch { e ->
+            emit(Resource.Fail(e))
+        }
+    }
+
+    override suspend fun getPostDetail(index: Long): Flow<Resource<GetPostDetailResponse>> {
+        return flow {
+            emit(Resource.Loading)
+            val response = postService.getPostDetail(index)
+            val responseBody = response.body() ?: GetPostDetailResponse()
+
+            if (responseBody.isSuccess) {
+                emit(Resource.Success(responseBody))
+            } else {
+                emit(Resource.Fail(Throwable(responseBody.message)))
+            }
+        }.catch { e ->
+            emit(Resource.Fail(e))
+        }
+    }
+
+    override suspend fun getPostLoves(index: Long): Flow<Resource<GetPostLovesResponse>> {
+        return flow {
+            emit(Resource.Loading)
+            val response = postService.getPostLoves(index)
+            val responseBody = response.body() ?: GetPostLovesResponse()
+
+            if (responseBody.isSuccess) {
+                emit(Resource.Success(responseBody))
+            } else {
+                emit(Resource.Fail(Throwable(responseBody.message)))
+            }
+        }.catch { e ->
+            emit(Resource.Fail(e))
+        }
+    }
+
+    override suspend fun postPostLoves(postId: Long): Flow<Resource<PostPostLovesResponse>> {
+        return flow {
+            emit(Resource.Loading)
+            val response = postService.postPostloves(PostLovesRequest(postId))
+            val responseBody = response.body() ?: PostPostLovesResponse()
+
+            if (responseBody.isSuccess) {
+                emit(Resource.Success(responseBody))
+            } else {
+                emit(Resource.Fail(Throwable(responseBody.message)))
+            }
+        }.catch { e ->
+            emit(Resource.Fail(e))
+        }
+    }
+
+    override suspend fun deletePostLoves(postId: Long): Flow<Resource<DeletePostLovesResponse>> {
+        return flow {
+            emit(Resource.Loading)
+            val response = postService.deletePostloves(PostLovesRequest(postId))
+            val responseBody = response.body() ?: DeletePostLovesResponse()
+
+            if (responseBody.isSuccess) {
+                emit(Resource.Success(responseBody))
+            } else {
+                emit(Resource.Fail(Throwable(responseBody.message)))
+            }
+        }.catch { e ->
+            emit(Resource.Fail(e))
+        }
+    }
+
+    override suspend fun deletePost(index: Long): Flow<Resource<DeletePostResponse>> {
+        return flow {
+            emit(Resource.Loading)
+            val response = postService.deletePost(index)
+            val responseBody = response.body() ?: DeletePostResponse()
+
+            if (responseBody.isSuccess) {
+                emit(Resource.Success(responseBody))
+            } else {
+                emit(Resource.Fail(Throwable(responseBody.message)))
             }
         }.catch { e ->
             emit(Resource.Fail(e))

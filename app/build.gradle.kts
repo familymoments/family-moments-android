@@ -116,6 +116,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.coil.compose)
     implementation(libs.timber)
+    implementation(libs.lottie.compose)
 
     testImplementation(libs.mockk)
     testImplementation(libs.junit)

@@ -2,14 +2,23 @@ package io.familymoments.app.core.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import io.familymoments.app.core.network.AuthErrorManager
+import io.familymoments.app.core.network.HttpResponseMessage
 import io.familymoments.app.core.network.Resource
+import io.familymoments.app.core.network.model.AuthErrorResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-abstract  class BaseViewModel : ViewModel() {
+@HiltViewModel
+open class BaseViewModel @Inject constructor() : ViewModel() {
+
+    @Inject
+    lateinit var authErrorManager: AuthErrorManager
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -27,14 +36,23 @@ abstract  class BaseViewModel : ViewModel() {
                         _isLoading.value = false
                         onSuccess(result.data)
                     }
+
                     is Resource.Fail -> {
                         _isLoading.value = false
                         onFailure(result.exception)
+
+                        val message = result.exception.message
+
+                        if (message == HttpResponseMessage.ACCESS_DENIED_403
+                            || result.exception == AuthErrorResponse.RefreshTokenExpiration
+                        ) {
+                            authErrorManager.emitNeedNavigateToLogin()
+                        } else if (message == HttpResponseMessage.ACCESS_TOKEN_EXPIRED_461) {
+                            authErrorManager.emitNeedReissueToken(operation)
+                        }
                     }
                 }
             }
         }
     }
-
-
 }

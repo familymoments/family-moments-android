@@ -1,5 +1,8 @@
 package io.familymoments.app.feature.creatingfamily.screen
 
+import android.content.ClipData
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -14,6 +17,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,7 +27,12 @@ import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.feature.choosingfamily.ChoosingFamilyHeaderButtonLayout
 
 @Composable
-fun CopyInvitationLinkScreen(navigate: () -> Unit = {}) {
+fun CopyInvitationLinkScreen(inviteLink: String, navigate: () -> Unit = {}) {
+
+    val context = LocalContext.current
+    val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+    val clip = ClipData.newPlainText("inviteLink", inviteLink)
+
     ChoosingFamilyHeaderButtonLayout(
         headerBottomPadding = 16.dp,
         header = stringResource(R.string.family_invitation_link_header),
@@ -31,12 +40,19 @@ fun CopyInvitationLinkScreen(navigate: () -> Unit = {}) {
         onClick = navigate
     ) {
         Column {
-            LinkTextField()
+            LinkTextField(inviteLink)
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 56.dp),
-                onClick = { },
+                onClick = {
+                    clipboardManager.setPrimaryClip(clip)
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.copy_invitation_link_message),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
                 shape = RoundedCornerShape(60.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AppColors.purple2),
                 contentPadding = PaddingValues(vertical = 8.8.dp)
@@ -50,7 +66,7 @@ fun CopyInvitationLinkScreen(navigate: () -> Unit = {}) {
 }
 
 @Composable
-private fun LinkTextField() {
+private fun LinkTextField(inviteLink: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -59,11 +75,12 @@ private fun LinkTextField() {
             .padding(vertical = 12.dp, horizontal = 11.dp),
     ) {
         BasicTextField(
-            value = "",
+            value = inviteLink,
             onValueChange = { },
-            readOnly = true
+            readOnly = true,
+            textStyle = AppTypography.SH2_18.copy(AppColors.grey2),
+            singleLine = true
         ) { innerTextField ->
-            Text(text = "", style = AppTypography.SH2_18, color = AppColors.grey2)
             innerTextField()
         }
     }
@@ -72,5 +89,5 @@ private fun LinkTextField() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewCopyInvitationLinkScreen() {
-    CopyInvitationLinkScreen()
+    CopyInvitationLinkScreen("")
 }

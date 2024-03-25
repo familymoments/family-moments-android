@@ -16,9 +16,13 @@ import androidx.compose.ui.res.painterResource
 import io.familymoments.app.R
 
 @Composable
-fun MemberCheckBox(modifier: Modifier) {
-    var checked by remember {
-        mutableStateOf(true)
+fun MemberCheckBox(
+    modifier: Modifier,
+    initChecked: Boolean = false,
+    onCheckChanged: (Boolean) -> Unit = {},
+) {
+    var checked by remember(key1 = initChecked) {
+        mutableStateOf(initChecked)
     }
     val interactionSource = remember { MutableInteractionSource() }
     Box(
@@ -27,6 +31,7 @@ fun MemberCheckBox(modifier: Modifier) {
         Icon(
             modifier = Modifier.clickable(indication = null, interactionSource = interactionSource) {
                 checked = !checked
+                onCheckChanged(checked)
             },
             painter = painterResource(id = if (checked) R.drawable.ic_round_checked else R.drawable.ic_round_unchecked),
             contentDescription = null,

@@ -43,7 +43,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun PostItem(post: Post, navigateToPostDetail: () -> Unit) {
+fun PostItem(post: Post, navigateToPostDetail: (Int) -> Unit) {
     Column {
         Spacer(modifier = Modifier.height(10.dp))
         PostItemHeader(post = post)
@@ -87,7 +87,7 @@ private fun PostItemHeader(post: Post) {
 @Composable
 private fun PostItemContent(
     post: Post,
-    navigateToPostDetail: () -> Unit
+    navigateToPostDetail: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -95,7 +95,9 @@ private fun PostItemContent(
             .heightIn(min = 282.dp)
             .clip(shape = RoundedCornerShape(10.dp))
             .background(AppColors.grey6)
-            .clickable { navigateToPostDetail() }
+            .clickable {
+                navigateToPostDetail(post.postId.toInt())
+            }
     ) {
         Box(
             modifier = Modifier
