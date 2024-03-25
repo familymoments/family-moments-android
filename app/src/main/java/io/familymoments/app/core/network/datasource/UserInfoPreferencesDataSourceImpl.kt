@@ -83,10 +83,6 @@ class UserInfoPreferencesDataSourceImpl @Inject constructor(
         )
     }
 
-    override suspend fun resetPreferencesData() {
-        sharedPreferences.edit().clear().commit()
-    }
-
     override suspend fun updateUserProfile(profileEditResult: ProfileEditResult) {
         with(sharedPreferences.edit()) {
             putString(USER_NAME_KEY, profileEditResult.name)
