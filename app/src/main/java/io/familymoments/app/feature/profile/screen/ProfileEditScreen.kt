@@ -2,6 +2,7 @@ package io.familymoments.app.feature.profile.screen
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -72,8 +73,12 @@ fun ProfileEditScreen(
         }
     }
     LaunchedEffect(profileEditUiState.value.isSuccess) {
-        if (profileEditUiState.value.isSuccess) {
+        if (profileEditUiState.value.isSuccess == null) return@LaunchedEffect
+        if (profileEditUiState.value.isSuccess == true) {
             navigateBack()
+        } else {
+            Toast.makeText(context, profileEditUiState.value.errorMessage, Toast.LENGTH_SHORT).show()
+            viewModel.resetProfileEditIsSuccess()
         }
     }
 

@@ -1,7 +1,7 @@
 package io.familymoments.app.feature.profile.model.uistate
 
 data class ProfileEditUiState(
-    val isSuccess: Boolean = false,
+    val isSuccess: Boolean? = null,
     val errorMessage: String? = null,
     val profileEditInfoUiState: ProfileEditInfoUiState = ProfileEditInfoUiState(),
     val profileImage: ProfileImage

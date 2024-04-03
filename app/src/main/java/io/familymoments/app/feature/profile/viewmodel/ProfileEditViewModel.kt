@@ -62,6 +62,10 @@ class ProfileEditViewModel @Inject constructor(
         )
     }
 
+    fun resetProfileEditIsSuccess() {
+        _profileEditUiState.value = _profileEditUiState.value.copy(isSuccess = null)
+    }
+
     fun editUserProfile(imageFile: File) {
         val imageRequestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
         val profileImgPart = MultipartBody.Part.createFormData("profileImg", imageFile.name, imageRequestBody)
