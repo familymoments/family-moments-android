@@ -115,6 +115,7 @@ fun ProfileEditScreen(
                 title = stringResource(id = R.string.profile_text_field_name),
                 value = profileEditUiState.value.profileEditInfoUiState.name,
                 hint = stringResource(id = R.string.profile_text_field_hint_name),
+                maxLength = MaxLength.name,
                 onValueChanged = viewModel::nameChanged
             )
             ProfileTextField(
@@ -122,6 +123,7 @@ fun ProfileEditScreen(
                 title = stringResource(id = R.string.profile_text_field_nickname),
                 value = profileEditUiState.value.profileEditInfoUiState.nickname,
                 hint = stringResource(id = R.string.profile_text_field_hint_nickname),
+                maxLength = MaxLength.nickname,
                 onValueChanged = viewModel::nicknameChanged
             )
             ProfileTextField(
@@ -129,6 +131,7 @@ fun ProfileEditScreen(
                 title = stringResource(id = R.string.profile_text_field_birth_date),
                 value = profileEditUiState.value.profileEditInfoUiState.birthdate,
                 hint = stringResource(id = R.string.profile_text_field_hint_birth_date),
+                maxLength = MaxLength.birthdate,
                 onValueChanged = viewModel::birthdateChanged
             )
         }
@@ -206,6 +209,7 @@ private fun ProfileTextField(
     title: String = "",
     value: String = "",
     hint: String = "",
+    maxLength: Int? = null,
     onValueChanged: (String) -> Unit = {}
 ) {
     var textFieldValue by remember { mutableStateOf(TextFieldValue(value)) }
@@ -219,8 +223,12 @@ private fun ProfileTextField(
         modifier = modifier,
         value = textFieldValue,
         onValueChange = { newValue ->
-            textFieldValue = newValue
-            onValueChanged(newValue.text)
+            if (maxLength != null) {
+                if (newValue.text.length <= maxLength) {
+                    textFieldValue = newValue
+                    onValueChanged(newValue.text)
+                }
+            }
         },
         hint = hint,
     )
@@ -343,4 +351,10 @@ fun ProfileEditScreenPreview() {
             )
         }
     }
+}
+
+private object MaxLength {
+    const val name = 10
+    const val nickname = 8
+    const val birthdate = 8
 }
