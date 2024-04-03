@@ -125,6 +125,7 @@
     <string name="profile_text_field_hint_name">ex) 홍길동</string>
     <string name="profile_text_field_hint_nickname">ex) 아부지</string>
     <string name="profile_text_field_hint_birth_date">ex) 19990101</string>
+    <string name="profile_edit_fail">프로필 변경에 실패하였습니다. 형식 확인 후 다시 시도해 주세요.</string>
 
     <string name="my_page_title">마이페이지</string>
     <string name="my_page_account_group">Account</string>

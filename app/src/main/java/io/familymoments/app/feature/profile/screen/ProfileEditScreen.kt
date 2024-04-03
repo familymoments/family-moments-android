@@ -65,7 +65,9 @@ fun ProfileEditScreen(
     val defaultProfileImageBitmap =
         BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.default_profile)
     val profileEditUiState = viewModel.profileEditUiState.collectAsStateWithLifecycle()
+    val defaultErrorMessage = stringResource(id = R.string.profile_edit_fail)
     val context = LocalContext.current
+
     LaunchedEffect(profileEditUiState.value.profileImage) {
         if (profileEditUiState.value.profileImage is ProfileImage.Url) {
             val bitmap = convertUrlToBitmap((profileEditUiState.value.profileImage as ProfileImage.Url).imgUrl, context)
@@ -77,7 +79,9 @@ fun ProfileEditScreen(
         if (profileEditUiState.value.isSuccess == true) {
             navigateBack()
         } else {
-            Toast.makeText(context, profileEditUiState.value.errorMessage, Toast.LENGTH_SHORT).show()
+            val errorMessage =
+                if (profileEditUiState.value.errorMessage.isNullOrEmpty()) defaultErrorMessage else profileEditUiState.value.errorMessage
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
             viewModel.resetProfileEditIsSuccess()
         }
     }
