@@ -1,43 +1,36 @@
-name: "BUG"
+name: BUG
 description: 버그를 발견하셨나요?
-
 body:
   - type: textarea
     id: bug-description
     attributes:
       label: 버그 설명
       description: 어떤 버그인지 자세히 설명해주세요.
-
- - type: textarea
-   id: steps-to-reproduce
-   attributes:
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
       label: 재현 방법
       description: 순서대로 설명해주세요.
-
   - type: textarea
     id: expected-behavior
     attributes:
       label: 예상 동작
       description: 예상했던 동작을 작성해주세요.
-      
   - type: textarea
     id: actual-behavior
     attributes:
       label: 실제 동작
       description: 실제로 일어난 동작을 작성해주세요.
-
   - type: textarea
     id: screenshot
     attributes:
       label: 스크린샷 첨부
       description: 스크린샷이 있으면 첨부해주세요.
-
   - type: textarea
     id: environment
     attributes:
       label: 환경
       description: 디바이스, 운영체제, 앱 버전 등을 명시해주세요.
-
   - type: textarea
     id: additional-info
     attributes:
