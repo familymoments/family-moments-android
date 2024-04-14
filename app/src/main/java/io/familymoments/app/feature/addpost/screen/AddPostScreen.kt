@@ -64,7 +64,7 @@ import io.familymoments.app.core.theme.FamilyMomentsTheme
 import io.familymoments.app.core.util.FileUtil
 import io.familymoments.app.core.util.POST_PHOTO_MAX_SIZE
 import io.familymoments.app.core.util.keyboardAsState
-import io.familymoments.app.core.util.noEffectClick
+import io.familymoments.app.core.util.noRippleClickable
 import io.familymoments.app.core.util.oneClick
 import io.familymoments.app.feature.addpost.AddPostMode
 import io.familymoments.app.feature.addpost.AddPostMode.ADD
@@ -93,7 +93,7 @@ fun AddPostScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     AddPostScreenUI(
-        modifier = modifier.noEffectClick {
+        modifier = modifier.noRippleClickable {
             keyboardController?.hide()
         },
         modeEnum = addPostUiState.mode,
@@ -155,7 +155,7 @@ private fun getUriListForm(addPostUiState: AddPostUiState): SnapshotStateList<Ur
 
 @Composable
 private fun generateVisualMediaRequestLauncher(uriList: SnapshotStateList<Uri>) =
-    rememberLauncherForActivityResult<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>(
+    rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(POST_PHOTO_MAX_SIZE)
     ) { uris ->
         if (uris.isNotEmpty<@JvmSuppressWildcards Uri>()) {

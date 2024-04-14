@@ -8,11 +8,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 
-@Composable
-fun Modifier.oneClick(onClick: () -> Unit): Modifier {
+inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier = composed {
+    this.clickable(indication = null,
+        interactionSource = remember { MutableInteractionSource() }) {
+        onClick()
+    }
+}
+
+
+inline fun Modifier.oneClick(crossinline onClick: () -> Unit): Modifier = composed {
     val buttonState = remember { mutableStateOf(true) }
-    return this.clickable {
+    this.clickable {
         if (buttonState.value) {
             buttonState.value = false
             onClick()
@@ -20,10 +28,9 @@ fun Modifier.oneClick(onClick: () -> Unit): Modifier {
     }
 }
 
-@Composable
-fun Modifier.oneClick(delay: Long, onClick: () -> Unit): Modifier {
+inline fun Modifier.oneClick(delay: Long, crossinline onClick: () -> Unit): Modifier = composed {
     val buttonState = remember { mutableStateOf(true) }
-    return this.clickable {
+    this.clickable {
         if (buttonState.value) {
             buttonState.value = false
             onClick()
@@ -31,16 +38,5 @@ fun Modifier.oneClick(delay: Long, onClick: () -> Unit): Modifier {
                 buttonState.value = true
             }, delay)
         }
-    }
-}
-
-@Composable
-fun Modifier.noEffectClick(onClick: () -> Unit): Modifier {
-    val interactionSource = remember { MutableInteractionSource() }
-    return this.clickable(
-        interactionSource = interactionSource,
-        indication = null
-    ) {
-        onClick()
     }
 }
