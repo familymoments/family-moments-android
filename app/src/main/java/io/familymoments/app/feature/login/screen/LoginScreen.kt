@@ -28,8 +28,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,12 +61,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.navercorp.nid.NaverIdLoginSDK
 import io.familymoments.app.R
 import io.familymoments.app.core.component.AppBarScreen
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
 import io.familymoments.app.core.util.FMVisualTransformation
+import io.familymoments.app.core.util.oneClick
 import io.familymoments.app.feature.bottomnav.activity.MainActivity
 import io.familymoments.app.feature.login.uistate.LoginUiState
 import io.familymoments.app.feature.login.viewmodel.LoginViewModel
@@ -97,7 +99,13 @@ fun LoginScreen(viewModel: LoginViewModel) {
             color = AppColors.deepPurple1
         )
     }) {
-        LoginScreen(login = viewModel::loginUser, loginUiState.value, goToJoin, viewModel::updateSuccessNull)
+        LoginScreen(
+            login = viewModel::loginUser,
+            loginUiState.value,
+            goToJoin,
+            viewModel::updateSuccessNull,
+            naverLogin = { viewModel.naverLogin(context) }
+        )
     }
 }
 
@@ -107,7 +115,8 @@ private fun LoginScreen(
     login: (String, String) -> Unit,
     loginUiState: LoginUiState,
     goToJoin: () -> Unit,
-    updateSuccessNull: () -> Unit
+    updateSuccessNull: () -> Unit,
+    naverLogin: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -124,7 +133,7 @@ private fun LoginScreen(
             updateSuccessNull = updateSuccessNull
         )
         LoginOption(goToJoin)
-        SocialLogin()
+        SocialLogin(naverLogin)
     }
 }
 
@@ -294,12 +303,11 @@ fun LoginOption(goToJoin: () -> Unit) {
             style = AppTypography.BTN6_13
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Divider(
-            color = AppColors.grey2,
-            modifier =
-            Modifier
+        HorizontalDivider(
+            modifier = Modifier
                 .fillMaxHeight()
                 .width(1.dp),
+            color = AppColors.grey2
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -309,12 +317,11 @@ fun LoginOption(goToJoin: () -> Unit) {
             style = AppTypography.BTN6_13
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Divider(
-            color = AppColors.grey2,
-            modifier =
-            Modifier
+        HorizontalDivider(
+            modifier = Modifier
                 .fillMaxHeight()
                 .width(1.dp),
+            color = AppColors.grey2
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -330,12 +337,14 @@ fun LoginOption(goToJoin: () -> Unit) {
 }
 
 @Composable
-fun SocialLogin() {
+fun SocialLogin(
+    naverLogin: () -> Unit,
+) {
     Row(
         modifier = Modifier.padding(top = 23.dp, start = 17.dp, end = 17.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Divider(
+        HorizontalDivider(
             modifier = Modifier
                 .weight(1f)
                 .height(1.dp)
@@ -349,7 +358,7 @@ fun SocialLogin() {
             fontSize = 13.sp,
             style = AppTypography.BTN6_13
         )
-        Divider(
+        HorizontalDivider(
             modifier = Modifier
                 .weight(1f)
                 .height(1.dp)
@@ -360,7 +369,18 @@ fun SocialLogin() {
         horizontalArrangement = Arrangement.spacedBy(37.dp),
     ) {
         Image(painter = painterResource(id = R.drawable.ic_kakao_login), contentDescription = null)
-        Image(painter = painterResource(id = R.drawable.ic_naver_login), contentDescription = null)
+        Column {
+            Image(
+                painter = painterResource(id = R.drawable.ic_naver_login),
+                contentDescription = null,
+                modifier = Modifier.oneClick(naverLogin)
+            )
+            Button(onClick = {
+                NaverIdLoginSDK.logout()
+            }) {
+                Text("Naver Logout")
+            }
+        }
     }
 }
 
@@ -372,7 +392,8 @@ private fun LoginScreenPreview() {
             login = { _, _ -> },
             loginUiState = LoginUiState(),
             goToJoin = {},
-            updateSuccessNull = {}
+            updateSuccessNull = {},
+            naverLogin = {}
         )
     }
 }

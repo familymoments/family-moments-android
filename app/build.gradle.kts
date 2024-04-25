@@ -19,6 +19,9 @@ android {
         buildConfig = true
     }
 
+    val properties = Properties()
+    properties.load(project.rootProject.file("key.properties").inputStream())
+
     defaultConfig {
         applicationId = "io.familymoments.app"
         minSdk = 26
@@ -30,12 +33,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "NAVER_CLIENT_ID", "\"${properties.getProperty("NAVER_CLIENT_ID")}\"")
+        buildConfigField("String", "NAVER_CLIENT_SECRET", "\"${properties.getProperty("NAVER_CLIENT_SECRET")}\"")
+        buildConfigField("String", "NAVER_CLIENT_NAME", "\"${properties.getProperty("NAVER_CLIENT_NAME")}\"")
     }
 
     signingConfigs {
         create("release") {
-            val properties = Properties()
-            properties.load(project.rootProject.file("key.properties").inputStream())
 
             keyAlias = properties.getProperty("keyAlias")
             keyPassword = properties.getProperty("keyPassword")
@@ -48,7 +53,7 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-            buildConfigField("String", "BASE_URL", "\"https://familymoments-be.site/\"")
+            buildConfigField("String", "BASE_URL",  "\"${properties.getProperty("DEV_BACKEND_URL")}\"")
         }
         release {
             isMinifyEnabled = true
@@ -56,11 +61,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            buildConfigField("String", "BASE_URL", "\"https://familymoments-be.site/\"")
+            buildConfigField("String", "BASE_URL", "\"${properties.getProperty("PROD_BACKEND_URL")}\"")
             signingConfig = signingConfigs.getByName("release")
         }
         create("stage") {
-            buildConfigField("String", "BASE_URL", "\"https://familymoments-be.site/\"")
+            buildConfigField("String", "BASE_URL", "\"${properties.getProperty("STAGE_BACKEND_URL")}\"")
         }
     }
     compileOptions {
@@ -136,6 +141,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.timber)
     implementation(libs.lottie.compose)
+
+    // Naver Login
+    implementation(libs.naver.login)
 
     testImplementation(libs.mockk)
     testImplementation(libs.junit)

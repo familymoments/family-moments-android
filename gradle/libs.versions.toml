@@ -32,6 +32,7 @@ timber = "5.0.1"
 gradle = "8.1.0"
 google-services = "4.4.1"
 firebase-appdistribution-gradle = "4.2.0"
+naver = "5.9.1"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
@@ -82,6 +83,8 @@ gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "gr
 google-services = { group = "com.google.gms", name = "google-services", version.ref = "google-services" }
 firebase-appdistribution-gradle = { group = "com.google.firebase", name = "firebase-appdistribution-gradle", version.ref = "firebase-appdistribution-gradle" }
 
+# social login
+naver-login = { group = "com.navercorp.nid", name = "oauth", version.ref = "naver" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
