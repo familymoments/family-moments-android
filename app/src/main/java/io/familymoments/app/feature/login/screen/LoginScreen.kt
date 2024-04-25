@@ -61,6 +61,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kakao.sdk.user.UserApiClient
 import com.navercorp.nid.NaverIdLoginSDK
 import io.familymoments.app.R
 import io.familymoments.app.core.component.AppBarScreen
@@ -75,6 +76,7 @@ import io.familymoments.app.feature.login.viewmodel.LoginViewModel
 import io.familymoments.app.feature.signup.activity.SignUpActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel) {
@@ -104,7 +106,8 @@ fun LoginScreen(viewModel: LoginViewModel) {
             loginUiState.value,
             goToJoin,
             viewModel::updateSuccessNull,
-            naverLogin = { viewModel.naverLogin(context) }
+            kakaoLogin = { viewModel.kakaoLogin(context) },
+            naverLogin = { viewModel.naverLogin(context) },
         )
     }
 }
@@ -114,9 +117,10 @@ fun LoginScreen(viewModel: LoginViewModel) {
 private fun LoginScreen(
     login: (String, String) -> Unit,
     loginUiState: LoginUiState,
-    goToJoin: () -> Unit,
-    updateSuccessNull: () -> Unit,
-    naverLogin: () -> Unit
+    goToJoin: () -> Unit = {},
+    updateSuccessNull: () -> Unit = {},
+    kakaoLogin: () -> Unit = {},
+    naverLogin: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -133,7 +137,7 @@ private fun LoginScreen(
             updateSuccessNull = updateSuccessNull
         )
         LoginOption(goToJoin)
-        SocialLogin(naverLogin)
+        SocialLogin(kakaoLogin, naverLogin)
     }
 }
 
@@ -338,6 +342,7 @@ fun LoginOption(goToJoin: () -> Unit) {
 
 @Composable
 fun SocialLogin(
+    kakaoLogin: () -> Unit,
     naverLogin: () -> Unit,
 ) {
     Row(
@@ -368,12 +373,27 @@ fun SocialLogin(
     Row(
         horizontalArrangement = Arrangement.spacedBy(37.dp),
     ) {
-        Image(painter = painterResource(id = R.drawable.ic_kakao_login), contentDescription = null)
+        Column {
+            Image(
+                painter = painterResource(id = R.drawable.ic_kakao_login),
+                contentDescription = null,
+                modifier = Modifier.oneClick(400, kakaoLogin)
+            )
+            Button(onClick = {
+                UserApiClient.instance.unlink {
+                    if (it == null) {
+                        Timber.i("Kakao Unlink Success")
+                    }
+                }
+            }) {
+                Text("Kakao Logout")
+            }
+        }
         Column {
             Image(
                 painter = painterResource(id = R.drawable.ic_naver_login),
                 contentDescription = null,
-                modifier = Modifier.oneClick(naverLogin)
+                modifier = Modifier.oneClick(400, naverLogin)
             )
             Button(onClick = {
                 NaverIdLoginSDK.logout()
@@ -391,9 +411,6 @@ private fun LoginScreenPreview() {
         LoginScreen(
             login = { _, _ -> },
             loginUiState = LoginUiState(),
-            goToJoin = {},
-            updateSuccessNull = {},
-            naverLogin = {}
         )
     }
 }

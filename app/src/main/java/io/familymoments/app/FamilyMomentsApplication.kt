@@ -1,6 +1,7 @@
 package io.familymoments.app
 
 import android.app.Application
+import com.kakao.sdk.common.KakaoSdk
 import com.navercorp.nid.NaverIdLoginSDK
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
@@ -21,5 +22,7 @@ class FamilyMomentsApplication : Application() {
             BuildConfig.NAVER_CLIENT_SECRET,
             BuildConfig.NAVER_CLIENT_NAME
         )
+
+        KakaoSdk.init(this, BuildConfig.KAKAO_APP_KEY)
     }
 }

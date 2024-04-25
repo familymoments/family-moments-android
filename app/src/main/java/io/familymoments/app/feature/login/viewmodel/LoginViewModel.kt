@@ -5,6 +5,7 @@ import android.widget.Toast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
 import io.familymoments.app.core.network.repository.UserRepository
+import io.familymoments.app.core.network.social.KakaoAuth
 import io.familymoments.app.core.network.social.NaverAuth
 import io.familymoments.app.feature.login.uistate.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,5 +51,11 @@ class LoginViewModel @Inject constructor(
         NaverAuth.login(context) {
             Toast.makeText(context, "Naver Login ${if (it) "Success" else "Failed"}", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun kakaoLogin(context: Context) {
+         KakaoAuth.login(context) {
+            Toast.makeText(context, "Kakao Login ${if (it) "Success" else "Failed"}", Toast.LENGTH_SHORT).show()
+         }
     }
 }

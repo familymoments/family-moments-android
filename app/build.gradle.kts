@@ -37,6 +37,10 @@ android {
         buildConfigField("String", "NAVER_CLIENT_ID", "\"${properties.getProperty("NAVER_CLIENT_ID")}\"")
         buildConfigField("String", "NAVER_CLIENT_SECRET", "\"${properties.getProperty("NAVER_CLIENT_SECRET")}\"")
         buildConfigField("String", "NAVER_CLIENT_NAME", "\"${properties.getProperty("NAVER_CLIENT_NAME")}\"")
+
+        val kakaoAppKey = properties.getProperty("KAKAO_APP_KEY")
+        buildConfigField("String", "KAKAO_APP_KEY", "\"$kakaoAppKey\"")
+        manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
     }
 
     signingConfigs {
@@ -144,6 +148,7 @@ dependencies {
 
     // Naver Login
     implementation(libs.naver.login)
+    implementation(libs.kakao.login)
 
     testImplementation(libs.mockk)
     testImplementation(libs.junit)
