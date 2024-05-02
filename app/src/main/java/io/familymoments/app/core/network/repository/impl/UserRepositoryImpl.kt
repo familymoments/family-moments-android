@@ -31,16 +31,12 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
     override suspend fun loginUser(
         username: String,
-        password: String
+        password: String,
+        fcmToken: String
     ): Flow<Resource<LoginResponse>> {
         return flow {
             emit(Resource.Loading)
-            val response = userService.loginUser(
-                LoginRequest(
-                    username,
-                    password
-                )
-            )
+            val response = userService.loginUser(LoginRequest(username, password), fcmToken)
             val responseBody = response.body() ?: LoginResponse()
 
             if (responseBody.isSuccess) {

@@ -6,6 +6,8 @@ import io.familymoments.app.core.network.dto.response.UserProfile
 interface UserInfoPreferencesDataSource {
     suspend fun saveAccessToken(token: String)
     suspend fun loadAccessToken(): String
+    suspend fun saveFCMToken(token: String)
+    suspend fun loadFCMToken(): String
     suspend fun saveFamilyId(familyId: Long)
     suspend fun loadFamilyId(): Long
     suspend fun saveUserProfile(userProfile: UserProfile)

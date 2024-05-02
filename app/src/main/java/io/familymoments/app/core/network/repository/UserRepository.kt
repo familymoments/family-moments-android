@@ -16,7 +16,8 @@ import okhttp3.MultipartBody
 interface UserRepository {
     suspend fun loginUser(
         username: String,
-        password: String
+        password: String,
+        fcmToken: String
     ): Flow<Resource<LoginResponse>>
 
     suspend fun reissueAccessToken(): Flow<Resource<Unit>>
