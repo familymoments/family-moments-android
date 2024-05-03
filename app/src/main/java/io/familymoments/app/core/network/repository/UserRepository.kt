@@ -3,11 +3,13 @@ package io.familymoments.app.core.network.repository
 import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.dto.request.ModifyPasswordRequest
 import io.familymoments.app.core.network.dto.request.ProfileEditRequest
+import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.LoginResponse
 import io.familymoments.app.core.network.dto.response.LogoutResponse
 import io.familymoments.app.core.network.dto.response.ModifyPasswordResponse
 import io.familymoments.app.core.network.dto.response.ProfileEditResponse
 import io.familymoments.app.core.network.dto.response.SearchMemberResponse
+import io.familymoments.app.core.network.dto.response.UserProfile
 import io.familymoments.app.core.network.dto.response.UserProfileResponse
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
@@ -20,7 +22,7 @@ interface UserRepository {
     ): Flow<Resource<LoginResponse>>
 
     suspend fun reissueAccessToken(): Flow<Resource<Unit>>
-    suspend fun loadUserProfile(familyId: Long?): Flow<Resource<UserProfileResponse>>
+    suspend fun loadUserProfile(familyId: Long?): Flow<Resource<ApiResponse<UserProfile>>>
     suspend fun modifyPassword(modifyPasswordRequest: ModifyPasswordRequest): Flow<Resource<ModifyPasswordResponse>>
     suspend fun logoutUser(): Flow<Resource<LogoutResponse>>
     suspend fun searchMember(

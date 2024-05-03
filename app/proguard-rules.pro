@@ -73,3 +73,9 @@
 
 ##### 여기서부터는 ClassCastException 발생하는 model class keep #####
 -keep class io.familymoments.app.core.network.dto.** { *; }
+
+
+-if class androidx.credentials.CredentialManager
+-keep class androidx.credentials.playservices.** {
+  *;
+}

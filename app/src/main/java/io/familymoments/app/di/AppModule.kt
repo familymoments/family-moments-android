@@ -18,6 +18,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import timber.log.Timber
 import java.net.CookieManager
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -70,6 +71,12 @@ object AppModule {
         return OkHttpClient.Builder()
             .addNetworkInterceptor { chain ->
                 val request = chain.request().newBuilder().build()
+
+                val headers = request.headers
+                headers.forEach { header ->
+                    Timber.i("Header: ${header.first} = ${header.second}")
+                }
+
                 chain.proceed(request)
             }
             .build()

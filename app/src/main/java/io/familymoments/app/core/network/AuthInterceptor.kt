@@ -4,6 +4,7 @@ import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSourc
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
+import timber.log.Timber
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
@@ -16,6 +17,11 @@ class AuthInterceptor @Inject constructor(
         val request = chain.request().newBuilder()
             .addHeader(AUTHORIZATION, token)
             .build()
+
+        request.headers.forEach { header ->
+            Timber.i("header: $header")
+        }
+
         return chain.proceed(request)
     }
 

@@ -109,10 +109,28 @@ class UserInfoPreferencesDataSourceImpl @Inject constructor(
         }
     }
 
+    override suspend fun saveRefreshToken(refreshToken: String) {
+        with(sharedPreferences.edit()) {
+            putString(REFRESH_TOKEN_KEY, refreshToken)
+            apply()
+        }
+    }
+
+    override suspend fun loadRefreshToken(): String {
+        return sharedPreferences.getString(
+            REFRESH_TOKEN_KEY,
+            DEFAULT_TOKEN_VALUE
+        ) ?: throw IllegalStateException(
+            ACCESS_TOKEN_KEY_NOT_EXIST_ERROR
+        )
+    }
+
     companion object {
         private const val ACCESS_TOKEN_KEY = "access_token"
         private const val ACCESS_TOKEN_KEY_NOT_EXIST_ERROR = "액세스 토큰이 존재하지 않습니다."
         private const val FAMILY_ID_KEY = "family_id"
+
+        private const val REFRESH_TOKEN_KEY = "refresh_token"
 
         private const val USER_NAME_KEY = "name"
         private const val USER_BIRTH_DATE_KEY = "birthDate"

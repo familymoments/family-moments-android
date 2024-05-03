@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "io.familymoments.app"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 2
         versionName = "0.0.1"
 
@@ -37,6 +37,8 @@ android {
         buildConfigField("String", "NAVER_CLIENT_ID", "\"${properties.getProperty("NAVER_CLIENT_ID")}\"")
         buildConfigField("String", "NAVER_CLIENT_SECRET", "\"${properties.getProperty("NAVER_CLIENT_SECRET")}\"")
         buildConfigField("String", "NAVER_CLIENT_NAME", "\"${properties.getProperty("NAVER_CLIENT_NAME")}\"")
+
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${properties.getProperty("GOOGLE_WEB_CLIENT_ID")}\"")
 
         val kakaoAppKey = properties.getProperty("KAKAO_APP_KEY")
         buildConfigField("String", "KAKAO_APP_KEY", "\"$kakaoAppKey\"")
@@ -56,7 +58,6 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
             buildConfigField("String", "BASE_URL",  "\"${properties.getProperty("DEV_BACKEND_URL")}\"")
         }
         release {
@@ -146,9 +147,13 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.lottie.compose)
 
-    // Naver Login
+    // Social Login
     implementation(libs.naver.login)
     implementation(libs.kakao.login)
+    implementation(libs.google.login)
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services)
+    implementation(libs.google.services.auth)
 
     testImplementation(libs.mockk)
     testImplementation(libs.junit)

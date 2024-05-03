@@ -79,7 +79,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel) {
+fun LoginScreen(viewModel: LoginViewModel, callback: (Intent) -> Unit = {}) {
     val loginUiState = viewModel.loginUiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val goToJoin = {
@@ -108,6 +108,9 @@ fun LoginScreen(viewModel: LoginViewModel) {
             viewModel::updateSuccessNull,
             kakaoLogin = { viewModel.kakaoLogin(context) },
             naverLogin = { viewModel.naverLogin(context) },
+            googleLogin = {
+                viewModel.googleLogin(callback)
+            }
         )
     }
 }
@@ -120,7 +123,8 @@ private fun LoginScreen(
     goToJoin: () -> Unit = {},
     updateSuccessNull: () -> Unit = {},
     kakaoLogin: () -> Unit = {},
-    naverLogin: () -> Unit = {}
+    naverLogin: () -> Unit = {},
+    googleLogin: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -137,7 +141,7 @@ private fun LoginScreen(
             updateSuccessNull = updateSuccessNull
         )
         LoginOption(goToJoin)
-        SocialLogin(kakaoLogin, naverLogin)
+        SocialLogin(kakaoLogin, naverLogin, googleLogin)
     }
 }
 
@@ -344,6 +348,7 @@ fun LoginOption(goToJoin: () -> Unit) {
 fun SocialLogin(
     kakaoLogin: () -> Unit,
     naverLogin: () -> Unit,
+    googleLogin: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier.padding(top = 23.dp, start = 17.dp, end = 17.dp),
@@ -373,34 +378,21 @@ fun SocialLogin(
     Row(
         horizontalArrangement = Arrangement.spacedBy(37.dp),
     ) {
-        Column {
-            Image(
-                painter = painterResource(id = R.drawable.ic_kakao_login),
-                contentDescription = null,
-                modifier = Modifier.oneClick(400, kakaoLogin)
-            )
-            Button(onClick = {
-                UserApiClient.instance.unlink {
-                    if (it == null) {
-                        Timber.i("Kakao Unlink Success")
-                    }
-                }
-            }) {
-                Text("Kakao Logout")
-            }
-        }
-        Column {
-            Image(
-                painter = painterResource(id = R.drawable.ic_naver_login),
-                contentDescription = null,
-                modifier = Modifier.oneClick(400, naverLogin)
-            )
-            Button(onClick = {
-                NaverIdLoginSDK.logout()
-            }) {
-                Text("Naver Logout")
-            }
-        }
+        Image(
+            painter = painterResource(id = R.drawable.ic_kakao_login),
+            contentDescription = null,
+            modifier = Modifier.size(36.dp).oneClick(400, kakaoLogin)
+        )
+        Image(
+            painter = painterResource(id = R.drawable.ic_naver_login),
+            contentDescription = null,
+            modifier = Modifier.size(36.dp).oneClick(400, naverLogin)
+        )
+        Image(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_google_login),
+            contentDescription = null,
+            modifier = Modifier.size(36.dp).oneClick(400, googleLogin)
+        )
     }
 }
 

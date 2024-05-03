@@ -14,4 +14,6 @@ interface UserInfoPreferencesDataSource {
 
     suspend fun resetPreferencesData()
     suspend fun updateUserProfile(profileEditResult: ProfileEditResult)
+    suspend fun saveRefreshToken(refreshToken: String)
+    suspend fun loadRefreshToken(): String
 }

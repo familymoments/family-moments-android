@@ -3,16 +3,19 @@ package io.familymoments.app.core.network.api
 import io.familymoments.app.core.network.dto.request.LoginRequest
 import io.familymoments.app.core.network.dto.request.ModifyPasswordRequest
 import io.familymoments.app.core.network.dto.request.ProfileEditRequest
+import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.LoginResponse
 import io.familymoments.app.core.network.dto.response.LogoutResponse
 import io.familymoments.app.core.network.dto.response.ModifyPasswordResponse
 import io.familymoments.app.core.network.dto.response.ProfileEditResponse
 import io.familymoments.app.core.network.dto.response.SearchMemberResponse
+import io.familymoments.app.core.network.dto.response.UserProfile
 import io.familymoments.app.core.network.dto.response.UserProfileResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -24,12 +27,12 @@ interface UserService {
     suspend fun loginUser(@Body loginRequest: LoginRequest): Response<LoginResponse>
 
     @POST("/users/reissue")
-    suspend fun reissueAccessToken(): Response<Void>
+    suspend fun reissueAccessToken(@Header("REFRESH_TOKEN") refreshToken: String): Response<Void>
 
     @GET("/users/profile")
     suspend fun loadUserProfile(
         @Query("familyId") familyId: Long? = null
-    ): Response<UserProfileResponse>
+    ): Response<ApiResponse<UserProfile>>
 
     @PATCH("/users/modify-pwd")
     suspend fun modifyPassword(
