@@ -147,6 +147,8 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.lottie.compose)
 
+    implementation(libs.accompanist.systemuicontroller)
+
     // Social Login
     implementation(libs.naver.login)
     implementation(libs.kakao.login)
