@@ -7,3 +7,6 @@ const val DEFAULT_FAMILY_ID_VALUE = -1L
 // Rule
 const val FAMILY_NAME_MAX_LENGTH = 20
 const val POST_PHOTO_MAX_SIZE = 10
+
+// Scheme
+const val URI_SCHEME_RESOURCE = "android.resource"

@@ -4,13 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import coil.ImageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +38,16 @@ object FileUtil {
         }.join()
 
         return pathHashMap.map { File(it.value!!) }
+    }
+
+    suspend fun imageFileResize(
+        context: Context,
+        uri: Uri
+    ): File {
+        return withContext(Dispatchers.IO) {
+            val path = optimizeBitmap(context, uri, 0)
+            File(path!!)
+        }
     }
 
     private fun optimizeBitmap(context: Context, uri: Uri, index: Int): String? {
@@ -76,13 +82,14 @@ object FileUtil {
         /*
         uri 의 scheme 에 따라 비트맵 변환하는 과정이 다름
         - 갤러리에서 불러온 이미지 uri 의 scheme -> content
+        - app resource uri 의 scheme -> android.resource
         - url 을 변환한 uri 의 scheme -> https
         */
         if (uri?.scheme == URI_SCHEME_HTTPS) {
             val url = URL(uri.toString())
             bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
         }
-        if (uri?.scheme == URI_SCHEME_CONTENT) {
+        if (uri?.scheme == URI_SCHEME_CONTENT || uri?.scheme == URI_SCHEME_RESOURCE) {
             bitmap = if (Build.VERSION.SDK_INT < 28) {
                 MediaStore.Images
                     .Media.getBitmap(context.contentResolver, uri)
@@ -93,23 +100,6 @@ object FileUtil {
             }
         }
         return bitmap ?: throw NullPointerException()
-    }
-
-
-    suspend fun convertUrlToBitmap(url: String, context: Context): Bitmap? {
-        return withContext(Dispatchers.IO) {
-            try {
-                val loader = ImageLoader(context)
-                val request = ImageRequest.Builder(context)
-                    .data(url)
-                    .build()
-                val result = (loader.execute(request) as SuccessResult).drawable
-                (result as BitmapDrawable).bitmap
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
-        }
     }
 
     fun convertBitmapToFile(bitmap: Bitmap, context: Context): File {

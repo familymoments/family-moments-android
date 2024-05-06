@@ -37,7 +37,7 @@ class HomeViewModel @Inject constructor(
                 _homeUiState.value = _homeUiState.value.copy(
                     isSuccess = true,
                     isLoading = isLoading.value,
-                    nickname = it.result.nickname,
+                    userNickname = it.result.nickname,
                     dday = it.result.dday
                 )
             },

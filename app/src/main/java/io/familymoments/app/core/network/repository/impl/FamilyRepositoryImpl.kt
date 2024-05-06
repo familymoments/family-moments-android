@@ -3,6 +3,7 @@ package io.familymoments.app.core.network.repository.impl
 import io.familymoments.app.core.network.HttpResponse
 import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.api.FamilyService
+import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
 import io.familymoments.app.core.network.dto.request.CreateFamilyRequest
 import io.familymoments.app.core.network.dto.request.SearchFamilyByInviteLinkRequest
 import io.familymoments.app.core.network.dto.response.CreateFamilyResponse
@@ -17,7 +18,8 @@ import okhttp3.MultipartBody
 import javax.inject.Inject
 
 class FamilyRepositoryImpl @Inject constructor(
-    private val familyService: FamilyService
+    private val familyService: FamilyService,
+    private val userInfoPreferencesDataSource: UserInfoPreferencesDataSource
 ) : FamilyRepository {
     override suspend fun getNicknameDday(familyId: Long): Flow<Resource<GetNicknameDdayResponse>> {
         return flow {
@@ -88,6 +90,7 @@ class FamilyRepositoryImpl @Inject constructor(
 
             if (response.code() == HttpResponse.SUCCESS) {
                 if (responseBody.isSuccess) {
+                    userInfoPreferencesDataSource.saveFamilyId(familyId)
                     emit(Resource.Success(responseBody))
                 } else {
                     emit(Resource.Fail(Throwable(responseBody.message)))

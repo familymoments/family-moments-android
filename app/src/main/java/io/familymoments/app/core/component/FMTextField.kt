@@ -40,6 +40,7 @@ fun FMTextField(
     borderColor: Color = AppColors.grey2,
     showDeleteButton: Boolean = true,
     textColor: Color = AppColors.black1,
+    hintColor: Color = AppColors.grey2,
     showText: Boolean = true,
     onFocusChanged: (Boolean) -> Unit = {},
     keyboardActions: KeyboardActions = KeyboardActions {}
@@ -67,7 +68,7 @@ fun FMTextField(
                 textStyle = AppTypography.BTN5_16.copy(color = textColor),
                 decorationBox = { innerTextField ->
                     if (value.text.isEmpty()) {
-                        Text(text = hint, style = AppTypography.BTN5_16, color = AppColors.grey2)
+                        Text(text = hint, style = AppTypography.BTN5_16, color = hintColor)
                     }
                     innerTextField()
                 },

@@ -5,6 +5,7 @@ import io.familymoments.app.core.network.dto.response.SearchFamilyByInviteLinkRe
 
 @Immutable
 data class JoinFamilyUiState(
+    val selectedFamilyId:Long? = null,
     val searchFamilyByInviteLinkUiState: SearchFamilyByInviteLinkUiState = SearchFamilyByInviteLinkUiState(),
     val joinFamilyExecuteUiState: JoinFamilyExecuteUiState = JoinFamilyExecuteUiState()
 )

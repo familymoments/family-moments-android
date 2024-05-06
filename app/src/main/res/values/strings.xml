@@ -90,7 +90,7 @@
     <string name="sign_up_email_field_hint">example@email.com</string>
     <string name="sign_up_birthday_check_validation_warning">생년월일 형식이 올바르지 않습니다. (ex.19990101)</string>
     <string name="sign_up_birthday_field_title">생년월일</string>
-    <string name="sign_up_birthday_field_hint">8자리 입력 ex) 199990101</string>
+    <string name="sign_up_birthday_field_hint">8자리 입력 ex) 19990101</string>
     <string name="sign_up_nickname_field_title">닉네임</string>
     <string name="sign_up_nickname_field_hint">3~8자리 입력(특수문자 불가)</string>
     <string name="sign_up_nickname_validation_warning">닉네임 형식이 올바르지 않습니다. (3~8자리, 특수문자 불가)</string>
@@ -125,9 +125,11 @@
     <string name="profile_select_photo">사진 선택</string>
     <string name="profile_gallery_select_photo">갤러리에서 선택</string>
     <string name="profile_default_image_select">기본이미지로 하기</string>
-    <string name="profile_text_field_hint_name">ex) 홍길동</string>
-    <string name="profile_text_field_hint_nickname">ex) 아부지</string>
-    <string name="profile_text_field_hint_birth_date">ex) 19990101</string>
+    <string name="profile_text_field_hint_name">실명을 입력하세요 ex) 홍길동</string>
+    <string name="profile_text_field_hint_nickname">3~8자리 입력 (특수문자 불가)</string>
+    <string name="profile_text_field_hint_birth_date">8자리 입력 ex) 19990101</string>
+    <string name="profile_nickname_warning">닉네임 형식이 올바르지 않습니다. (3~8자리, 특수문자 불가)</string>
+    <string name="profile_birthdate_warning">생년월일 형식이 올바르지 않습니다. (ex.19990101)</string>
 
     <string name="my_page_title">마이페이지</string>
     <string name="my_page_account_group">Account</string>
@@ -192,4 +194,5 @@
     <string name="create_family_success_message">가족 생성 완료!</string>
     <string name="set_family_profile_name_empty_error">가족 이름이 비어있습니다.</string>
     <string name="set_family_profile_image_unsellect_error">이미지가 선택되지 않았습니다.</string>
+    <string name="love_list_popup_no_loves">좋아요가 존재하지 않습니다.</string>
 </resources>

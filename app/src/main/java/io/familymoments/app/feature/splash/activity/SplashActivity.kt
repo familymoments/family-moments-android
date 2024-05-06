@@ -19,6 +19,7 @@ class SplashActivity : BaseActivity<SplashViewModel>(SplashViewModel::class) {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+        actionBar?.hide()
         setContent {
             FamilyMomentsTheme {
                 screen()

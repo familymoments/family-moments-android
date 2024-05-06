@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,26 +36,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.familymoments.app.R
-import io.familymoments.app.core.component.PostItem2
-import io.familymoments.app.core.component.PostItemPreview
+import io.familymoments.app.core.component.PostItem
 import io.familymoments.app.core.component.popup.CompletePopUp
 import io.familymoments.app.core.component.popup.DeletePopUp
 import io.familymoments.app.core.component.popup.ReportPopUp
 import io.familymoments.app.core.network.dto.response.Post
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
+import io.familymoments.app.feature.home.uistate.HomeUiState
 import io.familymoments.app.feature.home.uistate.PostPopupType
 import io.familymoments.app.feature.home.viewmodel.HomeViewModel
+
 
 @Composable
 fun HomeScreen(
     modifier: Modifier,
     viewModel: HomeViewModel,
     navigateToPostDetail: (Int) -> Unit,
-    navigateToPostEdit:(Post) -> Unit
+    navigateToPostEdit: (Post) -> Unit
 ) {
-    val homeUiState = viewModel.homeUiState.collectAsStateWithLifecycle()
-    val posts = homeUiState.value.posts
+    val homeUiState = viewModel.homeUiState.collectAsStateWithLifecycle().value
+    val posts = homeUiState.posts
+    val popup = homeUiState.popup
+
     val lazyListState = rememberLazyListState()
     val isScrolledToLast by remember(lazyListState.canScrollForward) {
         if (posts.isEmpty()) {
@@ -63,28 +67,46 @@ fun HomeScreen(
             mutableStateOf(!lazyListState.canScrollForward)
         }
     }
-    val isLoading = homeUiState.value.isLoading
-    val hasNoPost = homeUiState.value.hasNoPost
-    val nickname = homeUiState.value.nickname
-    val dday = homeUiState.value.dday
-    val popup = homeUiState.value.popup
 
-    val showPopup = remember { mutableStateOf(false) }
+    LaunchedEffectSetupData(viewModel::getNicknameDday, viewModel::getPosts)
+    LaunchedEffectShowPopup(popup, viewModel::deletePost, viewModel::dismissPopup)
+    LaunchedEffectLoadMorePostsIfScrolledToLast(isScrolledToLast, viewModel::loadMorePosts)
 
+    HomeScreenUI(
+        lazyListState = lazyListState,
+        modifier = modifier,
+        homeUiState = homeUiState,
+        navigateToPostDetail = navigateToPostDetail,
+        navigateToPostEdit = navigateToPostEdit,
+        deletePostLoves = viewModel::deletePostLoves,
+        postPostLoves = viewModel::postPostLoves,
+        showReportPostPopup = viewModel::showReportPostPopup,
+        showDeletePostPopup = viewModel::showDeletePostPopup
+    )
+
+}
+
+@Composable
+private fun LaunchedEffectSetupData(getNicknameDday: () -> Unit, getPosts: () -> Unit) {
     LaunchedEffect(Unit) {
-        viewModel.getNicknameDday()
-        viewModel.getPosts()
+        getNicknameDday()
+        getPosts()
     }
-    LaunchedEffect(isScrolledToLast) {
-        if (isScrolledToLast) {
-            viewModel.loadMorePosts()
-        }
-    }
+}
+
+@Composable
+private fun LaunchedEffectShowPopup(
+    popup: PostPopupType?,
+    deletePost: (Long) -> Unit,
+    dismissPopup: () -> Unit
+) {
+    val showPopup = remember { mutableStateOf(false) }
 
     LaunchedEffect(popup) {
         // popup이 null이 아닐 때만 show popup
         showPopup.value = popup != null
     }
+
 
     if (showPopup.value) {
         when (popup) {
@@ -99,17 +121,15 @@ fun HomeScreen(
             is PostPopupType.DeletePost -> {
                 DeletePopUp(
                     content = stringResource(id = R.string.post_delete_pop_up_content),
-                    delete = {
-                        viewModel.deletePost(popup.postId)
-                    },
-                    onDismissRequest = viewModel::dismissPopup
+                    delete = { deletePost(popup.postId) },
+                    onDismissRequest = dismissPopup
                 )
             }
 
             PostPopupType.DeletePostSuccess -> {
                 CompletePopUp(
                     content = stringResource(R.string.post_detail_delete_complete_pop_label),
-                    onDismissRequest = viewModel::dismissPopup
+                    onDismissRequest = dismissPopup
                 )
             }
 
@@ -119,7 +139,7 @@ fun HomeScreen(
 
             is PostPopupType.ReportPost -> {
                 ReportPopUp(
-                    onDismissRequest = viewModel::dismissPopup,
+                    onDismissRequest = dismissPopup,
                     onReportRequest = {
                         // TODO: 신고하기 기능 구현
                         // viewModel.reportPost(popup.postId)
@@ -140,8 +160,30 @@ fun HomeScreen(
             }
         }
     }
+}
 
-    if (isLoading != false) {
+@Composable
+private fun LaunchedEffectLoadMorePostsIfScrolledToLast(isScrolledToLast: Boolean, loadMorePosts: () -> Unit) {
+    LaunchedEffect(isScrolledToLast) {
+        if (isScrolledToLast) {
+            loadMorePosts()
+        }
+    }
+}
+
+@Composable
+fun HomeScreenUI(
+    lazyListState: LazyListState,
+    modifier: Modifier = Modifier,
+    homeUiState: HomeUiState,
+    navigateToPostDetail: (Int) -> Unit = {},
+    navigateToPostEdit: (Post) -> Unit = {},
+    deletePostLoves: (Long) -> Unit = {},
+    postPostLoves: (Long) -> Unit = {},
+    showDeletePostPopup: (Long) -> Unit = {},
+    showReportPostPopup: (Long) -> Unit = {}
+) {
+    if (homeUiState.isLoading != false) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -153,11 +195,11 @@ fun HomeScreen(
             )
         }
     } else {
-        if (hasNoPost) {
+        if (homeUiState.hasNoPost) {
             Column(
                 modifier = modifier.padding(horizontal = 16.dp),
             ) {
-                HomeScreenTitle(hasNoPost = true, nickname = nickname, dday = dday)
+                HomeScreenTitle(hasNoPost = true, nickname = homeUiState.userNickname, dday = homeUiState.dday)
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -184,28 +226,29 @@ fun HomeScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp)
             ) {
                 item {
-                    HomeScreenTitle(hasNoPost = false, nickname = nickname, dday = dday)
+                    HomeScreenTitle(hasNoPost = false, nickname = homeUiState.userNickname, dday = homeUiState.dday)
                 }
                 items(
-                    items = posts,
+                    items = homeUiState.posts,
                     key = { it.postId }
                 ) { post ->
-                    PostItem2(
+                    PostItem(
+                        userNickname = homeUiState.userNickname,
                         post = post,
                         navigateToPostDetail = navigateToPostDetail,
                         navigateToEditPost = navigateToPostEdit,
                         onClickPostLoves = {
                             if (post.loved) {
-                                viewModel.deletePostLoves(post.postId)
+                                deletePostLoves(post.postId)
                             } else {
-                                viewModel.postPostLoves(post.postId)
+                                postPostLoves(post.postId)
                             }
                         },
                         showDeletePostPopup = {
-                            viewModel.showDeletePostPopup(post.postId)
+                            showDeletePostPopup(post.postId)
                         },
                         showReportPostPopup = {
-                            viewModel.showReportPostPopup(post.postId)
+                            showReportPostPopup(post.postId)
                         }
                     )
                 }
@@ -213,6 +256,7 @@ fun HomeScreen(
         }
     }
 }
+
 
 @Composable
 fun HomeScreenTitle(
@@ -262,14 +306,26 @@ fun HomeScreenTitle(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    LazyColumn(
-        modifier = Modifier.padding(horizontal = 16.dp)
-    ) {
-        item {
-            HomeScreenTitle(hasNoPost = false, nickname = "딸내미", dday = "2")
+    val lazyListState = rememberLazyListState()
+    val homeUiState = HomeUiState(
+        isSuccess = true,
+        isLoading = false,
+        userNickname = "test",
+        dday = "1",
+        posts = List(10) {
+            Post(
+                postId = it.toLong(),
+                writer = "test$it",
+                profileImg = "",
+                content = "test",
+                imgs = listOf(),
+                createdAt = "2023-03-12",
+                loved = false
+            )
         }
-        items(10) {
-            PostItemPreview()
-        }
-    }
+    )
+    HomeScreenUI(
+        lazyListState = lazyListState,
+        homeUiState = homeUiState
+    )
 }

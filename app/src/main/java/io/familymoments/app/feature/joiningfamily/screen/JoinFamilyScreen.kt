@@ -1,5 +1,6 @@
 package io.familymoments.app.feature.joiningfamily.screen
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,7 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import io.familymoments.app.R
@@ -37,6 +37,8 @@ import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.feature.choosingfamily.component.ChoosingFamilyHeaderButtonLayout
 import io.familymoments.app.feature.choosingfamily.component.MemberCheckBox
 import io.familymoments.app.feature.choosingfamily.component.SearchTextField
+import io.familymoments.app.feature.joiningfamily.uistate.JoinFamilyExecuteUiState
+import io.familymoments.app.feature.joiningfamily.uistate.JoinFamilyUiState
 import io.familymoments.app.feature.joiningfamily.viewmodel.JoinFamilyViewModel
 
 
@@ -45,51 +47,84 @@ fun JoinFamilyScreen(
     viewModel: JoinFamilyViewModel,
     navigate: () -> Unit = {}
 ) {
-    var inviteLinkTextFieldValue by remember {
+    var inviteLink by remember {
         mutableStateOf(TextFieldValue())
     }
-    var selectedFamilyId by remember {
-        mutableStateOf<Long?>(null)
-    }
     val joinFamilyUiState = viewModel.joinFamilyUiState.collectAsStateWithLifecycle().value
-    val searchFamilyByInviteLinkUiState = joinFamilyUiState.searchFamilyByInviteLinkUiState
     val joinFamilyExecuteUiState = joinFamilyUiState.joinFamilyExecuteUiState
     val context = LocalContext.current
-    val joinFamilySuccessMessage = stringResource(R.string.join_family_success_message)
 
-    LaunchedEffect(inviteLinkTextFieldValue) {
-        viewModel.searchFamilyByInviteLink(inviteLinkTextFieldValue.text)
+    LaunchedEffectSearchFamily(inviteLink, viewModel::searchFamily)
+    LaunchedEffectJoinFamily(
+        context = context,
+        joinFamilyExecuteUiState = joinFamilyExecuteUiState,
+        navigate = navigate,
+        resetJoinFamilyExecuteSuccess = viewModel::resetJoinFamilyExecuteSuccess
+    )
+    JoinFamilyScreenUI(
+        joinFamilyUiState = joinFamilyUiState,
+        joinFamily = viewModel::joinFamily,
+        updateSelectedFamilyId = viewModel::updateSelectedFamilyId
+    ) { inviteLink = it }
+}
+
+@Composable
+fun LaunchedEffectSearchFamily(inviteLink: TextFieldValue, searchFamily: (String) -> Unit) {
+    LaunchedEffect(inviteLink) {
+        searchFamily(inviteLink.text)
     }
+}
+
+@Composable
+fun LaunchedEffectJoinFamily(
+    context: Context,
+    joinFamilyExecuteUiState: JoinFamilyExecuteUiState,
+    navigate: () -> Unit,
+    resetJoinFamilyExecuteSuccess: () -> Unit
+) {
+
     LaunchedEffect(joinFamilyExecuteUiState.isSuccess) {
         if (joinFamilyExecuteUiState.isSuccess == true) {
-            Toast.makeText(context, joinFamilySuccessMessage, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getText(R.string.join_family_success_message), Toast.LENGTH_SHORT).show()
             navigate()
         } else if (joinFamilyExecuteUiState.isSuccess == false) {
             Toast.makeText(context, joinFamilyExecuteUiState.errorMessage, Toast.LENGTH_SHORT).show()
-            viewModel.resetJoinFamilyExecuteSuccess()
+            resetJoinFamilyExecuteSuccess()
         }
     }
+}
+
+@Composable
+fun JoinFamilyScreenUI(
+    joinFamilyUiState: JoinFamilyUiState,
+    joinFamily: () -> Unit = {},
+    updateSelectedFamilyId: (Long?) -> Unit = {},
+    onInviteLinkChange: (TextFieldValue) -> Unit
+) {
+
     ChoosingFamilyHeaderButtonLayout(
         headerBottomPadding = 18.dp,
         header = stringResource(R.string.header_join_family),
         button = stringResource(R.string.button_family_join_now),
-        buttonEnabled = selectedFamilyId != null,
+        buttonEnabled = joinFamilyUiState.selectedFamilyId != null,
         onClick = {
-            viewModel.joinFamily(familyId = selectedFamilyId ?: throw IllegalStateException())
+            joinFamily()
         }
     ) {
         Column {
             SearchTextField(
                 singleLine = true,
-                hint = stringResource(R.string.family_invitation_link_text_field_hint)
-            ) { inviteLinkTextFieldValue = it }
+                hint = stringResource(R.string.family_invitation_link_text_field_hint),
+                onValueChange = onInviteLinkChange
+            )
             Spacer(modifier = Modifier.height(36.dp))
-            if (searchFamilyByInviteLinkUiState.isSuccess == true) {
-                if (searchFamilyByInviteLinkUiState.result != null)
+            if (joinFamilyUiState.searchFamilyByInviteLinkUiState.isSuccess == true) {
+                if (joinFamilyUiState.searchFamilyByInviteLinkUiState.result != null)
                     Box(modifier = Modifier.background(color = AppColors.grey6)) {
                         FamilyProfile(
-                            searchFamilyByInviteLinkUiState.result
-                        ) { selectedFamilyId = it }
+                            joinFamilyUiState.searchFamilyByInviteLinkUiState.result,
+                            updateSelectedFamilyId
+                        )
                     }
             }
 
@@ -101,16 +136,20 @@ fun JoinFamilyScreen(
 @Composable
 private fun FamilyProfile(
     searchFamilyByInviteLinkResult: SearchFamilyByInviteLinkResult,
-    setSelectedFamilyId: (Long?) -> Unit
+    updateSelectedFamilyId: (Long?) -> Unit
 ) {
     var checked by remember {
         mutableStateOf(false)
     }
-    if (checked) {
-        setSelectedFamilyId(searchFamilyByInviteLinkResult.familyId)
-    } else {
-        setSelectedFamilyId(null)
+
+    LaunchedEffect(checked) {
+        if (checked) {
+            updateSelectedFamilyId(searchFamilyByInviteLinkResult.familyId)
+        } else {
+            updateSelectedFamilyId(null)
+        }
     }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -137,6 +176,14 @@ private fun FamilyProfile(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewJoinScreen() {
-    JoinFamilyScreen(hiltViewModel())
+fun PreviewJoinFamilyScreenUI() {
+    var inviteLink by remember {
+        mutableStateOf(TextFieldValue())
+    }
+    JoinFamilyScreenUI(
+        joinFamilyUiState = JoinFamilyUiState(),
+        onInviteLinkChange = {
+            inviteLink = it
+        }
+    )
 }

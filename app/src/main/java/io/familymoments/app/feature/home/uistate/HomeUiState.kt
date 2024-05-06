@@ -9,7 +9,7 @@ data class HomeUiState(
     val isSuccess: Boolean? = null,
     val isLoading: Boolean? = null,
     val errorMessage: String? = null,
-    val nickname: String = "",
+    val userNickname: String = "",
     val dday: String = "",
     val posts: List<Post> = emptyList(),
     val popup: PostPopupType? = null

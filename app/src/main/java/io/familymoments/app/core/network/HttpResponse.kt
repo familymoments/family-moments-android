@@ -14,5 +14,7 @@ object HttpResponse {
 object HttpResponseMessage {
     const val ACCESS_DENIED_403 = "권한이 없는 유저의 접근입니다."
     const val NO_POST_404 = "post가 존재하지 않습니다."
+    const val NO_COMMENTS_404 = "댓글이 존재하지 않습니다."
+    const val NO_POST_LOVES_404 = "좋아요가 존재하지 않습니다."
     const val ACCESS_TOKEN_EXPIRED_461 = "Access Token의 기한이 만료되었습니다. 재발급 API를 호출해주세요"
 }

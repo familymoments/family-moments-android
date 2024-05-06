@@ -23,32 +23,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import io.familymoments.app.R
-import io.familymoments.app.core.component.popup.CompletePopUp
-import io.familymoments.app.core.component.popup.DeletePopUp
-import io.familymoments.app.core.component.popup.ReportPopUp
 import io.familymoments.app.core.network.dto.response.Post
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
-import io.familymoments.app.core.uistate.PopupUiState
-import io.familymoments.app.core.uistate.PostItemUiState
 import io.familymoments.app.core.util.noRippleClickable
-import io.familymoments.app.core.viewmodel.PostItemViewModel
 import io.familymoments.app.feature.home.component.postItemContentShadow
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -56,60 +48,27 @@ import java.util.Locale
 
 @Composable
 fun PostItem(
+    userNickname: String,
     post: Post,
-    loves: Int,
     navigateToPostDetail: (Int) -> Unit,
-    navigateToEditPost: (Long) -> Unit,
-    reloadPosts: () -> Unit,
-    viewModel: PostItemViewModel
+    navigateToEditPost: (Post) -> Unit,
+    onClickPostLoves: () -> Unit,
+    showDeletePostPopup: () -> Unit,
+    showReportPostPopup: () -> Unit
 ) {
-    val postItemUiState = viewModel.postItemUiState.collectAsStateWithLifecycle().value
-    val popupUiState = viewModel.popupUiState.collectAsStateWithLifecycle().value
-
-    if (postItemUiState.deletePostUiState.isSuccess == true) {
-        reloadPosts()
-        if (popupUiState.completePopupUiState.show) {
-            CompletePopUp(
-                content = stringResource(R.string.post_detail_delete_complete_pop_label),
-                onDismissRequest = {
-                    popupUiState.popupStatusLogics.showCompletePopup(false)
-                }
-            )
-        }
-    }
-
-    if (popupUiState.deletePopupUiState.show) {
-        DeletePopUp(
-            content = popupUiState.deletePopupUiState.content,
-            onDismissRequest = {
-                popupUiState.popupStatusLogics.showDeletePopup(false, "") {}
-            },
-            delete = {
-                popupUiState.deletePopupUiState.execute()
-                popupUiState.popupStatusLogics.showDeletePopup(false, "") {}
-            })
-    }
-    if (popupUiState.reportPopupUiState.show) {
-        ReportPopUp(onDismissRequest = {
-            popupUiState.popupStatusLogics.showReportPopup(false) {}
-        }) {
-            popupUiState.reportPopupUiState.execute()
-            popupUiState.popupStatusLogics.showReportPopup(false) {}
-        }
-    }
-
     Column {
         Spacer(modifier = Modifier.height(10.dp))
         PostItemHeader(post = post)
         Spacer(modifier = Modifier.height(10.dp))
         Box(modifier = Modifier.postItemContentShadow()) {
             PostItemContent(
+                userNickname = userNickname,
                 post = post,
                 navigateToPostDetail = navigateToPostDetail,
-                loves = loves,
                 navigateToEditPost = navigateToEditPost,
-                postItemUiState = postItemUiState,
-                popupUiState = popupUiState
+                onClickPostLoves = onClickPostLoves,
+                showDeletePostPopup = showDeletePostPopup,
+                showReportPostPopup = showReportPostPopup
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -147,13 +106,16 @@ private fun PostItemHeader(post: Post) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PostItemContent(
+    userNickname: String,
     post: Post,
-    loves: Int = 0,
     navigateToPostDetail: (Int) -> Unit,
-    navigateToEditPost: (Long) -> Unit,
-    postItemUiState: PostItemUiState,
-    popupUiState: PopupUiState
+    navigateToEditPost: (Post) -> Unit,
+    onClickPostLoves: () -> Unit,
+    showDeletePostPopup: () -> Unit,
+    showReportPostPopup: () -> Unit
 ) {
+    val menuExpanded = remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .padding(horizontal = 11.dp)
@@ -178,7 +140,8 @@ private fun PostItemContent(
                         .fillMaxSize()
                         .align(Alignment.Center),
                     model = post.imgs[index],
-                    contentDescription = null
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null,
                 )
             }
             if (post.imgs.size > 1) {
@@ -222,87 +185,85 @@ private fun PostItemContent(
                 modifier = Modifier.padding(top = 5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                var menuExpanded by remember {
-                    mutableStateOf(false)
-                }
                 Box {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_three_dots_row),
                         tint = AppColors.deepPurple1,
                         contentDescription = null,
                         modifier = Modifier.noRippleClickable {
-                            menuExpanded = true
+                            menuExpanded.value = true
                         }
                     )
-                    val deletePostPopupLabel = stringResource(R.string.post_detail_delete_post_pop_up_label)
-                    PostDropdownMenu(
-                        items = listOf(
-                            Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_modify)) {
-                                navigateToEditPost(post.postId)
-                            },
-                            Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_report)) {
-                                popupUiState.popupStatusLogics.showReportPopup(true) {
-                                    popupUiState.popupStatusLogics.showReportPopup(false, {})
-                                }
-                            },
-                            Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_delete)) {
-                                popupUiState.popupStatusLogics.showDeletePopup(true, deletePostPopupLabel) {
-                                    postItemUiState.logics.deletePost(post.postId)
-                                    popupUiState.popupStatusLogics.showCompletePopup(true)
-                                    popupUiState.popupStatusLogics.showDeletePopup(false, "") {}
-                                }
-                            },
-                        ),
-                        expanded = menuExpanded
-                    ) { menuExpanded = it }
+                    if (menuExpanded.value) {
+                        PostDropdownMenu2(
+                            items =
+                            if (userNickname == post.writer) listOf(
+                                Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_modify)) {
+                                    navigateToEditPost(post)
+                                },
+                                Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_report)) {
+                                    showReportPostPopup()
+                                    menuExpanded.value = false
+                                },
+                                Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_delete)) {
+                                    showDeletePostPopup()
+                                    menuExpanded.value = false
+                                },
+                            ) else listOf(
+                                Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_report)) {
+                                    showReportPostPopup()
+                                    menuExpanded.value = false
+                                },
+                            ),
+                            expanded = menuExpanded.value,
+                            onDismissRequest = { menuExpanded.value = false }
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
-                var loved by remember { mutableStateOf(post.loved) }
                 Icon(
                     imageVector = ImageVector.vectorResource(
-                        if (loved) R.drawable.ic_heart_filled else R.drawable.ic_heart_empty
+                        if (post.loved) R.drawable.ic_heart_filled
+                        else R.drawable.ic_heart_empty
                     ),
                     tint = Color.Unspecified,
                     contentDescription = null,
-                    modifier = Modifier.noRippleClickable {
-                        if (loved) {
-                            postItemUiState.logics.deletePostLoves(post.postId)
-                        } else {
-                            postItemUiState.logics.postPostLoves(post.postId)
-                        }
-                        loved = !loved
-                    }
+                    modifier = Modifier.noRippleClickable { onClickPostLoves() }
                 )
                 Spacer(modifier = Modifier.height(3.dp))
-                Text(text = loves.toString(), style = AppTypography.LB2_11, color = AppColors.black1)
+                Text(text = "0", style = AppTypography.LB2_11, color = AppColors.black1)
             }
         }
     }
 }
 
 private fun String.formattedDate(): String {
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
     val date = inputFormat.parse(this)
 
-    val outputFormat = SimpleDateFormat("yyyy.MM.dd(EEE)", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("yyyy.MM.dd(EEE)", Locale.KOREA)
     return outputFormat.format(date ?: Date())
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PostItemPreview() {
-//    PostItem(
-//        post = Post(
-//            postId = 0,
-//            writer = "writer",
-//            profileImg = "",
-//            createdAt = "2023-03-12",
-//            content = "게시글 내용",
-//            imgs = listOf(""),
-//            loved = false
-//        ),
-//        navigateToPostDetail = {},
-//    )
+    PostItem(
+        userNickname = "test",
+        post = Post(
+            postId = 0,
+            writer = "test",
+            profileImg = "",
+            createdAt = "2023-03-12",
+            content = "test",
+            imgs = listOf(""),
+            loved = false
+        ),
+        navigateToPostDetail = {},
+        navigateToEditPost = {},
+        onClickPostLoves = {},
+        showDeletePostPopup = {},
+        showReportPostPopup = {}
+    )
 }

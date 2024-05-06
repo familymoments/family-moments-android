@@ -1,15 +1,16 @@
 package io.familymoments.app.feature.profile.viewmodel
 
-import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
 import io.familymoments.app.core.graph.Route
+import io.familymoments.app.core.network.dto.request.ProfileEditRequest
 import io.familymoments.app.core.network.repository.UserRepository
-import io.familymoments.app.feature.profile.mapper.toRequest
 import io.familymoments.app.feature.profile.uistate.ProfileEditInfoUiState
 import io.familymoments.app.feature.profile.uistate.ProfileEditUiState
-import io.familymoments.app.feature.profile.uistate.ProfileImage
+import io.familymoments.app.feature.signup.UserInfoFormatChecker.checkBirthDay
+import io.familymoments.app.feature.signup.UserInfoFormatChecker.checkNickname
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,54 +30,53 @@ class ProfileEditViewModel @Inject constructor(
     private val birthdate: String = checkNotNull(savedStateHandle[Route.ProfileEdit.birthdateArg])
     private val profileImg: String = checkNotNull(savedStateHandle[Route.ProfileEdit.profileImgArg])
 
-    private val _profileEditUiState: MutableStateFlow<ProfileEditUiState> = MutableStateFlow(
+    private val _uiState: MutableStateFlow<ProfileEditUiState> = MutableStateFlow(
         ProfileEditUiState(
             profileEditInfoUiState = ProfileEditInfoUiState(name, nickname, birthdate),
-            profileImage = ProfileImage.Url(profileImg)
+            profileImageUri = Uri.parse(profileImg)
         )
     )
-    val profileEditUiState: StateFlow<ProfileEditUiState> = _profileEditUiState.asStateFlow()
+    val uiState: StateFlow<ProfileEditUiState> = _uiState.asStateFlow()
 
-    fun imageChanged(bitmap: Bitmap?) {
-        if (bitmap == null) return
-        _profileEditUiState.value = _profileEditUiState.value.copy(
-            profileImage = ProfileImage.Bitmap(bitmap)
+    fun imageChanged(uri: Uri) {
+        _uiState.value = _uiState.value.copy(
+            profileImageUri = uri
         )
     }
 
-    fun nameChanged(name: String) {
-        _profileEditUiState.value = _profileEditUiState.value.copy(
-            profileEditInfoUiState = profileEditUiState.value.profileEditInfoUiState.copy(name = name)
+    fun validateName(name: String) {
+        _uiState.value = _uiState.value.copy(
+            profileEditValidated = _uiState.value.profileEditValidated.copy(nameValidated = name.isNotEmpty())
         )
     }
 
-    fun nicknameChanged(nickname: String) {
-        _profileEditUiState.value = _profileEditUiState.value.copy(
-            profileEditInfoUiState = profileEditUiState.value.profileEditInfoUiState.copy(nickname = nickname)
+    fun validateNickname(nickname: String) {
+        _uiState.value = _uiState.value.copy(
+            profileEditValidated = _uiState.value.profileEditValidated.copy(nicknameValidated = checkNickname(nickname))
         )
     }
 
-    fun birthdateChanged(birthdate: String) {
-        _profileEditUiState.value = _profileEditUiState.value.copy(
-            profileEditInfoUiState = profileEditUiState.value.profileEditInfoUiState.copy(birthdate = birthdate)
+    fun validateBirthdate(birthdate: String) {
+        _uiState.value = _uiState.value.copy(
+            profileEditValidated = _uiState.value.profileEditValidated.copy(birthdateValidated = checkBirthDay(birthdate))
         )
     }
 
-    fun editUserProfile(imageFile: File) {
+    fun editUserProfile(imageFile: File, name: String, nickname: String, birthdate: String) {
         val imageRequestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
         val profileImgPart = MultipartBody.Part.createFormData("profileImg", imageFile.name, imageRequestBody)
         async(
             operation = {
                 userRepository.editUserProfile(
-                    profileEditRequest = _profileEditUiState.value.profileEditInfoUiState.toRequest(),
+                    profileEditRequest = ProfileEditRequest(name, nickname, birthdate),
                     profileImg = profileImgPart
                 )
             },
             onSuccess = {
-                _profileEditUiState.value = _profileEditUiState.value.copy(isSuccess = true)
+                _uiState.value = _uiState.value.copy(isSuccess = true)
             },
             onFailure = {
-                _profileEditUiState.value = _profileEditUiState.value.copy(
+                _uiState.value = _uiState.value.copy(
                     isSuccess = false,
                     errorMessage = it.message
                 )

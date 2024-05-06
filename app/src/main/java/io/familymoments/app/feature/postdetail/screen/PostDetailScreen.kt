@@ -26,15 +26,14 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,13 +45,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import io.familymoments.app.R
@@ -63,18 +60,16 @@ import io.familymoments.app.core.component.popup.LoveListPopUp
 import io.familymoments.app.core.component.popup.ReportPopUp
 import io.familymoments.app.core.network.dto.response.GetCommentsResult
 import io.familymoments.app.core.network.dto.response.GetPostDetailResult
+import io.familymoments.app.core.network.dto.response.GetPostLovesResult
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
-import io.familymoments.app.core.uistate.PopupUiState
 import io.familymoments.app.core.util.noRippleClickable
+import io.familymoments.app.core.util.oneClick
 import io.familymoments.app.feature.postdetail.component.postDetailContentShadow
-import io.familymoments.app.feature.postdetail.uistate.CommentLogics
-import io.familymoments.app.feature.postdetail.uistate.GetPostLovesUiState
-import io.familymoments.app.feature.postdetail.uistate.PostCommentUiState
-import io.familymoments.app.feature.postdetail.uistate.PostLogics
+import io.familymoments.app.feature.postdetail.uistate.PostDetailPopupType
+import io.familymoments.app.feature.postdetail.uistate.PostDetailUiState
 import io.familymoments.app.feature.postdetail.viewmodel.PostDetailViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PostDetailScreen(
     viewModel: PostDetailViewModel,
@@ -84,123 +79,276 @@ fun PostDetailScreen(
     navigateToModify: (GetPostDetailResult) -> Unit,
 ) {
     LaunchedEffect(Unit) {
+        viewModel.getNickname()
         viewModel.getPostDetail(index)
-        viewModel.getPostComments(index)
+        viewModel.getComments(index)
         viewModel.getPostLoves(index)
     }
     val context = LocalContext.current
-    val postUiState = viewModel.postUiState.collectAsStateWithLifecycle().value
-    val commentUiState = viewModel.commentUiState.collectAsStateWithLifecycle().value
-    val popupUiState = viewModel.popupUiState.collectAsStateWithLifecycle().value
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    val popup = uiState.popup
+    val postDetail = uiState.postDetail
 
-    if (postUiState.deletePostUiState.isSuccess == true && popupUiState.completePopupUiState.show) {
-        CompletePopUp(
-            content = stringResource(R.string.post_detail_delete_complete_pop_label)
-        ) {
-            popupUiState.popupStatusLogics.showCompletePopup(false)
-            navigateToBack()
-        }
-    }
-    if (commentUiState.deleteCommentUiState.isSuccess == true && popupUiState.completePopupUiState.show) {
-        CompletePopUp(
-            content = stringResource(R.string.post_detail_delete_complete_pop_label)
-        ) { popupUiState.popupStatusLogics.showCompletePopup(false) }
-    }
+    LaunchedEffectSetUpData(
+        index,
+        viewModel::getNickname,
+        viewModel::getPostDetail,
+        viewModel::getComments,
+        viewModel::getPostLoves
+    )
+    LaunchedEffectShowPopup(
+        popup,
+        viewModel::deletePost,
+        viewModel::deleteComment,
+        viewModel::dismissPopup,
+        navigateToBack,
+    )
+    LaunchedEffectShowErrorMessage(uiState, context, viewModel::resetSuccess)
+    PostDetailScreenUI(
+        modifier = modifier,
+        uiState = uiState,
+        isPostDetailExist = viewModel.checkPostDetailExist(postDetail),
+        formatPostCreatedDate = viewModel::formatPostCreatedDate,
+        showDeletePostPopup = viewModel::showDeletePostPopup,
+        showReportPostPopup = viewModel::showReportPostPopup,
+        deletePostLoves = viewModel::deletePostLoves,
+        postPostLoves = viewModel::postPostLoves,
+        navigateToPostModify = navigateToModify,
+        postComment = viewModel::postComment,
+        showLoveListPopup = viewModel::showLoveListPopup,
+        makeCommentAvailable = viewModel::makeCommentAvailable,
+        formatCommentCreatedDate = viewModel::formatCommentCreatedDate,
+        showReportCommentPopup = viewModel::showReportCommentPopup,
+        showDeleteCommentPopup = viewModel::showDeleteCommentPopup,
+        deleteCommentLoves = viewModel::deleteCommentLoves,
+        postCommentLoves = viewModel::postCommentLoves,
+    )
+}
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun PostDetailScreenUI(
+    modifier: Modifier = Modifier,
+    uiState: PostDetailUiState,
+    isPostDetailExist: Boolean = true,
+    formatPostCreatedDate: (String) -> String,
+    showDeletePostPopup: (Long) -> Unit = {},
+    showReportPostPopup: (Long) -> Unit = {},
+    deletePostLoves: (Long) -> Unit = {},
+    postPostLoves: (Long) -> Unit = {},
+    navigateToPostModify: (GetPostDetailResult) -> Unit = {},
+    postComment: (Long, String) -> Unit = { _, _ -> },
+    showLoveListPopup: (List<GetPostLovesResult>) -> Unit = {},
+    makeCommentAvailable: () -> Unit = {},
+    formatCommentCreatedDate: (String) -> String,
+    showReportCommentPopup: (Long) -> Unit = {},
+    showDeleteCommentPopup: (Long) -> Unit = {},
+    deleteCommentLoves: (Long) -> Unit = {},
+    postCommentLoves: (Long) -> Unit = {},
+) {
 
-    if (popupUiState.deletePopupUiState.show) {
-        DeletePopUp(content = popupUiState.deletePopupUiState.content,
-            onDismissRequest = {
-                popupUiState.popupStatusLogics.showDeletePopup(false, "") {}
-            },
-            delete = {
-                popupUiState.deletePopupUiState.execute()
-                popupUiState.popupStatusLogics.showDeletePopup(false, "") {}
-            })
-    }
-    if (popupUiState.reportPopupUiState.show) {
-        ReportPopUp(onDismissRequest = {
-            popupUiState.popupStatusLogics.showReportPopup(false) {}
-        }) {
-            popupUiState.reportPopupUiState.execute()
-            popupUiState.popupStatusLogics.showReportPopup(false) {}
-        }
-    }
-    if (commentUiState.postCommentUiState.isSuccess == true || commentUiState.deleteCommentUiState.isSuccess == true) {
-        commentUiState.logics.getComments(index)
-    }
-
-    val pagerState = rememberPagerState(pageCount = { postUiState.getPostDetailUiState.result.imgs.size })
-
+    val pagerState = rememberPagerState(pageCount = { uiState.postDetail.imgs.size })
     LazyColumn {
         item {
-            Column(modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 26.dp, bottom = 63.dp)) {
-                if (postUiState.getPostDetailUiState.isSuccess == true) {
+            Column(
+                modifier = modifier.padding(
+                    start = 16.dp, end = 16.dp, top = 26.dp, bottom = 63.dp
+                )
+            ) {
+                if (isPostDetailExist) {
                     WriterInfo(
-                        postUiState.getPostDetailUiState.result,
-                        viewModel::formatPostCreatedDate
+                        writer = uiState.postDetail.writer,
+                        profileImg = uiState.postDetail.profileImg,
+                        createdAt = formatPostCreatedDate(uiState.postDetail.createdAt),
                     )
                 }
-                Spacer(modifier = Modifier.height(15.dp))
-                Divider(Modifier.height(1.dp), color = AppColors.deepPurple3)
-                Spacer(modifier = Modifier.height(19.dp))
                 Box(modifier = Modifier.postDetailContentShadow()) {
                     Column(
                         modifier = Modifier
                             .clip(shape = RoundedCornerShape(10.dp))
                             .background(AppColors.grey6)
                     ) {
-                        PostPhotos(postUiState.getPostDetailUiState.result.imgs, pagerState)
+                        PostPhotos(uiState.postDetail.imgs, pagerState)
                         PostContent(
-                            postUiState.getPostDetailUiState.result,
-                            postUiState.logics,
-                            popupUiState
-                        ) { navigateToModify(postUiState.getPostDetailUiState.result) }
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(5.dp)
-                                .background(color = AppColors.grey4)
-                        )
+                            uiState.userNickname,
+                            uiState.postDetail,
+                            showDeletePostPopup,
+                            showReportPostPopup,
+                            deletePostLoves,
+                            postPostLoves,
+                            uiState.postPostLovesSuccess,
+                            uiState.deletePostLovesSuccess
+                        ) { navigateToPostModify(uiState.postDetail) }
+
                         CommentTextField(
-                            commentUiState.getCommentsUiState.result.size,
-                            postUiState.getPostDetailUiState.result.postId,
-                            viewModel::postComment,
-                            commentUiState.postCommentUiState,
-                            postUiState.getPostLovesUiState,
-                            context,
-                            viewModel::resetPostCommentUiStateSuccess
+                            uiState.comments.size,
+                            uiState.postDetail.postId,
+                            postComment,
+                            showLoveListPopup,
+                            uiState.postLoves,
+                            uiState.resetComment,
+                            makeCommentAvailable
                         )
-                        Spacer(modifier = Modifier.height(18.dp))
-                        if (commentUiState.getCommentsUiState.isSuccess == true) {
+                        if (uiState.comments.isNotEmpty()) {
                             CommentItems(
-                                commentUiState.getCommentsUiState.result,
-                                commentUiState.logics,
-                                viewModel::formatCommentCreatedDate,
-                                popupUiState
+                                uiState.userNickname,
+                                uiState.comments,
+                                formatCommentCreatedDate,
+                                showReportCommentPopup,
+                                showDeleteCommentPopup,
+                                deleteCommentLoves,
+                                postCommentLoves,
+                                uiState.postCommentLovesSuccess,
+                                uiState.deleteCommentLovesSuccess
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(20.dp))
                     }
-
                 }
+
             }
         }
-
     }
-
 }
 
+@Composable
+fun LaunchedEffectSetUpData(
+    index:Long,
+    getNickname:()->Unit,
+    getPostDetail:(Long)->Unit,
+    getComments:(Long)->Unit,
+    getPostLoves:(Long) ->Unit
+){
+    LaunchedEffect(Unit) {
+        getNickname()
+        getPostDetail(index)
+        getComments(index)
+        getPostLoves(index)
+    }
+}
 
-fun showToastMessage(context: Context, message: String?) {
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+@Composable
+fun LaunchedEffectShowPopup(
+    popup: PostDetailPopupType?,
+    deletePost: (Long) -> Unit,
+    deleteComment: (Long) -> Unit,
+    dismissPopup: () -> Unit,
+    navigateToBack: () -> Unit,
+) {
+    val showPopup = remember { mutableStateOf(false) }
+    LaunchedEffect(popup) {
+        showPopup.value = popup != null
+    }
+    if (showPopup.value) {
+        when (popup) {
+            is PostDetailPopupType.DeleteComment -> {
+                DeletePopUp(
+                    content = stringResource(id = R.string.post_detail_pop_up_delete_comment_label),
+                    delete = { deleteComment(popup.commentId) },
+                    onDismissRequest = dismissPopup
+                )
+            }
+
+            PostDetailPopupType.DeleteCommentFailed -> {
+                //todo: 댓글 삭제 실패 팝업
+            }
+
+            PostDetailPopupType.DeleteCommentSuccess -> {
+                CompletePopUp(
+                    content = stringResource(id = R.string.post_detail_delete_complete_pop_label),
+                    onDismissRequest = {
+                        dismissPopup()
+                    }
+                )
+            }
+
+            is PostDetailPopupType.DeletePost -> {
+                DeletePopUp(
+                    content = stringResource(id = R.string.post_detail_delete_post_pop_up_label),
+                    delete = { deletePost(popup.postId) },
+                    onDismissRequest = dismissPopup
+                )
+            }
+
+            PostDetailPopupType.DeletePostFailed -> {
+                //todo: 글 삭제 실패 팝업
+            }
+
+            PostDetailPopupType.DeletePostSuccess -> {
+                CompletePopUp(
+                    content = stringResource(id = R.string.post_detail_delete_complete_pop_label),
+                    onDismissRequest = {
+                        dismissPopup()
+                        navigateToBack()
+                    }
+                )
+            }
+
+            is PostDetailPopupType.ReportComment -> {
+                ReportPopUp(
+                    onDismissRequest = dismissPopup,
+                    onReportRequest = {
+                        //todo: 댓글 신고하기 기능 구현
+                    }
+                )
+            }
+
+            PostDetailPopupType.ReportCommentFailed -> {
+                //todo: 댓글 신고 실패 팝업
+            }
+
+            PostDetailPopupType.ReportCommentSuccess -> {
+                //todo: 댓글 신고 성공 팝업
+            }
+
+            is PostDetailPopupType.ReportPost -> {
+                ReportPopUp(
+                    onDismissRequest = dismissPopup,
+                    onReportRequest = {
+                        //todo: 글 신고하기 기능 구현
+                    }
+                )
+            }
+
+            PostDetailPopupType.ReportPostFailed -> {
+                //todo: 글 신고 실패 팝업
+            }
+
+            PostDetailPopupType.ReportPostSuccess -> {
+                //todo: 글 신고 성공 팝업
+            }
+
+            is PostDetailPopupType.LoveList -> {
+                LoveListPopUp(
+                    postLoves = popup.loves,
+                    onDismissRequest = dismissPopup
+                )
+            }
+
+            null -> {}
+        }
+    }
+}
+
+@Composable
+fun LaunchedEffectShowErrorMessage(
+    uiState: PostDetailUiState,
+    context: Context,
+    resetSuccess: () -> Unit
+) {
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess == false) {
+            Toast.makeText(context, uiState.errorMessage, Toast.LENGTH_SHORT).show()
+            resetSuccess()
+        }
+    }
 }
 
 @Composable
 fun WriterInfo(
-    postInfo: GetPostDetailResult,
-    formatPostCreatedDate: (String) -> String
+    writer: String,
+    profileImg: String,
+    createdAt: String
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -208,7 +356,7 @@ fun WriterInfo(
     ) {
         Spacer(modifier = Modifier.width(11.dp))
         AsyncImage(
-            model = postInfo.profileImg,
+            model = profileImg,
             contentDescription = null,
             modifier = Modifier
                 .clip(CircleShape)
@@ -216,17 +364,20 @@ fun WriterInfo(
         )
         Spacer(modifier = Modifier.width(14.dp))
         Text(
-            text = postInfo.writer,
+            text = writer,
             style = AppTypography.B1_16,
             color = AppColors.black2,
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = formatPostCreatedDate(postInfo.createdAt),
+            text = createdAt,
             style = AppTypography.LB1_13,
             color = AppColors.grey3
         )
     }
+    Spacer(modifier = Modifier.height(15.dp))
+    HorizontalDivider(Modifier.height(1.dp), color = AppColors.deepPurple3)
+    Spacer(modifier = Modifier.height(19.dp))
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -275,14 +426,48 @@ fun PostPhotos(imgs: List<String>, pagerState: PagerState) {
 
 @Composable
 fun PostContent(
+    userNickname: String,
     postInfo: GetPostDetailResult,
-    logics: PostLogics,
-    popupUiState: PopupUiState,
+    showDeletePostPopup: (Long) -> Unit,
+    showReportPostPopup: (Long) -> Unit,
+    deletePostLoves: (Long) -> Unit,
+    postPostLoves: (Long) -> Unit,
+    postPostLovesSuccess: Boolean?,
+    deletePostLovesSuccess: Boolean?,
     navigateToModify: () -> Unit,
 ) {
+    var lovedState by remember {
+        mutableStateOf(postInfo.loved)
+    }
+    var countLoveState by remember {
+        mutableStateOf(postInfo.countLove)
+    }
     var expanded by remember {
         mutableStateOf(false)
     }
+
+    LaunchedEffect(postInfo.loved) {
+        lovedState = postInfo.loved
+    }
+
+    LaunchedEffect(postInfo.countLove) {
+        countLoveState = postInfo.countLove
+    }
+
+    LaunchedEffect(postPostLovesSuccess) {
+        if (postPostLovesSuccess == true) {
+            countLoveState += 1
+            lovedState = true
+        }
+    }
+
+    LaunchedEffect(deletePostLovesSuccess) {
+        if (deletePostLovesSuccess == true) {
+            countLoveState -= 1
+            lovedState = false
+        }
+    }
+
     Box {
         Row(
             modifier = Modifier
@@ -312,24 +497,21 @@ fun PostContent(
                             expanded = true
                         }
                     )
-                    val deletePostPopupLabel = stringResource(R.string.post_detail_delete_post_pop_up_label)
-
                     PostDropdownMenu(
-                        items = listOf(
+                        items =
+                        if (userNickname == postInfo.writer) listOf(
                             Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_modify)) {
                                 navigateToModify()
                             },
                             Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_report)) {
-                                popupUiState.popupStatusLogics.showReportPopup(true) {
-                                    popupUiState.popupStatusLogics.showReportPopup(false, {})
-                                }
+                                showReportPostPopup(postInfo.postId)
                             },
                             Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_delete)) {
-                                popupUiState.popupStatusLogics.showDeletePopup(true, deletePostPopupLabel) {
-                                    logics.deletePost(postInfo.postId)
-                                    popupUiState.popupStatusLogics.showCompletePopup(true)
-                                    popupUiState.popupStatusLogics.showDeletePopup(false, "") {}
-                                }
+                                showDeletePostPopup(postInfo.postId)
+                            },
+                        ) else listOf(
+                            Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_report)) {
+                                showReportPostPopup(postInfo.postId)
                             },
                         ),
                         expanded = expanded
@@ -338,28 +520,18 @@ fun PostContent(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                var lovedState by remember {
-                    mutableStateOf(postInfo.loved)
-                }
-                var countLoveState by remember {
-                    mutableIntStateOf(postInfo.countLove)
-                }
-
                 Icon(
                     imageVector =
                     if (!lovedState) ImageVector.vectorResource(R.drawable.ic_heart_empty)
                     else ImageVector.vectorResource(R.drawable.ic_heart_filled),
                     contentDescription = null,
                     tint = Color.Unspecified,
-                    modifier = Modifier.noRippleClickable {
+                    modifier = Modifier.oneClick(1000) {
                         if (lovedState) {
-                            logics.deletePostLoves(postInfo.postId)
-                            countLoveState -= 1
+                            deletePostLoves(postInfo.postId)
                         } else {
-                            logics.postPostLoves(postInfo.postId)
-                            countLoveState += 1
+                            postPostLoves(postInfo.postId)
                         }
-                        lovedState = !lovedState
                     }
                 )
                 Spacer(modifier = Modifier.height(3.dp))
@@ -371,6 +543,12 @@ fun PostContent(
             }
         }
     }
+    Spacer(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(5.dp)
+            .background(color = AppColors.grey4)
+    )
 }
 
 @Composable
@@ -378,14 +556,20 @@ fun CommentTextField(
     commentsCount: Int,
     postId: Long,
     postComment: (Long, String) -> Unit,
-    postCommentUiState: PostCommentUiState,
-    getPostLovesUiState: GetPostLovesUiState,
-    context: Context,
-    resetPostCommentUiStateSuccess: () -> Unit
+    showLoveListPopup: (List<GetPostLovesResult>) -> Unit,
+    postLoves: List<GetPostLovesResult>,
+    resetComment: Boolean,
+    makeCommentAvailable: () -> Unit
 ) {
-    var showLoveListPopUp by remember {
-        mutableStateOf(false)
+    var comment by remember {
+        mutableStateOf(TextFieldValue())
     }
+
+    if (resetComment) {
+        comment = TextFieldValue()
+        makeCommentAvailable()
+    }
+
     Column {
         Row(
             modifier = Modifier.padding(
@@ -405,21 +589,11 @@ fun CommentTextField(
                 style = AppTypography.B2_14,
                 color = AppColors.grey2,
                 modifier = Modifier.noRippleClickable {
-                    if (getPostLovesUiState.isSuccess == false) {
-                        showToastMessage(context, getPostLovesUiState.message)
-                    } else {
-                        showLoveListPopUp = true
-                    }
+                    showLoveListPopup(postLoves)
                 }
             )
         }
-        if (showLoveListPopUp) {
-            LoveListPopUp(getPostLovesUiState.result) { showLoveListPopUp = false }
-        }
         Spacer(modifier = Modifier.height(10.dp))
-        var comments by remember {
-            mutableStateOf(TextFieldValue())
-        }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -431,13 +605,12 @@ fun CommentTextField(
                 )
         ) {
             val focusRequester = remember { FocusRequester() }
-            val focusManager = LocalFocusManager.current
 
             Row(modifier = Modifier.fillMaxHeight()) {
                 BasicTextField(
-                    value = comments,
+                    value = comment,
                     onValueChange = {
-                        if (it.text.length <= 50) comments = it
+                        if (it.text.length <= 50) comment = it
                     },
                     textStyle = AppTypography.LB2_11.copy(AppColors.black1),
                     modifier = Modifier
@@ -445,7 +618,7 @@ fun CommentTextField(
                         .padding(11.dp)
                         .focusRequester(focusRequester)
                 ) { innerTextField ->
-                    if (comments.text.isEmpty()) {
+                    if (comment.text.isEmpty()) {
                         Text(
                             text = stringResource(R.string.post_detail_screen_comment_text_field_hint),
                             color = AppColors.grey3,
@@ -455,26 +628,19 @@ fun CommentTextField(
                     innerTextField()
                 }
 
-                if (postCommentUiState.isSuccess == true) {
-                    comments = TextFieldValue()
-                    resetPostCommentUiStateSuccess()
-                    focusManager.clearFocus()
-                } else if (postCommentUiState.isSuccess == false) {
-                    showToastMessage(context, postCommentUiState.message ?: "댓글 전송에 실패했습니다.")
-                }
                 Button(
                     onClick = {
-                        postComment(postId, comments.text)
+                        postComment(postId, comment.text)
                     },
-                    enabled = comments.text.trim().isNotEmpty(),
+                    enabled = comment.text.trim().isNotEmpty(),
                     modifier = Modifier
                         .padding(end = 6.dp)
-                        .clip(RoundedCornerShape(10.dp))
                         .height(52.dp)
                         .width(42.dp)
                         .align(Alignment.CenterVertically),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = AppColors.purple1),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.purple1),
                     contentPadding = PaddingValues(0.dp),
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.post_detail_screen_comment_post_button),
@@ -485,37 +651,72 @@ fun CommentTextField(
             }
         }
     }
+    Spacer(modifier = Modifier.height(18.dp))
 }
 
 @Composable
 fun CommentItems(
+    userNickname: String,
     comments: List<GetCommentsResult>,
-    logics: CommentLogics,
     formatCommentCreatedDate: (String) -> String,
-    popupUiState: PopupUiState
+    showReportCommentPopup: (Long) -> Unit,
+    showDeleteCommentPopup: (Long) -> Unit,
+    deleteCommentLoves: (Long) -> Unit,
+    postCommentLoves: (Long) -> Unit,
+    postCommentLovesSuccess: Boolean,
+    deleteCommentLovesSuccess: Boolean
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         comments.forEach {
             CommentItem(
+                userNickname,
                 it,
-                logics,
                 formatCommentCreatedDate,
-                popupUiState
+                showReportCommentPopup,
+                showDeleteCommentPopup,
+                deleteCommentLoves,
+                postCommentLoves,
+                postCommentLovesSuccess,
+                deleteCommentLovesSuccess
             )
         }
     }
-
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
 fun CommentItem(
+    userNickname: String,
     comment: GetCommentsResult,
-    logics: CommentLogics,
     formatCommentCreatedDate: (String) -> String,
-    popupUiState: PopupUiState
+    showReportCommentPopup: (Long) -> Unit,
+    showDeleteCommentPopup: (Long) -> Unit,
+    deleteCommentLoves: (Long) -> Unit,
+    postCommentLoves: (Long) -> Unit,
+    postCommentLovesSuccess: Boolean,
+    deleteCommentLovesSuccess: Boolean
 ) {
     var expanded by remember {
         mutableStateOf(false)
+    }
+    var lovedState by remember {
+        mutableStateOf(comment.heart)
+    }
+
+    LaunchedEffect(comment.heart) {
+        lovedState = comment.heart
+    }
+
+    LaunchedEffect(postCommentLovesSuccess) {
+        if (postCommentLovesSuccess) {
+            lovedState = !lovedState
+        }
+    }
+
+    LaunchedEffect(deleteCommentLovesSuccess) {
+        if (deleteCommentLovesSuccess) {
+            lovedState = !lovedState
+        }
     }
     Row(
         modifier = Modifier
@@ -561,33 +762,32 @@ fun CommentItem(
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_three_dots_row),
                     contentDescription = null,
-                    modifier = Modifier.noRippleClickable { expanded = true },
+                    modifier = Modifier.noRippleClickable {
+                        expanded = true
+                    },
                     tint = Color.Unspecified,
                 )
-                val deleteCommentPopupLabel = stringResource(R.string.post_detail_pop_up_delete_comment_label)
                 PostDropdownMenu(
-                    items = listOf(
+                    items =
+                    if (userNickname == comment.nickname) listOf(
                         Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_report)) {
-                            popupUiState.popupStatusLogics.showReportPopup(true) {}
+                            showReportCommentPopup(comment.commentId)
                         },
                         Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_delete)) {
-                            popupUiState.popupStatusLogics.showDeletePopup(true, deleteCommentPopupLabel) {
-                                logics.deleteComment(comment.commentId)
-                                popupUiState.popupStatusLogics.showDeletePopup(false, "") {}
-                            }
+                            showDeleteCommentPopup(comment.commentId)
+                        },
+                    ) else listOf(
+                        Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_report)) {
+                            showReportCommentPopup(comment.commentId)
                         },
                     ),
                     expanded = expanded
                 ) { expanded = it }
             }
 
-            var commentLikeState by remember {
-                mutableStateOf(comment.heart)
-            }
-
             Icon(
                 imageVector =
-                if (!commentLikeState) ImageVector.vectorResource(R.drawable.ic_heart_empty)
+                if (!lovedState) ImageVector.vectorResource(R.drawable.ic_heart_empty)
                 else ImageVector.vectorResource(R.drawable.ic_heart_filled),
                 contentDescription = null,
                 tint = Color.Unspecified,
@@ -595,12 +795,11 @@ fun CommentItem(
                     .padding(top = 5.dp)
                     .align(Alignment.End)
                     .noRippleClickable {
-                        if (commentLikeState) {
-                            logics.deleteCommentLoves(comment.commentId)
+                        if (lovedState) {
+                            deleteCommentLoves(comment.commentId)
                         } else {
-                            logics.postCommentLoves(comment.commentId)
+                            postCommentLoves(comment.commentId)
                         }
-                        commentLikeState = !commentLikeState
                     }
             )
             Text(
@@ -616,8 +815,24 @@ fun CommentItem(
 
 @Preview(showBackground = true)
 @Composable
-fun PostDetailPreview() {
-    PostDetailScreen(hiltViewModel(), 0, modifier = Modifier, {}) {}
+fun PostDetailScreenUIPreview() {
+    PostDetailScreenUI(
+        uiState = PostDetailUiState(
+            postDetail = GetPostDetailResult(
+                writer = "nickname",
+                content = "content"
+            ),
+            comments = List(10) {
+                GetCommentsResult(
+                    commentId = it.toLong(),
+                    nickname = "nickname$it",
+                    content = "content$it"
+                )
+            }
+        ),
+        formatPostCreatedDate = { "2024-04-29" },
+        formatCommentCreatedDate = { "방금" },
+    )
 }
 
 @Preview(showBackground = true)

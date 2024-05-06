@@ -74,6 +74,16 @@ fun getMainGraph(
             viewModel = hiltViewModel(),
             navigateToPostDetail = { postId ->
                 navController.navigate(CommonRoute.POST_DETAIL.name + "/${postId}")
+            },
+            navigateToPostEdit = { post ->
+                navController.navigate(
+                    Route.EditPost.getRoute(
+                        mode = AddPostMode.EDIT.mode,
+                        editPostId = post.postId,
+                        editImages = post.imgs,
+                        editContent = post.content
+                    )
+                )
             }
         )
     }
