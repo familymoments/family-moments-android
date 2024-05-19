@@ -60,7 +60,7 @@ import io.familymoments.app.core.component.SignUpTextFieldArea
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
-import io.familymoments.app.core.util.FileUtil.convertBitmapToFile
+import io.familymoments.app.core.util.FileUtil.convertBitmapToCompressedFile
 import io.familymoments.app.core.util.FileUtil.convertUriToBitmap
 import io.familymoments.app.core.util.defaultBitmap
 import io.familymoments.app.feature.signup.uistate.SignUpInfoUiState
@@ -521,7 +521,7 @@ fun ProfileImageField(defaultProfileImageBitmap: Bitmap, context: Context, onFil
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
     ) {
         ProfileImageSelectDropDownMenu(isMenuExpanded, { isMenuExpanded = it }, defaultProfileImageBitmap) {
-            onFileChange(convertBitmapToFile(it, context))
+            onFileChange(convertBitmapToCompressedFile(it, context))
             bitmap = it
         }
         if (bitmap == null) {

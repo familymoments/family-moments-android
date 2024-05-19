@@ -144,6 +144,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.timber)
     implementation(libs.lottie.compose)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging.ktx)
 
     implementation(libs.accompanist.systemuicontroller)
 

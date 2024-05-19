@@ -31,7 +31,7 @@ import io.familymoments.app.core.network.dto.request.FamilyProfile
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.util.FAMILY_NAME_MAX_LENGTH
-import io.familymoments.app.core.util.FileUtil.convertBitmapToFile
+import io.familymoments.app.core.util.FileUtil.convertBitmapToCompressedFile
 import io.familymoments.app.feature.choosingfamily.component.ChoosingFamilyHeaderButtonLayout
 import io.familymoments.app.feature.creatingfamily.component.GalleryOrDefaultImageSelectButton
 import io.familymoments.app.feature.creatingfamily.viewmodel.CreatingFamilyViewModel
@@ -63,7 +63,7 @@ fun SetProfileScreen(
                     val familyProfileBitmap = familyImg ?: throw Throwable(
                         context.getString(R.string.set_family_profile_image_unsellect_error)
                     )
-                    convertBitmapToFile(familyProfileBitmap, context)
+                    convertBitmapToCompressedFile(familyProfileBitmap, context)
                 }.onSuccess { file ->
                     viewModel.saveFamilyProfile(
                         FamilyProfile(

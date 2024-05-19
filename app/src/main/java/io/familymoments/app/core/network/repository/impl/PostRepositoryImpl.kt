@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import okhttp3.MultipartBody
-import timber.log.Timber
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
@@ -190,11 +189,11 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun addPost(
         familyId: Long,
         content: String,
-        imageFiles: List<MultipartBody.Part>?
+        multipartImgs: List<MultipartBody.Part>?
     ): Flow<Resource<AddPostResponse>> {
         return flow {
             emit(Resource.Loading)
-            val response = postService.addPost(familyId, AddPostRequest(content), imageFiles)
+            val response = postService.addPost(familyId, AddPostRequest(content), multipartImgs)
             val responseBody = response.body() ?: AddPostResponse()
 
             if (responseBody.isSuccess) {
@@ -229,7 +228,6 @@ class PostRepositoryImpl @Inject constructor(
             val response = postService.getPostLoves(index)
             val responseBody = response.body() ?: GetPostLovesResponse()
             if (responseBody.isSuccess) {
-                Timber.tag("hkhk").d("좋아요 목록: $index")
                 emit(Resource.Success(responseBody))
             } else {
                 emit(Resource.Fail(Throwable(responseBody.message)))
@@ -299,11 +297,11 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun editPost(
         index: Long,
         content: String,
-        imageFiles: List<MultipartBody.Part>?
+        multipartImgs: List<MultipartBody.Part>?
         ): Flow<Resource<AddPostResponse>> {
         return flow {
             emit(Resource.Loading)
-            val response = postService.editPost(index, AddPostRequest(content), imageFiles)
+            val response = postService.editPost(index, AddPostRequest(content), multipartImgs)
             val responseBody = response.body() ?: AddPostResponse()
 
             if (responseBody.isSuccess) {

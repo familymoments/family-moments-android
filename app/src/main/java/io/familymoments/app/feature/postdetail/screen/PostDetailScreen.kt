@@ -384,8 +384,6 @@ fun WriterInfo(
 @Composable
 fun PostPhotos(imgs: List<String>, pagerState: PagerState) {
     Box(
-        modifier = Modifier
-            .height(168.dp)
     ) {
         HorizontalPager(
             state = pagerState,

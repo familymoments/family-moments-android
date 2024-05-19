@@ -38,7 +38,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,7 +46,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -61,10 +59,8 @@ import io.familymoments.app.R
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
-import io.familymoments.app.core.util.FileUtil
 import io.familymoments.app.core.util.POST_PHOTO_MAX_SIZE
 import io.familymoments.app.core.util.keyboardAsState
-import io.familymoments.app.core.util.noRippleClickable
 import io.familymoments.app.core.util.oneClick
 import io.familymoments.app.feature.addpost.AddPostMode
 import io.familymoments.app.feature.addpost.AddPostMode.ADD
@@ -73,6 +69,7 @@ import io.familymoments.app.feature.addpost.uistate.AddPostUiState
 import io.familymoments.app.feature.addpost.viewmodel.AddPostViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun AddPostScreen(
@@ -82,23 +79,26 @@ fun AddPostScreen(
     var content by remember { mutableStateOf(addPostUiState.existPostUiState.editContent) }
     val context = LocalContext.current
 
-    LaunchedEffectIfPostSuccess(addPostUiState, popBackStack, context, viewModel)
+    LaunchedEffectWithSuccess(addPostUiState, popBackStack, context, viewModel)
 
-    val uriList = getUriListForm(addPostUiState)
-    val launcher = generateVisualMediaRequestLauncher(uriList)
+    val fileList = viewModel.filesState
+    val launcher = generateVisualMediaRequestLauncher { uris ->
+        viewModel.addImages(
+            uris = uris,
+            context = context,
+            errorMessage = context.getString(R.string.add_post_exceed_max_photo_size_error, POST_PHOTO_MAX_SIZE)
+        )
+    }
 
     val scope = rememberCoroutineScope()
     val isKeyboardOpen by keyboardAsState()
     val focusManager = LocalFocusManager.current
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     AddPostScreenUI(
-        modifier = modifier.noRippleClickable {
-            keyboardController?.hide()
-        },
+        modifier = modifier,
         modeEnum = addPostUiState.mode,
         focusManager = focusManager,
-        uriList = uriList,
+        fileList = fileList,
         onLaunchPickVisualMediaRequest = {
             launcher.launch(
                 PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -108,22 +108,21 @@ fun AddPostScreen(
         onContentUpdate = { content = it },
         isKeyboardOpen = isKeyboardOpen,
         onButtonClick = {
-            onUploadClicked(focusManager, scope, context, uriList, addPostUiState, viewModel, content)
+            onUploadClicked(focusManager, scope, fileList, addPostUiState, viewModel, content)
         })
 }
 
 private fun onUploadClicked(
     focusManager: FocusManager,
     scope: CoroutineScope,
-    context: Context,
-    uriList: SnapshotStateList<Uri>,
+    fileList: MutableList<File>,
     addPostUiState: AddPostUiState,
     viewModel: AddPostViewModel,
     content: String
 ) {
     focusManager.clearFocus()
     scope.launch {
-        val imageFiles = FileUtil.imageFilesResize(context, uriList.toList())
+        val imageFiles = fileList.toList()
         when (addPostUiState.mode) {
             ADD -> viewModel.addPost(content, imageFiles)
             EDIT -> viewModel.editPost(
@@ -134,33 +133,29 @@ private fun onUploadClicked(
 }
 
 @Composable
-private fun LaunchedEffectIfPostSuccess(
+private fun LaunchedEffectWithSuccess(
     addPostUiState: AddPostUiState, popBackStack: () -> Unit, context: Context, viewModel: AddPostViewModel
 ) {
     LaunchedEffect(addPostUiState.isSuccess) {
         if (addPostUiState.isSuccess == true) {
             popBackStack()
         } else if (addPostUiState.isSuccess == false) {
-            Toast.makeText(context, context.getString(R.string.add_post_fail), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, addPostUiState.errorMessage, Toast.LENGTH_SHORT).show()
             viewModel.initSuccessState()
         }
     }
 }
 
-@Composable
-private fun getUriListForm(addPostUiState: AddPostUiState): SnapshotStateList<Uri> = remember {
-    mutableStateListOf(*addPostUiState.existPostUiState.editImages.map { Uri.parse(it) }.toTypedArray())
-}
-
 
 @Composable
-private fun generateVisualMediaRequestLauncher(uriList: SnapshotStateList<Uri>) =
+private fun generateVisualMediaRequestLauncher(
+    addImages: (List<Uri>) -> Unit
+) =
     rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(POST_PHOTO_MAX_SIZE)
     ) { uris ->
         if (uris.isNotEmpty<@JvmSuppressWildcards Uri>()) {
-            uriList.clear()
-            uriList.addAll(uris)
+            addImages(uris)
         }
     }
 
@@ -169,7 +164,7 @@ private fun AddPostScreenUI(
     modifier: Modifier = Modifier,
     focusManager: FocusManager = LocalFocusManager.current,
     modeEnum: AddPostMode = ADD,
-    uriList: SnapshotStateList<Uri> = mutableStateListOf(),
+    fileList: MutableList<File> = mutableStateListOf(),
     onLaunchPickVisualMediaRequest: () -> Unit = {},
     content: String = "",
     onContentUpdate: (String) -> Unit = {},
@@ -189,7 +184,7 @@ private fun AddPostScreenUI(
                 EDIT -> stringResource(id = R.string.edit_post_title)
             }, style = AppTypography.SH1_20, color = AppColors.deepPurple1, textAlign = TextAlign.Center
         )
-        ImageRow(focusManager, uriList, onLaunchPickVisualMediaRequest)
+        ImageRow(focusManager, fileList, onLaunchPickVisualMediaRequest)
         Text(
             modifier = Modifier
                 .fillMaxWidth()
@@ -231,7 +226,7 @@ private fun AddPostScreenUI(
                     .then(
                         if (content
                                 .trim()
-                                .isNotEmpty() && uriList.isNotEmpty()
+                                .isNotEmpty() && fileList.isNotEmpty()
                         ) {
                             Modifier
                                 .background(color = AppColors.deepPurple1)
@@ -255,7 +250,7 @@ private fun AddPostScreenUI(
 @Composable
 private fun ImageRow(
     focusManager: FocusManager = LocalFocusManager.current,
-    imageUriList: MutableList<Uri> = mutableListOf(),
+    imageList: MutableList<File> = mutableListOf(),
     onPickVisualMediaRequest: () -> Unit = {},
 ) {
     Row(
@@ -285,9 +280,9 @@ private fun ImageRow(
                 Text(text = buildAnnotatedString {
                     withStyle(
                         style = AppTypography.BTN6_13.toSpanStyle()
-                            .copy(color = if (imageUriList.isNotEmpty()) AppColors.purple2 else AppColors.grey2)
+                            .copy(color = if (imageList.isNotEmpty()) AppColors.purple2 else AppColors.grey2)
                     ) {
-                        append(imageUriList.size.toString())
+                        append(imageList.size.toString())
                     }
                     withStyle(style = AppTypography.BTN6_13.toSpanStyle().copy(color = AppColors.grey2)) {
                         append("/$POST_PHOTO_MAX_SIZE")
@@ -296,17 +291,17 @@ private fun ImageRow(
             }
         }
         Spacer(modifier = Modifier.width(9.dp))
-        if (imageUriList.isNotEmpty()) {
+        if (imageList.isNotEmpty()) {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(9.dp), contentPadding = PaddingValues(end = 16.dp)
             ) {
-                items(imageUriList.size) { i ->
+                items(imageList.size) { i ->
                     Box {
                         AsyncImage(
                             modifier = Modifier
                                 .size(63.dp)
                                 .clip(shape = RoundedCornerShape(6.dp)),
-                            model = imageUriList[i],
+                            model = imageList[i],
                             contentDescription = null,
                             contentScale = ContentScale.Crop
                         )
@@ -317,7 +312,7 @@ private fun ImageRow(
                                     x = (63 - 13).dp, y = (-8).dp
                                 )
                                 .oneClick(1000) {
-                                    imageUriList.removeAt(i)
+                                    imageList.removeAt(i)
                                 },
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_text_field_clear),
                             contentDescription = null,
@@ -333,6 +328,6 @@ private fun ImageRow(
 @Composable
 private fun AddPostScreenPreview() {
     FamilyMomentsTheme {
-        AddPostScreenUI(content = "test", uriList = remember { mutableStateListOf(Uri.parse("")) })
+        AddPostScreenUI(content = "test")
     }
 }

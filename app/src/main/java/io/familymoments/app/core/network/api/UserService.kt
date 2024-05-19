@@ -25,7 +25,10 @@ import retrofit2.http.Query
 
 interface UserService {
     @POST("/users/log-in")
-    suspend fun loginUser(@Body loginRequest: LoginRequest): Response<LoginResponse>
+    suspend fun loginUser(
+        @Body loginRequest: LoginRequest,
+        @Header("FCM-Token") fcmToken: String
+    ): Response<LoginResponse>
 
     @POST("/users/reissue")
     suspend fun reissueAccessToken(@Header("REFRESH_TOKEN") refreshToken: String): Response<Void>

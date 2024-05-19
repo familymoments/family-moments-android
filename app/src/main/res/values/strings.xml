@@ -195,4 +195,5 @@
     <string name="set_family_profile_name_empty_error">가족 이름이 비어있습니다.</string>
     <string name="set_family_profile_image_unsellect_error">이미지가 선택되지 않았습니다.</string>
     <string name="love_list_popup_no_loves">좋아요가 존재하지 않습니다.</string>
+    <string name="add_post_exceed_max_photo_size_error">사진은 최대 %1$d장 첨부할 수 있습니다.</string>
 </resources>

@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import io.familymoments.app.R
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.util.FileUtil.convertUriToBitmap
-import io.familymoments.app.core.util.FileUtil.resizeBitmap
 
 @Composable
 fun GalleryOrDefaultImageSelectButton(
@@ -77,9 +76,8 @@ fun GalleryOrDefaultImageSelectButton(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (bitmap != null) {
-                val density = context.resources.displayMetrics.density
                 Image(
-                    bitmap = resizeBitmap(bitmap!!, density, imageHeight).asImageBitmap(),
+                    bitmap = bitmap!!.asImageBitmap(),
                     contentDescription = null
                 )
             } else {
