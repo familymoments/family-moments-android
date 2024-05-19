@@ -9,14 +9,15 @@ import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSourc
 import io.familymoments.app.core.network.dto.request.LoginRequest
 import io.familymoments.app.core.network.dto.request.ModifyPasswordRequest
 import io.familymoments.app.core.network.dto.request.ProfileEditRequest
+import io.familymoments.app.core.network.dto.request.SocialSignInRequest
 import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.LoginResponse
 import io.familymoments.app.core.network.dto.response.LogoutResponse
 import io.familymoments.app.core.network.dto.response.ModifyPasswordResponse
 import io.familymoments.app.core.network.dto.response.ProfileEditResponse
 import io.familymoments.app.core.network.dto.response.SearchMemberResponse
+import io.familymoments.app.core.network.dto.response.SocialSignInResponse
 import io.familymoments.app.core.network.dto.response.UserProfile
-import io.familymoments.app.core.network.dto.response.UserProfileResponse
 import io.familymoments.app.core.network.dto.response.getResourceFlow
 import io.familymoments.app.core.network.repository.UserRepository
 import io.familymoments.app.core.util.DEFAULT_FAMILY_ID_VALUE
@@ -25,7 +26,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import okhttp3.Headers
 import okhttp3.MultipartBody
-import timber.log.Timber
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -85,7 +85,7 @@ class UserRepositoryImpl @Inject constructor(
             emit(Resource.Loading)
             // get refresh token from shared preferences
             val refreshToken = userInfoPreferencesDataSource.loadRefreshToken()
-            
+
             val response = userService.reissueAccessToken(refreshToken)
             if (response.code() == HttpResponse.SUCCESS) {
                 // refresh token 을 기반으로 access token 재발급 성공
@@ -167,6 +167,37 @@ class UserRepositoryImpl @Inject constructor(
                 emit(Resource.Success(responseBody))
             } else {
                 emit(Resource.Fail(Throwable(responseBody.message)))
+            }
+        }.catch { e ->
+            emit(Resource.Fail(e))
+        }
+    }
+
+
+    override suspend fun executeSocialSignIn(type: String, token: String): Flow<Resource<SocialSignInResponse>> {
+        return flow {
+            emit(Resource.Loading)
+
+            val response = userService.executeSocialSignIn(SocialSignInRequest(type), token)
+
+            if (response.code() == 200) {
+                response.headers()["X-AUTH-TOKEN"]?.let {
+                    userInfoPreferencesDataSource.saveAccessToken(it)
+                }
+                // TODO 아직 서버에서 REFRESH-TOKEN을 보내주지 않음
+                response.headers()["REFRESH-TOKEN"]?.let {
+                    userInfoPreferencesDataSource.saveRefreshToken(it)
+                }
+
+                val body = response.body()!!
+                if (body.isExisted == null) {
+                    emit(Resource.Fail(Throwable(body.message)))
+                } else {
+                    userInfoPreferencesDataSource.saveSocialLoginType(type)
+                    emit(Resource.Success(body))
+                }
+            } else {
+                emit(Resource.Fail(Throwable("Failed to sign in")))
             }
         }.catch { e ->
             emit(Resource.Fail(e))

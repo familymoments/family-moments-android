@@ -5,9 +5,9 @@ import io.familymoments.app.core.network.api.SignInService
 import io.familymoments.app.core.network.dto.request.CheckEmailRequest
 import io.familymoments.app.core.network.dto.request.CheckIdRequest
 import io.familymoments.app.core.network.dto.request.SignUpRequest
+import io.familymoments.app.core.network.dto.request.UserJoinReq
 import io.familymoments.app.core.network.dto.response.CheckEmailResponse
 import io.familymoments.app.core.network.dto.response.CheckIdResponse
-import io.familymoments.app.core.network.dto.response.SignUpResponse
 import io.familymoments.app.core.network.repository.SignInRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -53,20 +53,35 @@ class SignInRepositoryImpl @Inject constructor(
     override suspend fun executeSignUp(
         profileImg: MultipartBody.Part,
         signUpRequest: SignUpRequest
-    ): Flow<Resource<SignUpResponse>> {
-        return flow {
-            emit(Resource.Loading)
+    ) = flow {
+        emit(Resource.Loading)
 
-            val result = signInService.executeSignUp(profileImg, signUpRequest)
+        val result = signInService.executeSignUp(profileImg, signUpRequest)
 
-            if (result.isSuccess) {
-                emit(Resource.Success(result))
-            } else {
-                emit(Resource.Fail(Throwable(result.message)))
-            }
-        }.catch { e ->
-            emit(Resource.Fail(e))
+        if (result.isSuccess) {
+            emit(Resource.Success(result))
+        } else {
+            emit(Resource.Fail(Throwable(result.message)))
         }
+    }.catch { e ->
+        emit(Resource.Fail(e))
+    }
+
+    override suspend fun executeSocialSignUp(
+        profileImg: MultipartBody.Part,
+        userJoinReq: UserJoinReq
+    ) = flow {
+        emit(Resource.Loading)
+
+        val result = signInService.executeSocialSignUp(profileImg, userJoinReq)
+
+        if (result.isSuccess) {
+            emit(Resource.Success(result))
+        } else {
+            emit(Resource.Fail(Throwable(result.message)))
+        }
+    }.catch { e ->
+        emit(Resource.Fail(e))
     }
 
 }

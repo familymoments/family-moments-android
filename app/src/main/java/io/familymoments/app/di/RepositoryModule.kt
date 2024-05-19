@@ -16,13 +16,11 @@ import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSourc
 import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSourceImpl
 import io.familymoments.app.core.network.repository.CommentRepository
 import io.familymoments.app.core.network.repository.FamilyRepository
-import io.familymoments.app.core.network.repository.GoogleAuthRepository
 import io.familymoments.app.core.network.repository.PostRepository
 import io.familymoments.app.core.network.repository.SignInRepository
 import io.familymoments.app.core.network.repository.UserRepository
 import io.familymoments.app.core.network.repository.impl.CommentRepositoryImpl
 import io.familymoments.app.core.network.repository.impl.FamilyRepositoryImpl
-import io.familymoments.app.core.network.repository.impl.GoogleAuthRepositoryImpl
 import io.familymoments.app.core.network.repository.impl.PostRepositoryImpl
 import io.familymoments.app.core.network.repository.impl.SignInRepositoryImpl
 import io.familymoments.app.core.network.repository.impl.UserRepositoryImpl
@@ -71,13 +69,10 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideFamilyRepository(familyService: FamilyService,  userInfoPreferencesDataSource: UserInfoPreferencesDataSource,): FamilyRepository {
+    fun provideFamilyRepository(
+        familyService: FamilyService,
+        userInfoPreferencesDataSource: UserInfoPreferencesDataSource,
+    ): FamilyRepository {
         return FamilyRepositoryImpl(familyService, userInfoPreferencesDataSource)
-    }
-
-    @Provides
-    @Singleton
-    fun provideGoogleAuthRepository(@ApplicationContext context: Context): GoogleAuthRepository {
-        return GoogleAuthRepositoryImpl(context)
     }
 }

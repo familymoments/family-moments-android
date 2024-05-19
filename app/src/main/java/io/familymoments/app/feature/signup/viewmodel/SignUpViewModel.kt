@@ -2,6 +2,7 @@ package io.familymoments.app.feature.signup.viewmodel
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
+import io.familymoments.app.core.network.dto.request.UserJoinReq
 import io.familymoments.app.core.network.repository.SignInRepository
 import io.familymoments.app.feature.signup.UserInfoFormatChecker
 import io.familymoments.app.feature.signup.mapper.toRequest
@@ -191,13 +192,20 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    fun executeSignUp(signUpInfoUiState: SignUpInfoUiState) {
+    fun executeSignUp(signUpInfoUiState: SignUpInfoUiState, socialType: String) {
         check(signUpInfoUiState.imgFile != null) { throw NullPointerException() }
         val imageRequestBody = signUpInfoUiState.imgFile.asRequestBody("image/*".toMediaTypeOrNull())
         val profileImgPart =
             MultipartBody.Part.createFormData("profileImg", signUpInfoUiState.imgFile.name, imageRequestBody)
         async(
-            operation = { signInRepository.executeSignUp(profileImgPart, signUpInfoUiState.toRequest()) },
+            operation = {
+                if (socialType.isNotEmpty()) {
+                    // TODO 소셜 정보 입력란
+                    signInRepository.executeSocialSignUp(profileImgPart, UserJoinReq())
+                } else {
+                    signInRepository.executeSignUp(profileImgPart, signUpInfoUiState.toRequest())
+                }
+            },
             onSuccess = {
                 _uiState.update {
                     it.copy(

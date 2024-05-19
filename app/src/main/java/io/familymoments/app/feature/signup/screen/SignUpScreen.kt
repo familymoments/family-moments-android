@@ -23,13 +23,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,14 +57,6 @@ import io.familymoments.app.core.component.CheckedStatus
 import io.familymoments.app.core.component.FMButton
 import io.familymoments.app.core.component.FMCheckBox
 import io.familymoments.app.core.component.SignUpTextFieldArea
-import io.familymoments.app.core.network.api.SignInService
-import io.familymoments.app.core.network.dto.request.CheckEmailRequest
-import io.familymoments.app.core.network.dto.request.CheckIdRequest
-import io.familymoments.app.core.network.dto.request.SignUpRequest
-import io.familymoments.app.core.network.dto.response.CheckEmailResponse
-import io.familymoments.app.core.network.dto.response.CheckIdResponse
-import io.familymoments.app.core.network.dto.response.SignUpResponse
-import io.familymoments.app.core.network.repository.impl.SignInRepositoryImpl
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
@@ -75,11 +67,10 @@ import io.familymoments.app.feature.signup.uistate.SignUpInfoUiState
 import io.familymoments.app.feature.signup.uistate.SignUpTermUiState
 import io.familymoments.app.feature.signup.uistate.SignUpValidatedUiState
 import io.familymoments.app.feature.signup.viewmodel.SignUpViewModel
-import okhttp3.MultipartBody
 import java.io.File
 
 @Composable
-fun SignUpScreen(viewModel: SignUpViewModel) {
+fun SignUpScreen(viewModel: SignUpViewModel, socialType: String) {
     val context = LocalContext.current
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val defaultProfileImageBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.default_profile)
@@ -192,12 +183,13 @@ fun SignUpScreen(viewModel: SignUpViewModel) {
             Spacer(modifier = Modifier.height(53.dp))
             TermsField { allEssentialTermsAgree = it }
             StartButtonField(
-                viewModel::executeSignUp,
                 signUpInfoUiState,
                 passwordSameCheck,
                 allEssentialTermsAgree,
-                uiState.value.signUpValidatedUiState
-            )
+                uiState.value.signUpValidatedUiState,
+            ) {
+                viewModel.executeSignUp(signUpInfoUiState, socialType)
+            }
             Spacer(modifier = Modifier.height(40.dp))
         }
     }
@@ -487,14 +479,17 @@ fun MenuItemGallerySelect(
     launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
     isMenuExpandedChanged: (Boolean) -> Unit
 ) {
-    DropdownMenuItem(onClick = {
-        launcher.launch(
-            PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
-        )
-        isMenuExpandedChanged(false)
-    }) {
-        Text(text = stringResource(R.string.sign_up_select_profile_image_drop_down_menu_gallery))
-    }
+    DropdownMenuItem(
+        onClick = {
+            launcher.launch(
+                PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+            isMenuExpandedChanged(false)
+        },
+        text = {
+            Text(text = stringResource(R.string.sign_up_select_profile_image_drop_down_menu_gallery))
+        }
+    )
 }
 
 @Composable
@@ -502,9 +497,9 @@ fun MenuItemDefaultImage(getDefaultProfileImageBitmap: () -> Unit, isMenuExpande
     DropdownMenuItem(onClick = {
         getDefaultProfileImageBitmap()
         isMenuExpandedChanged(false)
-    }) {
+    }, text = {
         Text(text = stringResource(R.string.sign_up_select_profile_image_drop_down_menu_default_image))
-    }
+    })
 }
 
 @Composable
@@ -521,9 +516,9 @@ fun ProfileImageField(defaultProfileImageBitmap: Bitmap, context: Context, onFil
         modifier = Modifier.height(150.dp),
         onClick = { isMenuExpanded = !isMenuExpanded },
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = Color(0xFFF3F4F7),
+            containerColor = Color(0xFFF3F4F7),
         ),
-        elevation = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
     ) {
         ProfileImageSelectDropDownMenu(isMenuExpanded, { isMenuExpanded = it }, defaultProfileImageBitmap) {
             onFileChange(convertBitmapToFile(it, context))
@@ -568,11 +563,11 @@ fun ProfileImageField(defaultProfileImageBitmap: Bitmap, context: Context, onFil
 
 @Composable
 fun StartButtonField(
-    onClick: (SignUpInfoUiState) -> Unit,
     signUpInfoUiState: SignUpInfoUiState,
     passwordSameCheck: Boolean,
     allEssentialTermsAgree: Boolean,
-    signUpValidatedUiState: SignUpValidatedUiState
+    signUpValidatedUiState: SignUpValidatedUiState,
+    onClick: () -> Unit,
 ) {
     var signUpEnable by remember {
         mutableStateOf(false)
@@ -589,7 +584,7 @@ fun StartButtonField(
     signUpEnable = passwordSameCheck && allEssentialTermsAgree && signUpValidated && signUpInfoUiState.imgFile != null
     FMButton(
         modifier = Modifier.fillMaxWidth(),
-        onClick = { onClick(signUpInfoUiState) },
+        onClick = onClick,
         enabled = signUpEnable,
         text = stringResource(R.string.sign_up_btn)
     )
@@ -656,7 +651,7 @@ fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit) {
                     terms[index] = terms[index].copy(checkedStatus = it)
                 }
             })
-        Divider(modifier = Modifier.padding(vertical = 11.dp), thickness = 1.dp, color = AppColors.grey2)
+        HorizontalDivider(modifier = Modifier.padding(vertical = 11.dp), thickness = 1.dp, color = AppColors.grey2)
         TermsList(list = terms, { index, checkedStatus ->
             terms[index] = terms[index].copy(checkedStatus = checkedStatus)
         }) { onAllEssentialTermsAgree(it) }
@@ -668,25 +663,6 @@ fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit) {
 @Composable
 fun SignUpScreenPreview() {
     FamilyMomentsTheme {
-        SignUpScreen(
-            SignUpViewModel(
-                SignInRepositoryImpl(object : SignInService {
-                    override suspend fun checkId(checkIdRequest: CheckIdRequest): CheckIdResponse {
-                        return CheckIdResponse(true, 200, "", "")
-                    }
 
-                    override suspend fun checkEmail(checkEmailRequest: CheckEmailRequest): CheckEmailResponse {
-                        return CheckEmailResponse(true, 200, "", "")
-                    }
-
-                    override suspend fun executeSignUp(
-                        profileImg: MultipartBody.Part,
-                        signUpRequest: SignUpRequest
-                    ): SignUpResponse {
-                        TODO("Not yet implemented")
-                    }
-                })
-            )
-        )
     }
 }

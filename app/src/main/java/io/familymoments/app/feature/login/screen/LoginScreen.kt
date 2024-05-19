@@ -61,8 +61,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.kakao.sdk.user.UserApiClient
-import com.navercorp.nid.NaverIdLoginSDK
 import io.familymoments.app.R
 import io.familymoments.app.core.component.AppBarScreen
 import io.familymoments.app.core.theme.AppColors
@@ -76,21 +74,26 @@ import io.familymoments.app.feature.login.viewmodel.LoginViewModel
 import io.familymoments.app.feature.signup.activity.SignUpActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel, callback: (Intent) -> Unit = {}) {
+fun LoginScreen(viewModel: LoginViewModel) {
     val loginUiState = viewModel.loginUiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val goToJoin = {
-        context.startActivity(Intent(context, SignUpActivity::class.java))
+    val goToJoin: (String) -> Unit = {
+        val intent = Intent(context, SignUpActivity::class.java)
+        intent.putExtra("socialType", it)
+        context.startActivity(intent)
     }
 
     LaunchedEffect(loginUiState.value.isSuccess) {
         if (loginUiState.value.isSuccess == true) {
-            val intent = Intent(context, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            context.startActivity(intent)
+            if (loginUiState.value.isNeedToSignUp == true) {
+                goToJoin(loginUiState.value.socialType)
+            } else {
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                context.startActivity(intent)
+            }
         }
     }
 
@@ -107,10 +110,7 @@ fun LoginScreen(viewModel: LoginViewModel, callback: (Intent) -> Unit = {}) {
             goToJoin,
             viewModel::updateSuccessNull,
             kakaoLogin = { viewModel.kakaoLogin(context) },
-            naverLogin = { viewModel.naverLogin(context) },
-            googleLogin = {
-                viewModel.googleLogin(callback)
-            }
+            naverLogin = { viewModel.naverLogin(context) }
         )
     }
 }
@@ -120,11 +120,10 @@ fun LoginScreen(viewModel: LoginViewModel, callback: (Intent) -> Unit = {}) {
 private fun LoginScreen(
     login: (String, String) -> Unit,
     loginUiState: LoginUiState,
-    goToJoin: () -> Unit = {},
+    goToJoin: (String) -> Unit = {},
     updateSuccessNull: () -> Unit = {},
     kakaoLogin: () -> Unit = {},
-    naverLogin: () -> Unit = {},
-    googleLogin: () -> Unit = {}
+    naverLogin: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -141,7 +140,7 @@ private fun LoginScreen(
             updateSuccessNull = updateSuccessNull
         )
         LoginOption(goToJoin)
-        SocialLogin(kakaoLogin, naverLogin, googleLogin)
+        SocialLogin(kakaoLogin, naverLogin)
     }
 }
 
@@ -298,7 +297,7 @@ fun LoginFormRoundedCornerTextField(
 }
 
 @Composable
-fun LoginOption(goToJoin: () -> Unit) {
+fun LoginOption(goToJoin: (String) -> Unit) {
     Row(
         modifier = Modifier
             .height(IntrinsicSize.Min)
@@ -334,7 +333,7 @@ fun LoginOption(goToJoin: () -> Unit) {
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             modifier = Modifier.clickable {
-                goToJoin()
+                goToJoin("")
             },
             text = stringResource(id = R.string.login_signup),
             fontSize = 13.sp,
@@ -347,8 +346,7 @@ fun LoginOption(goToJoin: () -> Unit) {
 @Composable
 fun SocialLogin(
     kakaoLogin: () -> Unit,
-    naverLogin: () -> Unit,
-    googleLogin: () -> Unit = {}
+    naverLogin: () -> Unit
 ) {
     Row(
         modifier = Modifier.padding(top = 23.dp, start = 17.dp, end = 17.dp),
@@ -374,7 +372,7 @@ fun SocialLogin(
                 .height(1.dp)
         )
     }
-    Spacer(modifier = Modifier.height(11.dp))
+    Spacer(modifier = Modifier.height(31.dp))
     Row(
         horizontalArrangement = Arrangement.spacedBy(37.dp),
     ) {
@@ -387,11 +385,6 @@ fun SocialLogin(
             painter = painterResource(id = R.drawable.ic_naver_login),
             contentDescription = null,
             modifier = Modifier.size(36.dp).oneClick(400, naverLogin)
-        )
-        Image(
-            imageVector = ImageVector.vectorResource(R.drawable.ic_google_login),
-            contentDescription = null,
-            modifier = Modifier.size(36.dp).oneClick(400, googleLogin)
         )
     }
 }

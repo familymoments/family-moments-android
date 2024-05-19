@@ -16,4 +16,7 @@ interface UserInfoPreferencesDataSource {
     suspend fun updateUserProfile(profileEditResult: ProfileEditResult)
     suspend fun saveRefreshToken(refreshToken: String)
     suspend fun loadRefreshToken(): String
+
+    suspend fun saveSocialLoginType(socialLoginType: String)
+    suspend fun loadSocialLoginType(): String
 }

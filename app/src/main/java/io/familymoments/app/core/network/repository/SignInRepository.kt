@@ -2,6 +2,7 @@ package io.familymoments.app.core.network.repository
 
 import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.dto.request.SignUpRequest
+import io.familymoments.app.core.network.dto.request.UserJoinReq
 import io.familymoments.app.core.network.dto.response.CheckEmailResponse
 import io.familymoments.app.core.network.dto.response.CheckIdResponse
 import io.familymoments.app.core.network.dto.response.SignUpResponse
@@ -15,5 +16,10 @@ interface SignInRepository {
     suspend fun executeSignUp(
         profileImg: MultipartBody.Part,
         signUpRequest: SignUpRequest
+    ): Flow<Resource<SignUpResponse>>
+
+    suspend fun executeSocialSignUp(
+        profileImg: MultipartBody.Part,
+        userJoinReq: UserJoinReq
     ): Flow<Resource<SignUpResponse>>
 }

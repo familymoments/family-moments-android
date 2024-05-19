@@ -7,6 +7,8 @@ import io.familymoments.app.core.network.dto.response.LoginResult
 data class LoginUiState(
     val isLoading: Boolean? = null,
     val isSuccess: Boolean? = null,
+    val isNeedToSignUp: Boolean? = null,
     val errorMessage: String? = null,
     val loginResult: LoginResult? = null,
+    val socialType: String = ""
 )

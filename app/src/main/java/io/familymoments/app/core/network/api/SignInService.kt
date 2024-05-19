@@ -3,6 +3,7 @@ package io.familymoments.app.core.network.api
 import io.familymoments.app.core.network.dto.request.CheckEmailRequest
 import io.familymoments.app.core.network.dto.request.CheckIdRequest
 import io.familymoments.app.core.network.dto.request.SignUpRequest
+import io.familymoments.app.core.network.dto.request.UserJoinReq
 import io.familymoments.app.core.network.dto.response.CheckEmailResponse
 import io.familymoments.app.core.network.dto.response.CheckIdResponse
 import io.familymoments.app.core.network.dto.response.SignUpResponse
@@ -24,5 +25,12 @@ interface SignInService {
     suspend fun executeSignUp(
         @Part profileImg: MultipartBody.Part,
         @Part("newUser") signUpRequest: SignUpRequest
+    ): SignUpResponse
+
+    @Multipart
+    @POST("/users/oauth2/social/join")
+    suspend fun executeSocialSignUp(
+        @Part profileImg: MultipartBody.Part,
+        @Part("userJoinReq") userJoinReq: UserJoinReq
     ): SignUpResponse
 }
