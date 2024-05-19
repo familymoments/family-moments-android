@@ -1,6 +1,8 @@
 package io.familymoments.app.feature.login.viewmodel
 
 import android.content.Context
+import com.kakao.sdk.user.UserApiClient
+import com.navercorp.nid.NaverIdLoginSDK
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
 import io.familymoments.app.core.network.dto.response.LoginResult
@@ -95,5 +97,13 @@ class LoginViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun kakaoLogout() {
+        UserApiClient.instance.logout {  }
+    }
+
+    fun naverLogout() {
+        NaverIdLoginSDK.logout()
     }
 }
