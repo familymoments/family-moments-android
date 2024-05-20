@@ -114,13 +114,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun kakaoLogout() {
-        UserApiClient.instance.logout {  }
-    }
-
-    fun naverLogout() {
-        NaverIdLoginSDK.logout()
-    }
     private fun getFCMToken() {
         viewModelScope.launch {
             try {

@@ -1,17 +1,22 @@
 package io.familymoments.app.feature.mypage.viewmodel
 
+import com.kakao.sdk.user.UserApiClient
+import com.navercorp.nid.NaverIdLoginSDK
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
+import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
 import io.familymoments.app.core.network.repository.UserRepository
 import io.familymoments.app.feature.mypage.uistate.MyPageUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userInfoPreferencesDataSource: UserInfoPreferencesDataSource
 ) : BaseViewModel() {
     private val _myPageUiState: MutableStateFlow<MyPageUiState> = MutableStateFlow(MyPageUiState())
     val myPageUiState: StateFlow<MyPageUiState> = _myPageUiState.asStateFlow()
@@ -20,6 +25,13 @@ class MyPageViewModel @Inject constructor(
         async(
             operation = { userRepository.logoutUser() },
             onSuccess = {
+
+                val type = userInfoPreferencesDataSource.loadSocialLoginType()
+                when (type) {
+                    "kakao" -> kakaoLogout()
+                    "naver" -> naverLogout()
+                }
+
                 _myPageUiState.value = _myPageUiState.value.copy(
                     logoutUiState = _myPageUiState.value.logoutUiState.copy(
                         isSuccess = true
@@ -35,5 +47,17 @@ class MyPageViewModel @Inject constructor(
                 )
             }
         )
+    }
+
+
+    // TODO 회원탈퇴 시에도 필요함
+    private fun kakaoLogout() {
+        UserApiClient.instance.logout { error ->
+            Timber.e(error)
+        }
+    }
+
+    private fun naverLogout() {
+        NaverIdLoginSDK.logout()
     }
 }

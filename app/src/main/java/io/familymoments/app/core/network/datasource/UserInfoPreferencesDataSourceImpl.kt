@@ -142,11 +142,11 @@ class UserInfoPreferencesDataSourceImpl @Inject constructor(
         )
     }
 
-    override suspend fun saveSocialLoginType(socialLoginType: String) {
+    override fun saveSocialLoginType(socialLoginType: String) {
         sharedPreferences.edit().putString(socialLoginType, socialLoginType).apply()
     }
 
-    override suspend fun loadSocialLoginType(): String {
+    override fun loadSocialLoginType(): String {
         return sharedPreferences.getString(
             SOCIAL_LOGIN_TYPE_KEY,
             ""
