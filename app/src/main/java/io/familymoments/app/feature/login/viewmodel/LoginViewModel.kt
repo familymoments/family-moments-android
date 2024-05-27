@@ -1,17 +1,15 @@
 package io.familymoments.app.feature.login.viewmodel
 
 import android.content.Context
-import com.kakao.sdk.user.UserApiClient
-import com.navercorp.nid.NaverIdLoginSDK
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
+import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
 import io.familymoments.app.core.network.dto.response.LoginResult
 import io.familymoments.app.core.network.repository.UserRepository
 import io.familymoments.app.core.network.social.KakaoAuth
 import io.familymoments.app.core.network.social.NaverAuth
-import androidx.lifecycle.viewModelScope
-import com.google.firebase.messaging.FirebaseMessaging
-import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
 import io.familymoments.app.core.util.DEFAULT_FCM_TOKEN_VALUE
 import io.familymoments.app.feature.login.uistate.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,7 +70,7 @@ class LoginViewModel @Inject constructor(
                     onSuccess = {
                         _loginUiState.value = _loginUiState.value.copy(
                             isSuccess = true,
-                            isNeedToSignUp = !it.isExisted!!,
+                            isNeedToSignUp = !it.isExisted,
                             isLoading = isLoading.value,
                             loginResult = LoginResult(it.familyId)
                         )
@@ -97,7 +95,7 @@ class LoginViewModel @Inject constructor(
                     onSuccess = {
                         _loginUiState.value = _loginUiState.value.copy(
                             isSuccess = true,
-                            isNeedToSignUp = !it.isExisted!!,
+                            isNeedToSignUp = !it.isExisted,
                             isLoading = isLoading.value,
                             loginResult = LoginResult(it.familyId)
                         )
