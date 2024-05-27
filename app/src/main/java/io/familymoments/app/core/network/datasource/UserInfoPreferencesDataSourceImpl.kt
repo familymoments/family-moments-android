@@ -143,7 +143,7 @@ class UserInfoPreferencesDataSourceImpl @Inject constructor(
     }
 
     override fun saveSocialLoginType(socialLoginType: String) {
-        sharedPreferences.edit().putString(socialLoginType, socialLoginType).apply()
+        sharedPreferences.edit().putString(SOCIAL_LOGIN_TYPE_KEY, socialLoginType).apply()
     }
 
     override fun loadSocialLoginType(): String {

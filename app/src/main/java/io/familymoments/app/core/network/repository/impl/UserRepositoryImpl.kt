@@ -186,7 +186,7 @@ class UserRepositoryImpl @Inject constructor(
                 }
 
                 val body = response.body()!!
-                if (body.isExisted == null) {
+                if (body.code == 400) {
                     emit(Resource.Fail(Throwable(body.message)))
                 } else {
                     userInfoPreferencesDataSource.saveSocialLoginType(type)
