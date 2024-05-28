@@ -27,6 +27,7 @@ class MyPageViewModel @Inject constructor(
             onSuccess = {
 
                 val type = userInfoPreferencesDataSource.loadSocialLoginType()
+                println(type)
                 when (type) {
                     "kakao" -> kakaoLogout()
                     "naver" -> naverLogout()

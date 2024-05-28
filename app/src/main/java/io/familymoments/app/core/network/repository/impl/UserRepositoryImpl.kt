@@ -16,7 +16,7 @@ import io.familymoments.app.core.network.dto.response.LogoutResponse
 import io.familymoments.app.core.network.dto.response.ModifyPasswordResponse
 import io.familymoments.app.core.network.dto.response.ProfileEditResponse
 import io.familymoments.app.core.network.dto.response.SearchMemberResponse
-import io.familymoments.app.core.network.dto.response.SocialSignInResponse
+import io.familymoments.app.core.network.dto.response.SocialSignInResult
 import io.familymoments.app.core.network.dto.response.UserProfile
 import io.familymoments.app.core.network.dto.response.getResourceFlow
 import io.familymoments.app.core.network.repository.UserRepository
@@ -170,7 +170,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun executeSocialSignIn(type: String, token: String): Flow<Resource<SocialSignInResponse>> {
+    override suspend fun executeSocialSignIn(type: String, token: String): Flow<Resource<SocialSignInResult>> {
         return flow {
             emit(Resource.Loading)
 
@@ -180,17 +180,17 @@ class UserRepositoryImpl @Inject constructor(
                 response.headers()["X-AUTH-TOKEN"]?.let {
                     userInfoPreferencesDataSource.saveAccessToken(it)
                 }
-                // TODO 아직 서버에서 REFRESH-TOKEN을 보내주지 않음
+
                 response.headers()["REFRESH-TOKEN"]?.let {
                     userInfoPreferencesDataSource.saveRefreshToken(it)
                 }
 
                 val body = response.body()!!
-                if (body.code == 400) {
-                    emit(Resource.Fail(Throwable(body.message)))
-                } else {
+                if (body.isSuccess) {
                     userInfoPreferencesDataSource.saveSocialLoginType(type)
-                    emit(Resource.Success(body))
+                    emit(Resource.Success(body.result))
+                } else {
+                    emit(Resource.Fail(Throwable(body.message)))
                 }
             } else {
                 emit(Resource.Fail(Throwable("Failed to sign in")))

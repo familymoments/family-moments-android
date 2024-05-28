@@ -8,6 +8,10 @@ data class SocialSignInResponse(
     val isSuccess: Boolean,
     val code: Int,
     val message: String,
+    val result: SocialSignInResult
+)
+
+data class SocialSignInResult(
     val isExisted: Boolean, // true면 회원가입으로 이동, false면 로그인 성공
     val snsId: String,
     val name: String,

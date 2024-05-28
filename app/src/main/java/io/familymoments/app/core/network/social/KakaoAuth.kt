@@ -17,10 +17,10 @@ object KakaoAuth {
             if (error != null) {
                 Timber.e("카카오계정으로 로그인 실패", error)
             } else if (token != null) {
-                Timber.i("카카오계정으로 로그인 성공 ${token.idToken}")
+                Timber.i("카카오계정으로 로그인 성공 ${token.accessToken}")
             }
             if (error == null) {
-                resultCallback(token?.idToken)
+                resultCallback(token?.accessToken)
             } else {
                 resultCallback(null)
             }
@@ -42,8 +42,8 @@ object KakaoAuth {
                     // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인 시도
                     UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
                 } else if (token != null) {
-                    Timber.i("카카오톡으로 로그인 성공 ${token.idToken}")
-                    resultCallback(token.idToken)
+                    Timber.i("카카오톡으로 로그인 성공 ${token.accessToken}")
+                    resultCallback(token.accessToken)
                 }
             }
         } else {

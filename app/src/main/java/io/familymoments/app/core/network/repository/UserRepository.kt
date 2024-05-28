@@ -9,7 +9,7 @@ import io.familymoments.app.core.network.dto.response.LogoutResponse
 import io.familymoments.app.core.network.dto.response.ModifyPasswordResponse
 import io.familymoments.app.core.network.dto.response.ProfileEditResponse
 import io.familymoments.app.core.network.dto.response.SearchMemberResponse
-import io.familymoments.app.core.network.dto.response.SocialSignInResponse
+import io.familymoments.app.core.network.dto.response.SocialSignInResult
 import io.familymoments.app.core.network.dto.response.UserProfile
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
@@ -36,5 +36,5 @@ interface UserRepository {
         profileImg: MultipartBody.Part
     ): Flow<Resource<ProfileEditResponse>>
 
-    suspend fun executeSocialSignIn(type: String, token: String): Flow<Resource<SocialSignInResponse>>
+    suspend fun executeSocialSignIn(type: String, token: String): Flow<Resource<SocialSignInResult>>
 }
