@@ -9,7 +9,6 @@ import io.familymoments.app.feature.signup.viewmodel.SignUpViewModel
 @AndroidEntryPoint
 class SignUpActivity : BaseActivity<SignUpViewModel>(SignUpViewModel::class) {
     override val screen: @Composable () -> Unit = {
-        val socialType = intent.getStringExtra("socialType") ?: ""
-        SignUpScreen(viewModel, socialType)
+        SignUpScreen(viewModel)
     }
 }

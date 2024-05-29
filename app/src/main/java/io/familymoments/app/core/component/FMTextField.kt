@@ -1,5 +1,6 @@
 package io.familymoments.app.core.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -42,18 +44,15 @@ fun FMTextField(
     textColor: Color = AppColors.black1,
     hintColor: Color = AppColors.grey2,
     showText: Boolean = true,
+    enabled: Boolean = true,
     onFocusChanged: (Boolean) -> Unit = {},
     keyboardActions: KeyboardActions = KeyboardActions {}
 ) {
     Box(
         modifier = modifier
-            .then(
-                if (showBorder) {
-                    Modifier.border(width = 1.5.dp, color = borderColor, shape = RoundedCornerShape(8.dp))
-                } else {
-                    Modifier
-                }
-            )
+            .getFMTextFieldBorder(showBorder, borderColor)
+            .clip(RoundedCornerShape(8.dp))
+            .background(getBackgroundBy(enabled))
             .height(46.dp)
     ) {
         Row(
@@ -68,7 +67,11 @@ fun FMTextField(
                 textStyle = AppTypography.BTN5_16.copy(color = textColor),
                 decorationBox = { innerTextField ->
                     if (value.text.isEmpty()) {
-                        Text(text = hint, style = AppTypography.BTN5_16, color = hintColor)
+                        Text(
+                            text = hint,
+                            style = AppTypography.BTN5_16,
+                            color = if (enabled) hintColor else AppColors.grey1
+                        )
                     }
                     innerTextField()
                 },
@@ -80,7 +83,8 @@ fun FMTextField(
                     },
                 visualTransformation = if (showText) VisualTransformation.None else FMVisualTransformation(),
                 keyboardOptions = if (showText) KeyboardOptions.Default else KeyboardOptions(keyboardType = KeyboardType.Password),
-                keyboardActions = keyboardActions
+                keyboardActions = keyboardActions,
+                enabled = enabled
             )
 
             if (showDeleteButton && value.text.isNotEmpty()) {
@@ -97,6 +101,25 @@ fun FMTextField(
 
         }
     }
+}
+
+fun getBackgroundBy(enabled: Boolean): Color {
+    return if (enabled) {
+        Color.Transparent
+    } else {
+        AppColors.grey3
+    }
+}
+
+@Composable
+private fun Modifier.getFMTextFieldBorder(
+    showBorder: Boolean,
+    borderColor: Color
+): Modifier {
+    if (showBorder) {
+        return border(width = 1.5.dp, color = borderColor, shape = RoundedCornerShape(8.dp))
+    }
+    return this
 }
 
 @Preview(showBackground = true)

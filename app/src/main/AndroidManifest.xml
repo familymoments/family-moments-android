@@ -44,6 +44,13 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.FamilyMoments"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity android:name=".feature.signup.activity.SocialSignUpActivity"
+            android:exported="false"
+            android:label="@string/title_activity_join"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.FamilyMoments"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="io.familymoments.app.feature.forgotpassword.activity.ForgotPasswordActivity"
             android:exported="false"

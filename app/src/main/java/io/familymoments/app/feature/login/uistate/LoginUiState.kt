@@ -10,5 +10,6 @@ data class LoginUiState(
     val isNeedToSignUp: Boolean? = null,
     val errorMessage: String? = null,
     val loginResult: LoginResult? = null,
-    val socialType: String = ""
+    val socialType: String = "",
+    val socialToken: String = "",
 )

@@ -76,6 +76,9 @@ object AppModule {
                 headers.forEach { header ->
                     Timber.i("Header: ${header.first} = ${header.second}")
                 }
+                request.body?.let { body ->
+                    Timber.i("Body: $body")
+                }
 
                 chain.proceed(request)
             }

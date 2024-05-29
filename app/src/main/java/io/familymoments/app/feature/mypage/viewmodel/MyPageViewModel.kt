@@ -6,6 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
 import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
 import io.familymoments.app.core.network.repository.UserRepository
+import io.familymoments.app.core.network.social.KakaoAuth.kakaoLogout
+import io.familymoments.app.core.network.social.NaverAuth.naverLogout
 import io.familymoments.app.feature.mypage.uistate.MyPageUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -48,17 +50,5 @@ class MyPageViewModel @Inject constructor(
                 )
             }
         )
-    }
-
-
-    // TODO 회원탈퇴 시에도 필요함
-    private fun kakaoLogout() {
-        UserApiClient.instance.logout { error ->
-            Timber.e(error)
-        }
-    }
-
-    private fun naverLogout() {
-        NaverIdLoginSDK.logout()
     }
 }

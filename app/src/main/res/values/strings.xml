@@ -14,7 +14,7 @@
     <string name="forgot_password_tf_id_hint">ID</string>
     <string name="forgot_password_tf_name_title">이름</string>
     <string name="forgot_password_tf_name_hint">실명을 입력하세요 ex) 홍길동</string>
-    <string name="forgot_password_tf_email_title">이메일</string>
+    <string name="email">이메일</string>
     <string name="forgot_password_tf_email_hint">example@email.com</string>
     <string name="forgot_password_tf_cn_hint">인증번호 6자리</string>
     <string name="forgot_password_tf_pw_hint">새 비밀번호</string>

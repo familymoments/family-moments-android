@@ -20,7 +20,7 @@ data class SignUpInfoUiState(
     val email: String = "",
     val birthDay: String = "",
     val nickname: String = "",
-    val imgFile: File? = null
+    val imgFile: File? = null,
 )
 
 @Immutable

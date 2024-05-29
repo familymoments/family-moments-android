@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +36,7 @@ fun SignUpTextFieldArea(
     modifier: Modifier = Modifier,
     title: String,
     hint: String,
-    onValueChange: (TextFieldValue) -> Unit,
+    onValueChange: (TextFieldValue) -> Unit = {},
     showCheckButton: Boolean = false,
     checkButtonAvailable: Boolean = false,
     onCheckButtonClick: (TextFieldValue) -> Unit = {},
@@ -43,10 +45,12 @@ fun SignUpTextFieldArea(
     showWarningText: Boolean = false,
     warningText: String = "",
     isFocused: Boolean,
-    showText: Boolean = true
+    showText: Boolean = true,
+    enabled: Boolean = true,
+    initialValue: String = ""
 ) {
     var textFieldValue by remember {
-        mutableStateOf(TextFieldValue())
+        mutableStateOf(TextFieldValue(initialValue))
     }
     var textFieldBorderColor by remember {
         mutableStateOf(AppColors.grey2)
@@ -92,7 +96,8 @@ fun SignUpTextFieldArea(
                 showDeleteButton = showDeleteButton,
                 borderColor = textFieldBorderColor,
                 textColor = textColor,
-                showText = showText
+                showText = showText,
+                enabled = enabled
             )
             if (showCheckButton) {
                 CheckButton(checkButtonAvailable, textFieldValue, onCheckButtonClick)
@@ -119,24 +124,24 @@ private fun CheckButton(
     textFieldValue: TextFieldValue,
     onCheckButtonClick: (TextFieldValue) -> Unit
 ) {
-    Button(
+    ElevatedButton(
         modifier = Modifier
             .wrapContentWidth()
             .padding(start = 7.dp),
         enabled = textFieldValue.text.isNotEmpty() && checkButtonAvailable,
         onClick = { onCheckButtonClick(textFieldValue) },
-        content = {
-            Text(
-                text = stringResource(id = R.string.sign_up_check_duplication_btn),
-                fontSize = 16.sp
-            )
-        },
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = AppColors.deepPurple1,
+            containerColor = AppColors.deepPurple1,
             contentColor = Color.White,
         ),
+        shape = RoundedCornerShape(10.dp),
         contentPadding = PaddingValues(13.dp)
-    )
+    ) {
+        Text(
+            text = stringResource(id = R.string.sign_up_check_duplication_btn),
+            fontSize = 16.sp
+        )
+    }
 }
 
 
@@ -168,5 +173,11 @@ fun ShowWarningText(
 @Preview(showBackground = true)
 @Composable
 private fun SignUpTextFieldPreview() {
-    SignUpTextFieldArea(title = "", hint = "", isFocused = false, onValueChange = {})
+    SignUpTextFieldArea(title = "이메일", hint = "", showCheckButton = true, isFocused = false, onValueChange = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SignUpTextFieldPreviewDisabled() {
+    SignUpTextFieldArea(title = "이메일", hint = "example@gmail.com", isFocused = false, enabled = false, onValueChange = {})
 }

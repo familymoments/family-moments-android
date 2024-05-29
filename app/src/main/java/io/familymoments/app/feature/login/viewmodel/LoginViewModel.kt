@@ -9,7 +9,9 @@ import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSourc
 import io.familymoments.app.core.network.dto.response.LoginResult
 import io.familymoments.app.core.network.repository.UserRepository
 import io.familymoments.app.core.network.social.KakaoAuth
+import io.familymoments.app.core.network.social.KakaoAuth.kakaoLogout
 import io.familymoments.app.core.network.social.NaverAuth
+import io.familymoments.app.core.network.social.NaverAuth.naverLogout
 import io.familymoments.app.core.util.DEFAULT_FCM_TOKEN_VALUE
 import io.familymoments.app.feature.login.uistate.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,7 +74,9 @@ class LoginViewModel @Inject constructor(
                             isSuccess = true,
                             isNeedToSignUp = !it.isExisted,
                             isLoading = isLoading.value,
-                            loginResult = LoginResult(it.familyId)
+                            loginResult = LoginResult(it.familyId, it.email ?: "", it.name ?: "", it.nickname ?: "", it.strBirthDate ?: ""),
+                            socialType = "NAVER",
+                            socialToken = token
                         )
                     },
                     onFailure = {
@@ -97,7 +101,9 @@ class LoginViewModel @Inject constructor(
                             isSuccess = true,
                             isNeedToSignUp = !it.isExisted,
                             isLoading = isLoading.value,
-                            loginResult = LoginResult(it.familyId)
+                            loginResult = LoginResult(it.familyId, it.email ?: "", strBirthDate = it.strBirthDate ?: ""),
+                            socialType = "KAKAO",
+                            socialToken = token
                         )
                     },
                     onFailure = {
@@ -123,5 +129,25 @@ class LoginViewModel @Inject constructor(
                 Timber.tag("fcm-token").e("getFCMToken: ${e.message}")
             }
         }
+    }
+
+    fun logout() {
+        async(
+            operation = { userRepository.logoutUser() },
+            onSuccess = {
+
+                val type = userInfoPreferencesDataSource.loadSocialLoginType()
+                println(type)
+                when (type) {
+                    "kakao" -> kakaoLogout()
+                    "naver" -> naverLogout()
+                }
+
+                _loginUiState.value = LoginUiState()
+            },
+            onFailure = {
+                _loginUiState.value = LoginUiState()
+            }
+        )
     }
 }

@@ -141,7 +141,7 @@ fun VerifyScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = stringResource(id = R.string.forgot_password_tf_email_title),
+                text = stringResource(id = R.string.email),
                 style = AppTypography.SH2_18,
                 color = AppColors.grey2
             )
@@ -303,7 +303,7 @@ fun VerifyPreview() {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = stringResource(id = R.string.forgot_password_tf_email_title),
+                text = stringResource(id = R.string.email),
                 style = AppTypography.SH2_18,
                 color = AppColors.grey2
             )

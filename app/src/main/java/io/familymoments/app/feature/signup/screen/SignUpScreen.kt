@@ -2,36 +2,23 @@ package io.familymoments.app.feature.signup.screen
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,11 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -60,22 +45,53 @@ import io.familymoments.app.core.component.SignUpTextFieldArea
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
-import io.familymoments.app.core.util.FileUtil.convertBitmapToCompressedFile
-import io.familymoments.app.core.util.FileUtil.convertUriToBitmap
-import io.familymoments.app.core.util.defaultBitmap
 import io.familymoments.app.feature.signup.uistate.SignUpInfoUiState
 import io.familymoments.app.feature.signup.uistate.SignUpTermUiState
+import io.familymoments.app.feature.signup.uistate.SignUpUiState
 import io.familymoments.app.feature.signup.uistate.SignUpValidatedUiState
 import io.familymoments.app.feature.signup.viewmodel.SignUpViewModel
-import java.io.File
 
 @Composable
-fun SignUpScreen(viewModel: SignUpViewModel, socialType: String) {
-    val context = LocalContext.current
+fun SignUpScreen(viewModel: SignUpViewModel) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-    val defaultProfileImageBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.default_profile)
+
+    SignUpScreenUI(
+        uiState = uiState,
+        onResetUserIdDuplicatedPass = viewModel::resetUserIdDuplicatedPass,
+        onResetEmailDuplicatedPass = viewModel::resetEmailDuplicatedPass,
+        onResetSignUpResultSuccess = viewModel::resetSignUpResultSuccess,
+        onCheckIdFormat = viewModel::checkIdFormat,
+        onCheckIdDuplication = viewModel::checkIdDuplication,
+        onCheckPasswordFormat = viewModel::checkPasswordFormat,
+        onCheckEmailFormat = viewModel::checkEmailFormat,
+        onCheckEmailDuplication = viewModel::checkEmailDuplication,
+        onCheckNicknameFormat = viewModel::checkNicknameFormat,
+        onCheckBirthDayFormat = viewModel::checkBirthDayFormat,
+        onExecuteSignUp = viewModel::executeSignUp
+    )
+}
+
+
+@Composable
+fun SignUpScreenUI(
+    uiState: State<SignUpUiState> = remember { mutableStateOf(SignUpUiState()) },
+    onResetUserIdDuplicatedPass: () -> Unit = {},
+    onResetEmailDuplicatedPass: () -> Unit = {},
+    onResetSignUpResultSuccess: () -> Unit = {},
+    onCheckIdFormat: (String) -> Unit = {},
+    onCheckIdDuplication: (String) -> Unit = {},
+    onCheckPasswordFormat: (String) -> Unit = {},
+    onCheckEmailFormat: (String) -> Unit = {},
+    onCheckEmailDuplication: (String) -> Unit = {},
+    onCheckNicknameFormat: (String) -> Unit = {},
+    onCheckBirthDayFormat: (String) -> Unit = {},
+    onExecuteSignUp: (SignUpInfoUiState) -> Unit = {}
+) {
+    val context = LocalContext.current
 
     var password: String by remember { mutableStateOf("") }
+    val defaultProfileImageBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.default_profile)
+
     var allEssentialTermsAgree by remember {
         mutableStateOf(false)
     }
@@ -94,11 +110,11 @@ fun SignUpScreen(viewModel: SignUpViewModel, socialType: String) {
             uiState.value.signUpValidatedUiState.userIdDuplicatedUiState.isSuccess,
             context
         )
-        viewModel.resetUserIdDuplicatedSuccess()
+        onResetUserIdDuplicatedPass()
     }
     LaunchedEffect(uiState.value.signUpValidatedUiState.emailDuplicatedUiState) {
         showEmailDuplicationCheckResult(uiState.value.signUpValidatedUiState.emailDuplicatedUiState.isSuccess, context)
-        viewModel.resetEmailDuplicatedSuccess()
+        onResetEmailDuplicatedPass()
     }
 
     LaunchedEffect(uiState.value.signUpResultUiState.isSuccess) {
@@ -111,7 +127,7 @@ fun SignUpScreen(viewModel: SignUpViewModel, socialType: String) {
             }
             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
         }
-        viewModel.resetSignUpResultSuccess()
+        onResetSignUpResultSuccess()
     }
 
     AppBarScreen(
@@ -141,16 +157,16 @@ fun SignUpScreen(viewModel: SignUpViewModel, socialType: String) {
             Spacer(modifier = Modifier.height(43.dp))
             IdField(
                 userIdFormatValidated = uiState.value.signUpValidatedUiState.userIdFormValidated,
-                checkIdFormat = viewModel::checkIdFormat,
-                checkIdDuplication = viewModel::checkIdDuplication,
-                resetUserIdDuplicatedPass = viewModel::resetUserIdDuplicatedPass,
-                userIdDuplicated = uiState.value.signUpValidatedUiState.userIdDuplicatedUiState.duplicatedPass
+                checkIdFormat = onCheckIdFormat,
+                checkIdDuplication = onCheckIdDuplication,
+                resetUserIdDuplicatedPass = onResetUserIdDuplicatedPass,
+                userIdDuplicated = uiState.value.signUpValidatedUiState.userIdDuplicatedUiState.duplicatedPass.not()
             ) {
                 signUpInfoUiState = signUpInfoUiState.copy(id = it)
             }
             FirstPasswordField(
                 passwordFormatValidated = uiState.value.signUpValidatedUiState.passwordFormValidated,
-                checkPasswordFormat = viewModel::checkPasswordFormat
+                checkPasswordFormat = onCheckPasswordFormat
             ) {
                 password = it
                 signUpInfoUiState = signUpInfoUiState.copy(password = it)
@@ -161,21 +177,21 @@ fun SignUpScreen(viewModel: SignUpViewModel, socialType: String) {
             )
             NameField { signUpInfoUiState = signUpInfoUiState.copy(name = it) }
             EmailField(
-                checkEmailFormat = viewModel::checkEmailFormat,
-                checkEmailDuplication = viewModel::checkEmailDuplication,
+                checkEmailFormat = onCheckEmailFormat,
+                checkEmailDuplication = onCheckEmailDuplication,
                 emailFormatValidated = uiState.value.signUpValidatedUiState.emailFormValidated,
-                resetEmailDuplicatedPass = viewModel::resetEmailDuplicatedPass,
+                resetEmailDuplicatedPass = onResetEmailDuplicatedPass,
                 emailDuplicated = uiState.value.signUpValidatedUiState.emailDuplicatedUiState.duplicatedPass
             ) { signUpInfoUiState = signUpInfoUiState.copy(email = it) }
             BirthDayField(
-                checkBirthDayFormat = viewModel::checkBirthDayFormat,
+                checkBirthDayFormat = onCheckBirthDayFormat,
                 birthDayFormatValidated = uiState.value.signUpValidatedUiState.birthDayFormValidated
             ) {
                 signUpInfoUiState = signUpInfoUiState.copy(birthDay = it)
             }
             NicknameField(
                 nicknameFormatValidated = uiState.value.signUpValidatedUiState.nicknameFormValidated,
-                checkNicknameFormat = viewModel::checkNicknameFormat,
+                checkNicknameFormat = onCheckNicknameFormat,
             ) { signUpInfoUiState = signUpInfoUiState.copy(nickname = it) }
             ProfileImageField(defaultProfileImageBitmap, context) {
                 signUpInfoUiState = signUpInfoUiState.copy(imgFile = it)
@@ -188,23 +204,10 @@ fun SignUpScreen(viewModel: SignUpViewModel, socialType: String) {
                 allEssentialTermsAgree,
                 uiState.value.signUpValidatedUiState,
             ) {
-                viewModel.executeSignUp(signUpInfoUiState, socialType)
+                onExecuteSignUp(signUpInfoUiState)
             }
             Spacer(modifier = Modifier.height(40.dp))
         }
-    }
-}
-
-private fun showUserIdDuplicationCheckResult(userIdDuplicated: Boolean?, context: Context) {
-    if (userIdDuplicated == true) {
-        Toast.makeText(
-            context,
-            context.getString(R.string.sign_up_check_user_id_duplication_success),
-            Toast.LENGTH_SHORT
-        ).show()
-    } else if (userIdDuplicated == false) {
-        Toast.makeText(context, context.getString(R.string.sign_up_check_user_id_duplication_fail), Toast.LENGTH_SHORT)
-            .show()
     }
 }
 
@@ -221,49 +224,7 @@ private fun showEmailDuplicationCheckResult(emailDuplicated: Boolean?, context: 
     }
 }
 
-@Composable
-fun IdField(
-    userIdFormatValidated: Boolean,
-    userIdDuplicated: Boolean,
-    checkIdFormat: (String) -> Unit,
-    checkIdDuplication: (String) -> Unit,
-    resetUserIdDuplicatedPass: () -> Unit,
-    onValueChange: (String) -> Unit
-) {
-    var previousId by remember {
-        mutableStateOf(TextFieldValue())
-    }
-    var isFocused by remember {
-        mutableStateOf(false)
-    }
-    Column {
-        SignUpTextFieldArea(
-            modifier = Modifier.onFocusChanged {
-                isFocused = it.isFocused
-            },
-            title = stringResource(R.string.sign_up_id_field_title),
-            hint = stringResource(R.string.sign_up_id_field_hint),
-            onValueChange = {
-                if (previousId.text != it.text) {
-                    onValueChange(it.text)
-                    checkIdFormat(it.text)
-                    resetUserIdDuplicatedPass()
-                    previousId = it
-                }
-            },
-            showCheckButton = true,
-            checkButtonAvailable = userIdFormatValidated,
-            onCheckButtonClick = {
-                checkIdDuplication(it.text)
-            },
-            validated = if (userIdFormatValidated) userIdDuplicated else false,
-            showWarningText = true,
-            warningText = if (userIdFormatValidated) stringResource(id = R.string.sign_up_need_duplication_check_warning)
-            else stringResource(id = R.string.sign_up_id_validation_warning),
-            isFocused = isFocused
-        )
-    }
-}
+
 
 @Composable
 fun FirstPasswordField(
@@ -326,25 +287,7 @@ fun SecondPasswordField(
 }
 
 @Composable
-fun NameField(onValueChange: (String) -> Unit) {
-    var isFocused by remember {
-        mutableStateOf(false)
-    }
-    SignUpTextFieldArea(
-        modifier = Modifier.onFocusChanged {
-            isFocused = it.isFocused
-        },
-        title = stringResource(id = R.string.sign_up_name_field_title),
-        hint = stringResource(R.string.sign_up_name_field_hint),
-        onValueChange = { onValueChange(it.text) },
-        isFocused = isFocused
-    )
-
-    Spacer(modifier = Modifier.height(20.dp))
-}
-
-@Composable
-fun EmailField(
+private fun EmailField(
     checkEmailFormat: (String) -> Unit,
     checkEmailDuplication: (String) -> Unit,
     emailFormatValidated: Boolean,
@@ -388,181 +331,7 @@ fun EmailField(
 }
 
 @Composable
-fun BirthDayField(
-    checkBirthDayFormat: (String) -> Unit,
-    birthDayFormatValidated: Boolean,
-    onTextFieldChange: (String) -> Unit
-) {
-    var isFocused by remember {
-        mutableStateOf(false)
-    }
-    SignUpTextFieldArea(
-        modifier = Modifier.onFocusChanged {
-            isFocused = it.isFocused
-        },
-        title = stringResource(id = R.string.sign_up_birthday_field_title),
-        hint = stringResource(R.string.sign_up_birthday_field_hint),
-        onValueChange = {
-            checkBirthDayFormat(it.text)
-            onTextFieldChange(it.text)
-        },
-        isFocused = isFocused,
-        validated = birthDayFormatValidated,
-        showWarningText = true,
-        warningText = stringResource(R.string.sign_up_birthday_check_validation_warning)
-    )
-}
-
-@Composable
-fun NicknameField(
-    nicknameFormatValidated: Boolean,
-    checkNicknameFormat: (String) -> Unit,
-    onTextFieldChange: (String) -> Unit
-) {
-    var isFocused by remember {
-        mutableStateOf(false)
-    }
-    var nickname by remember {
-        mutableStateOf(TextFieldValue())
-    }
-    Column {
-        SignUpTextFieldArea(
-            modifier = Modifier.onFocusChanged {
-                isFocused = it.isFocused
-            },
-            title = stringResource(id = R.string.sign_up_nickname_field_title),
-            hint = stringResource(R.string.sign_up_nickname_field_hint),
-            onValueChange = {
-                nickname = it
-                onTextFieldChange(it.text)
-                checkNicknameFormat(it.text)
-            },
-            isFocused = isFocused,
-            showWarningText = true,
-            warningText = stringResource(id = R.string.sign_up_nickname_validation_warning),
-            validated = nicknameFormatValidated
-        )
-    }
-}
-
-@Composable
-fun ProfileImageSelectDropDownMenu(
-    isMenuExpanded: Boolean,
-    isMenuExpandedChanged: (Boolean) -> Unit,
-    defaultProfileImageBitmap: Bitmap,
-    getBitmap: (Bitmap) -> Unit,
-) {
-    val context = LocalContext.current
-    var bitmap by remember {
-        mutableStateOf(defaultBitmap)
-    }
-
-    //갤러리에서 사진 선택 후 bitmap 으로 변환
-    val launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?> = rememberLauncherForActivityResult(
-        contract =
-        ActivityResultContracts.PickVisualMedia()
-    ) {
-        if (it == null) return@rememberLauncherForActivityResult
-        bitmap = convertUriToBitmap(it, context)
-        getBitmap(bitmap)
-    }
-
-    DropdownMenu(expanded = isMenuExpanded,
-        onDismissRequest = { isMenuExpandedChanged(false) }) {
-        MenuItemGallerySelect(launcher, isMenuExpandedChanged)
-        MenuItemDefaultImage({ getBitmap(defaultProfileImageBitmap) }, isMenuExpandedChanged)
-    }
-}
-
-@Composable
-fun MenuItemGallerySelect(
-    launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
-    isMenuExpandedChanged: (Boolean) -> Unit
-) {
-    DropdownMenuItem(
-        onClick = {
-            launcher.launch(
-                PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-            isMenuExpandedChanged(false)
-        },
-        text = {
-            Text(text = stringResource(R.string.sign_up_select_profile_image_drop_down_menu_gallery))
-        }
-    )
-}
-
-@Composable
-fun MenuItemDefaultImage(getDefaultProfileImageBitmap: () -> Unit, isMenuExpandedChanged: (Boolean) -> Unit) {
-    DropdownMenuItem(onClick = {
-        getDefaultProfileImageBitmap()
-        isMenuExpandedChanged(false)
-    }, text = {
-        Text(text = stringResource(R.string.sign_up_select_profile_image_drop_down_menu_default_image))
-    })
-}
-
-@Composable
-fun ProfileImageField(defaultProfileImageBitmap: Bitmap, context: Context, onFileChange: (File) -> Unit) {
-    var isMenuExpanded: Boolean by remember { mutableStateOf(false) }
-    var bitmap: Bitmap? by remember { mutableStateOf(null) }
-    Text(
-        text = stringResource(R.string.sign_up_select_profile_image_title),
-        color = Color(0xFF5B6380),
-        fontWeight = FontWeight.Bold
-    )
-    Spacer(modifier = Modifier.height(7.dp))
-    Button(
-        modifier = Modifier.height(150.dp),
-        onClick = { isMenuExpanded = !isMenuExpanded },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFF3F4F7),
-        ),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
-    ) {
-        ProfileImageSelectDropDownMenu(isMenuExpanded, { isMenuExpanded = it }, defaultProfileImageBitmap) {
-            onFileChange(convertBitmapToCompressedFile(it, context))
-            bitmap = it
-        }
-        if (bitmap == null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(115.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Image(
-                    modifier = Modifier.padding(bottom = 2.dp),
-                    painter = painterResource(id = R.drawable.ic_select_pic),
-                    contentDescription = null,
-                )
-                Text(text = stringResource(R.string.sign_up_select_profile_image_btn), color = Color(0xFFBFBFBF))
-            }
-        } else {
-            Image(
-                bitmap = bitmap!!.asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier.size(400.dp)
-            )
-        }
-
-    }
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(
-        text = stringResource(R.string.sign_up_select_profile_image_description),
-        color = Color(0xFFA9A9A9),
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(
-                Alignment.Center,
-            ),
-    )
-    Spacer(modifier = Modifier.height(20.dp))
-}
-
-@Composable
-fun StartButtonField(
+private fun StartButtonField(
     signUpInfoUiState: SignUpInfoUiState,
     passwordSameCheck: Boolean,
     allEssentialTermsAgree: Boolean,
@@ -663,6 +432,6 @@ fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit) {
 @Composable
 fun SignUpScreenPreview() {
     FamilyMomentsTheme {
-
+        SignUpScreenUI()
     }
 }

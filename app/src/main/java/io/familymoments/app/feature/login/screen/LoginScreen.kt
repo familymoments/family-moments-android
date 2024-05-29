@@ -1,6 +1,5 @@
 package io.familymoments.app.feature.login.screen
 
-import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -68,31 +67,26 @@ import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
 import io.familymoments.app.core.util.FMVisualTransformation
 import io.familymoments.app.core.util.oneClick
-import io.familymoments.app.feature.bottomnav.activity.MainActivity
 import io.familymoments.app.feature.login.uistate.LoginUiState
 import io.familymoments.app.feature.login.viewmodel.LoginViewModel
-import io.familymoments.app.feature.signup.activity.SignUpActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel) {
+fun LoginScreen(
+    viewModel: LoginViewModel,
+    routeToSignUp: (LoginUiState) -> Unit = { _ -> },
+    routeToMainActivity: () -> Unit = {}
+) {
     val loginUiState = viewModel.loginUiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val goToJoin: (String) -> Unit = {
-        val intent = Intent(context, SignUpActivity::class.java)
-        intent.putExtra("socialType", it)
-        context.startActivity(intent)
-    }
 
     LaunchedEffect(loginUiState.value.isSuccess) {
         if (loginUiState.value.isSuccess == true) {
             if (loginUiState.value.isNeedToSignUp == true) {
-                goToJoin(loginUiState.value.socialType)
+                routeToSignUp(loginUiState.value)
             } else {
-                val intent = Intent(context, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                context.startActivity(intent)
+                routeToMainActivity()
             }
         }
     }
@@ -107,7 +101,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
         LoginScreen(
             login = viewModel::loginUser,
             loginUiState.value,
-            goToJoin,
+            onRouteToSignUp = { routeToSignUp(loginUiState.value) },
             viewModel::updateSuccessNull,
             kakaoLogin = { viewModel.kakaoLogin(context) },
             naverLogin = { viewModel.naverLogin(context) }
@@ -120,7 +114,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
 private fun LoginScreen(
     login: (String, String) -> Unit,
     loginUiState: LoginUiState,
-    goToJoin: (String) -> Unit = {},
+    onRouteToSignUp: () -> Unit = {},
     updateSuccessNull: () -> Unit = {},
     kakaoLogin: () -> Unit = {},
     naverLogin: () -> Unit = {}
@@ -139,7 +133,7 @@ private fun LoginScreen(
             loginUiState = loginUiState,
             updateSuccessNull = updateSuccessNull
         )
-        LoginOption(goToJoin)
+        LoginOption(onRouteToSignUp = onRouteToSignUp)
         SocialLogin(kakaoLogin, naverLogin)
     }
 }
@@ -297,7 +291,7 @@ fun LoginFormRoundedCornerTextField(
 }
 
 @Composable
-fun LoginOption(goToJoin: (String) -> Unit) {
+fun LoginOption(onRouteToSignUp: () -> Unit) {
     Row(
         modifier = Modifier
             .height(IntrinsicSize.Min)
@@ -333,7 +327,7 @@ fun LoginOption(goToJoin: (String) -> Unit) {
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             modifier = Modifier.clickable {
-                goToJoin("")
+                onRouteToSignUp()
             },
             text = stringResource(id = R.string.login_signup),
             fontSize = 13.sp,
@@ -379,12 +373,16 @@ fun SocialLogin(
         Image(
             painter = painterResource(id = R.drawable.ic_kakao_login),
             contentDescription = null,
-            modifier = Modifier.size(36.dp).oneClick(400, kakaoLogin)
+            modifier = Modifier
+                .size(36.dp)
+                .oneClick(400, kakaoLogin)
         )
         Image(
             painter = painterResource(id = R.drawable.ic_naver_login),
             contentDescription = null,
-            modifier = Modifier.size(36.dp).oneClick(400, naverLogin)
+            modifier = Modifier
+                .size(36.dp)
+                .oneClick(400, naverLogin)
         )
     }
 }
