@@ -21,7 +21,6 @@ fun SignUpInfoUiState.toUserJoinReq(socialType: String): UserJoinReq {
         email = email,
         strBirthDate = birthDay,
         nickname = nickname,
-        userType = socialType,
-        snsId = "Peu2vFUU4LntPa4Fu0HbOdnfZqRdSXMPyInhr90bYT0"
+        userType = socialType
     )
 }

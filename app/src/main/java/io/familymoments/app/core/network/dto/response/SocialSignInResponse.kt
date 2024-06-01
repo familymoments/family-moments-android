@@ -12,8 +12,7 @@ data class SocialSignInResponse(
 )
 
 data class SocialSignInResult(
-    val isExisted: Boolean, // true면 회원가입으로 이동, false면 로그인 성공
-    val snsId: String = "",
+    val isExisted: Boolean,
     val name: String? = "",
     val email: String? = "",
     val strBirthDate: String? = "",

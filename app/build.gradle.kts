@@ -152,7 +152,6 @@ dependencies {
     // Social Login
     implementation(libs.naver.login)
     implementation(libs.kakao.login)
-    implementation(libs.google.login)
     implementation(libs.credentials)
     implementation(libs.credentials.play.services)
     implementation(libs.google.services.auth)

@@ -15,6 +15,5 @@ data class UserJoinReq(
     val email: String = "",
     val strBirthDate: String = "",
     val nickname: String = "",
-    val userType: String = "",
-    val snsId: String = ""  // FIXME : snsId 는 어디서 받아오는지 확인 필요
+    val userType: String = ""
 )

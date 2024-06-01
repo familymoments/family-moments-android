@@ -34,7 +34,6 @@ google-services = "4.4.1"
 firebase-appdistribution-gradle = "4.2.0"
 naver = "5.9.1"
 kakao = "2.20.1"
-google = "1.1.0"
 credential = "1.3.0-alpha01"
 firebase-bom = "32.3.1"
 
@@ -96,7 +95,6 @@ kakao-login = { module = "com.kakao.sdk:v2-user", version.ref = "kakao" }
 
 credentials = { module = "androidx.credentials:credentials", version.ref = "credential" }
 credentials-play-services = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credential" }
-google-login = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "google" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx"}
 
