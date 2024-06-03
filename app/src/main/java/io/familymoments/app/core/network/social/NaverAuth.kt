@@ -6,6 +6,7 @@ import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.OAuthLoginCallback
 
 object NaverAuth {
+    const val NAME: String = "NAVER"
     fun login(context: Context, callback: (String?) -> Unit = {}) {
         val oauthLoginCallback = object : OAuthLoginCallback {
             override fun onSuccess() {

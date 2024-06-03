@@ -10,7 +10,7 @@ import io.familymoments.app.core.network.dto.response.LogoutResponse
 import io.familymoments.app.core.network.dto.response.ModifyPasswordResponse
 import io.familymoments.app.core.network.dto.response.ProfileEditResponse
 import io.familymoments.app.core.network.dto.response.SearchMemberResponse
-import io.familymoments.app.core.network.dto.response.SocialSignInResponse
+import io.familymoments.app.core.network.dto.response.SocialSignInResult
 import io.familymoments.app.core.network.dto.response.UserProfile
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -63,5 +63,5 @@ interface UserService {
     suspend fun executeSocialSignIn(
         @Body socialSignInRequest: SocialSignInRequest,
         @Header("SOCIAL-TOKEN") token: String
-    ): Response<SocialSignInResponse>
+    ): Response<ApiResponse<SocialSignInResult>>
 }

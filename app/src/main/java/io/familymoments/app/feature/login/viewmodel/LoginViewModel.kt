@@ -68,14 +68,14 @@ class LoginViewModel @Inject constructor(
         NaverAuth.login(context) { token ->
             if (token != null) {
                 async(
-                    operation = { userRepository.executeSocialSignIn("NAVER", token) },
+                    operation = { userRepository.executeSocialSignIn(NaverAuth.NAME, token) },
                     onSuccess = {
                         _loginUiState.value = _loginUiState.value.copy(
                             isSuccess = true,
                             isNeedToSignUp = !it.isExisted,
                             isLoading = isLoading.value,
                             loginResult = LoginResult(it.familyId, it.email ?: "", it.name ?: "", it.nickname ?: "", it.strBirthDate ?: ""),
-                            socialType = "NAVER",
+                            socialType = NaverAuth.NAME,
                             socialToken = token
                         )
                     },
@@ -95,14 +95,14 @@ class LoginViewModel @Inject constructor(
         KakaoAuth.login(context) { token ->
             if (token != null) {
                 async(
-                    operation = { userRepository.executeSocialSignIn("KAKAO", token) },
+                    operation = { userRepository.executeSocialSignIn(KakaoAuth.NAME, token) },
                     onSuccess = {
                         _loginUiState.value = _loginUiState.value.copy(
                             isSuccess = true,
                             isNeedToSignUp = !it.isExisted,
                             isLoading = isLoading.value,
                             loginResult = LoginResult(it.familyId, it.email ?: "", strBirthDate = it.strBirthDate ?: ""),
-                            socialType = "KAKAO",
+                            socialType = KakaoAuth.NAME,
                             socialToken = token
                         )
                     },
@@ -137,10 +137,9 @@ class LoginViewModel @Inject constructor(
             onSuccess = {
 
                 val type = userInfoPreferencesDataSource.loadSocialLoginType()
-                println(type)
                 when (type) {
-                    "kakao" -> kakaoLogout()
-                    "naver" -> naverLogout()
+                    KakaoAuth.NAME -> kakaoLogout()
+                    NaverAuth.NAME -> naverLogout()
                 }
 
                 _loginUiState.value = LoginUiState()
