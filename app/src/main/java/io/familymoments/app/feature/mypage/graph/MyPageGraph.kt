@@ -4,6 +4,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import io.familymoments.app.feature.familysettings.screen.FamilySettingScreen
 import io.familymoments.app.feature.modifypassword.screen.ModifyPasswordScreen
 import io.familymoments.app.feature.profile.graph.profileGraph
 
@@ -24,7 +25,11 @@ fun NavGraphBuilder.myPageGraph(navController: NavController) {
         // Notification Screen
     }
     composable(route = MyPageRoute.FamilySettings.name) {
-        // FamilySettings Screen
+        FamilySettingScreen(
+            onItemClick = { clickedItem ->
+                navController.navigate(clickedItem.route)
+            }
+        )
     }
     composable(route = MyPageRoute.AccountDeletion.name) {
         // AccountDeletion Screen

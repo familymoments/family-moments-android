@@ -1,9 +1,9 @@
 package io.familymoments.app.feature.login.screen
 
+import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,7 +66,9 @@ import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
 import io.familymoments.app.core.util.FMVisualTransformation
+import io.familymoments.app.core.util.noRippleClickable
 import io.familymoments.app.core.util.oneClick
+import io.familymoments.app.feature.forgotpassword.activity.ForgotPasswordActivity
 import io.familymoments.app.feature.login.uistate.LoginUiState
 import io.familymoments.app.feature.login.viewmodel.LoginViewModel
 import kotlinx.coroutines.delay
@@ -80,6 +82,9 @@ fun LoginScreen(
 ) {
     val loginUiState = viewModel.loginUiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val goToForgotPassword = {
+        context.startActivity(Intent(context, ForgotPasswordActivity::class.java))
+    }
 
     LaunchedEffect(loginUiState.value.isSuccess) {
         if (loginUiState.value.isSuccess == true) {
@@ -104,7 +109,8 @@ fun LoginScreen(
             onRouteToSignUp = { routeToSignUp(loginUiState.value) },
             viewModel::updateSuccessNull,
             kakaoLogin = { viewModel.kakaoLogin(context) },
-            naverLogin = { viewModel.naverLogin(context) }
+            naverLogin = { viewModel.naverLogin(context) },
+            goToForgotPassword = goToForgotPassword
         )
     }
 }
@@ -117,7 +123,8 @@ private fun LoginScreen(
     onRouteToSignUp: () -> Unit = {},
     updateSuccessNull: () -> Unit = {},
     kakaoLogin: () -> Unit = {},
-    naverLogin: () -> Unit = {}
+    naverLogin: () -> Unit = {},
+    goToForgotPassword: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -133,7 +140,10 @@ private fun LoginScreen(
             loginUiState = loginUiState,
             updateSuccessNull = updateSuccessNull
         )
-        LoginOption(onRouteToSignUp = onRouteToSignUp)
+        LoginOption(
+           goToForgotPassword = goToForgotPassword,
+           onRouteToSignUp = onRouteToSignUp
+        )
         SocialLogin(kakaoLogin, naverLogin)
     }
 }
@@ -291,7 +301,10 @@ fun LoginFormRoundedCornerTextField(
 }
 
 @Composable
-fun LoginOption(onRouteToSignUp: () -> Unit) {
+fun LoginOption(
+    goToForgotPassword: () -> Unit,
+    onRouteToSignUp: () -> Unit
+) {
     Row(
         modifier = Modifier
             .height(IntrinsicSize.Min)
@@ -312,6 +325,7 @@ fun LoginOption(onRouteToSignUp: () -> Unit) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
+            modifier = Modifier.noRippleClickable { goToForgotPassword() },
             text = stringResource(id = R.string.login_forgot_pw),
             fontSize = 13.sp,
             color = AppColors.grey2,
@@ -326,7 +340,7 @@ fun LoginOption(onRouteToSignUp: () -> Unit) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            modifier = Modifier.clickable {
+            modifier = Modifier.oneClick {
                 onRouteToSignUp()
             },
             text = stringResource(id = R.string.login_signup),
@@ -394,6 +408,8 @@ private fun LoginScreenPreview() {
         LoginScreen(
             login = { _, _ -> },
             loginUiState = LoginUiState(),
+            updateSuccessNull = {},
+            goToForgotPassword = {}
         )
     }
 }

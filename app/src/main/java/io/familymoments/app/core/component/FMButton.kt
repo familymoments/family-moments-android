@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -21,7 +22,10 @@ fun FMButton(
     onClick: () -> Unit,
     text: String,
     enabled: Boolean = true,
-    radius: Dp = 60.dp
+    radius: Dp = 60.dp,
+    textStyle: TextStyle = AppTypography.BTN4_18,
+    textModifier:Modifier = Modifier.padding(vertical = 6.dp),
+    contentPaddingValues: PaddingValues = PaddingValues(vertical = 4.dp, horizontal = 18.dp)
 ) {
     Button(
         onClick = onClick,
@@ -32,12 +36,12 @@ fun FMButton(
             disabledContainerColor = AppColors.grey3
         ),
         shape = RoundedCornerShape(radius),
-        contentPadding = PaddingValues(vertical = 4.dp, horizontal = 18.dp)
+        contentPadding = contentPaddingValues
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(vertical = 6.dp),
-            style = AppTypography.BTN4_18,
+            modifier = textModifier,
+            style = textStyle,
             color = Color.White
         )
     }

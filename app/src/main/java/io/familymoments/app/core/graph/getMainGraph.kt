@@ -12,6 +12,7 @@ import io.familymoments.app.feature.addpost.AddPostMode
 import io.familymoments.app.feature.addpost.screen.AddPostScreen
 import io.familymoments.app.feature.bottomnav.graph.bottomNavGraph
 import io.familymoments.app.feature.calendar.screen.CalendarDayScreen
+import io.familymoments.app.feature.familysettings.graph.familySettingGraph
 import io.familymoments.app.feature.mypage.graph.myPageGraph
 import io.familymoments.app.feature.postdetail.screen.PostDetailScreen
 import io.familymoments.app.feature.profile.graph.profileGraph
@@ -23,6 +24,7 @@ fun getMainGraph(
     bottomNavGraph(navController)
     profileGraph(navController)
     myPageGraph(navController)
+    familySettingGraph(navController)
 
     composable(
         route = CommonRoute.POST_DETAIL.name + "/{postId}",

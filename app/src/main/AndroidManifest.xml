@@ -54,6 +54,7 @@
         <activity
             android:name="io.familymoments.app.feature.forgotpassword.activity.ForgotPasswordActivity"
             android:exported="false"
+            android:theme="@style/Theme.FamilyMoments"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity

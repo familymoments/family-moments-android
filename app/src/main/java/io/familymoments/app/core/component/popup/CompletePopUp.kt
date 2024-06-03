@@ -32,6 +32,7 @@ import io.familymoments.app.core.util.noRippleClickable
 @Composable
 fun CompletePopUp(
     content: String,
+    dismissText:String = stringResource(R.string.complete_pop_up_btn_ok),
     onDismissRequest: () -> Unit = {}
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
@@ -77,7 +78,7 @@ fun CompletePopUp(
                     contentPadding = PaddingValues(top = 17.dp, bottom = 16.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.complete_pop_up_btn_ok),
+                        text = dismissText,
                         style = AppTypography.BTN4_18,
                         color = AppColors.grey6
                     )

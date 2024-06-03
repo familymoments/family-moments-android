@@ -5,10 +5,10 @@ import androidx.compose.runtime.Composable
 import dagger.hilt.android.AndroidEntryPoint
 import io.familymoments.app.core.base.BaseActivity
 import io.familymoments.app.feature.forgotpassword.screen.ForgotPasswordScreen
-import io.familymoments.app.feature.forgotpassword.viewmodel.ForgotPasswordViewModel
+import io.familymoments.app.feature.forgotpassword.viewmodel.ForgotPasswordSharedViewModel
 
 @AndroidEntryPoint
-class ForgotPasswordActivity : BaseActivity<ForgotPasswordViewModel>(ForgotPasswordViewModel::class) {
+class ForgotPasswordActivity : BaseActivity<ForgotPasswordSharedViewModel>(ForgotPasswordSharedViewModel::class) {
     @OptIn(ExperimentalMaterial3Api::class)
     override val screen: @Composable () -> Unit = { ForgotPasswordScreen(viewModel) }
 }

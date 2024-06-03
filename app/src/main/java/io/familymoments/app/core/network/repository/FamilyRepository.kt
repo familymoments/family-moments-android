@@ -3,6 +3,7 @@ package io.familymoments.app.core.network.repository
 import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.dto.request.CreateFamilyRequest
 import io.familymoments.app.core.network.dto.response.CreateFamilyResponse
+import io.familymoments.app.core.network.dto.response.FamilyInfo
 import io.familymoments.app.core.network.dto.response.GetNicknameDdayResponse
 import io.familymoments.app.core.network.dto.response.JoinFamilyResponse
 import io.familymoments.app.core.network.dto.response.SearchFamilyByInviteLinkResponse
@@ -22,4 +23,6 @@ interface FamilyRepository {
     ): Flow<Resource<SearchFamilyByInviteLinkResponse>>
 
     suspend fun joinFamily(familyId: Long): Flow<Resource<JoinFamilyResponse>>
+
+    suspend fun getFamilyInfo(familyId: Long): Flow<Resource<FamilyInfo>>
 }
