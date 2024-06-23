@@ -194,7 +194,17 @@ class UserRepositoryImpl @Inject constructor(
 
             val body = response.body()!!
             if (body.isSuccess) {
-                body.result.familyId?.let { userInfoPreferencesDataSource.saveFamilyId(it) }
+                body.result.familyId?.let {
+                    userInfoPreferencesDataSource.saveFamilyId(it)
+                    loadUserProfile(it).collect { result ->
+                        if (result is Resource.Success) {
+                            userInfoPreferencesDataSource.saveUserProfile(result.data.result)
+                        }
+                        if (result is Resource.Fail) {
+                            emit(Resource.Fail(Throwable(result.exception.message)))
+                        }
+                    }
+                }
                 userInfoPreferencesDataSource.saveSocialLoginType(type)
                 emit(Resource.Success(body.result))
             } else {
