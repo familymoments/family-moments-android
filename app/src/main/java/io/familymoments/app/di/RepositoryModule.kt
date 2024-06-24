@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.familymoments.app.core.network.AuthErrorManager
+import io.familymoments.app.core.network.api.AlertService
 import io.familymoments.app.core.network.api.CommentService
 import io.familymoments.app.core.network.api.FamilyService
 import io.familymoments.app.core.network.api.PostService
@@ -14,11 +15,13 @@ import io.familymoments.app.core.network.api.SignInService
 import io.familymoments.app.core.network.api.UserService
 import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSource
 import io.familymoments.app.core.network.datasource.UserInfoPreferencesDataSourceImpl
+import io.familymoments.app.core.network.repository.AlertRepository
 import io.familymoments.app.core.network.repository.CommentRepository
 import io.familymoments.app.core.network.repository.FamilyRepository
 import io.familymoments.app.core.network.repository.PostRepository
 import io.familymoments.app.core.network.repository.SignInRepository
 import io.familymoments.app.core.network.repository.UserRepository
+import io.familymoments.app.core.network.repository.impl.AlertRepositoryImpl
 import io.familymoments.app.core.network.repository.impl.CommentRepositoryImpl
 import io.familymoments.app.core.network.repository.impl.FamilyRepositoryImpl
 import io.familymoments.app.core.network.repository.impl.PostRepositoryImpl
@@ -74,5 +77,11 @@ object RepositoryModule {
         userInfoPreferencesDataSource: UserInfoPreferencesDataSource,
     ): FamilyRepository {
         return FamilyRepositoryImpl(familyService, userInfoPreferencesDataSource)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlertRepository(alertService: AlertService): AlertRepository {
+        return AlertRepositoryImpl(alertService)
     }
 }

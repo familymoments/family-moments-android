@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import io.familymoments.app.BuildConfig
 import io.familymoments.app.core.network.AuthErrorManager
 import io.familymoments.app.core.network.AuthInterceptor
+import io.familymoments.app.core.network.api.AlertService
 import io.familymoments.app.core.network.api.CommentService
 import io.familymoments.app.core.network.api.FamilyService
 import io.familymoments.app.core.network.api.PostService
@@ -133,6 +134,12 @@ object AppModule {
     @Singleton
     fun provideFamilyService(@AuthRetrofit retrofit: Retrofit): FamilyService {
         return retrofit.create(FamilyService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlertService(@AuthRetrofit retrofit: Retrofit): AlertService {
+        return retrofit.create(AlertService::class.java)
     }
 
     @Provides

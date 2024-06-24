@@ -6,6 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import io.familymoments.app.feature.familysettings.screen.FamilySettingScreen
 import io.familymoments.app.feature.modifypassword.screen.ModifyPasswordScreen
+import io.familymoments.app.feature.notification.NotificationScreen
 import io.familymoments.app.feature.profile.graph.profileGraph
 
 fun NavGraphBuilder.myPageGraph(navController: NavController) {
@@ -23,6 +24,7 @@ fun NavGraphBuilder.myPageGraph(navController: NavController) {
     }
     composable(route = MyPageRoute.Notification.name) {
         // Notification Screen
+        NotificationScreen()
     }
     composable(route = MyPageRoute.FamilySettings.name) {
         FamilySettingScreen(

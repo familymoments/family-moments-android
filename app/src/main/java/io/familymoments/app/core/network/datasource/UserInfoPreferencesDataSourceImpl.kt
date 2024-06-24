@@ -34,6 +34,10 @@ class UserInfoPreferencesDataSourceImpl @Inject constructor(
         }
     }
 
+    fun getFCMToken() : String {
+        return sharedPreferences.getString(FCM_TOKEN_KEY, DEFAULT_FCM_TOKEN_VALUE) ?: ""
+    }
+
     override suspend fun loadFCMToken(): String {
         return sharedPreferences.getString(
             FCM_TOKEN_KEY,
