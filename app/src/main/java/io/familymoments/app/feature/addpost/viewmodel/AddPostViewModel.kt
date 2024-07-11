@@ -3,6 +3,7 @@ package io.familymoments.app.feature.addpost.viewmodel
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
+import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +18,7 @@ import io.familymoments.app.feature.addpost.AddPostMode
 import io.familymoments.app.feature.addpost.uistate.AddPostUiState
 import io.familymoments.app.feature.addpost.uistate.ExistPostUiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -32,6 +34,7 @@ class AddPostViewModel @Inject constructor(
     private val userInfoPreferencesDataSource: UserInfoPreferencesDataSource
 ) : BaseViewModel() {
 
+    private val resizedImages: MutableList<File> = mutableStateListOf()
     private val mode: Int = savedStateHandle[Route.EditPost.modeArg] ?: AddPostMode.ADD.mode
     private val editPostId: Long = savedStateHandle[Route.EditPost.editPostIdArg] ?: 0
     private val editImages: Array<String> = savedStateHandle[Route.EditPost.editImagesArg] ?: arrayOf()
@@ -40,7 +43,7 @@ class AddPostViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AddPostUiState())
     val uiState = _uiState.asStateFlow()
 
-    val filesState = mutableStateListOf<File>()
+    val filesState = mutableStateListOf<Uri>()
 
     init {
         initUiState()
@@ -48,7 +51,7 @@ class AddPostViewModel @Inject constructor(
         getFileList()
     }
 
-    private fun initUiState() {
+    fun initUiState() {
         _uiState.update {
             it.copy(
                 mode = when (mode) {
@@ -69,7 +72,8 @@ class AddPostViewModel @Inject constructor(
             getEditImagesUrlList(editImages).forEachIndexed { i, it ->
                 val uri = Uri.parse(it)
                 val file = FileUtil.uriToFile(uri, i)
-                filesState.add(file)
+                filesState.add(file.toUri())
+                resizedImages.add(file)
             }
         }
     }
@@ -79,15 +83,23 @@ class AddPostViewModel @Inject constructor(
         return editImages.getOrNull(0)?.replace(regex, "")?.split(",") ?: listOf()
     }
 
-    suspend fun addPost(content: String, files: List<File>) {
-
-        for (file in files) {
-            // 이미지 크기 Log 출력
-            val size = file.length() / 1024
-            Timber.tag("Image").i("Image Size: $size KB")
+    suspend fun addPost(content: String) {
+        showLoading()
+        while (filesState.size != resizedImages.size) {
+            Timber.tag("Image").i("Image resizing...")
+            delay(100)
         }
 
-        val imagesMultipart = files.map { file ->
+        viewModelScope.launch(Dispatchers.IO) {
+            for (file in resizedImages) {
+                // 이미지 크기 Log 출력
+                val size = file.length() / 1024
+                Timber.tag("Image").i("Image Size: $size KB")
+            }
+        }
+
+        val imagesMultipart = resizedImages.map { file ->
+            Timber.tag("Image").i("Image File: ${file.path}")
             createImageMultiPart(file, "imgs")
         }
         async(
@@ -111,10 +123,10 @@ class AddPostViewModel @Inject constructor(
         )
     }
 
-    fun editPost(index: Long, content: String, files: List<File>) {
+    fun editPost(index: Long, content: String) {
         async(
             operation = {
-                val imagesMultipart = files.map { file ->
+                val imagesMultipart = resizedImages.map { file ->
                     createImageMultiPart(file, "imgs")
                 }
                 postRepository.editPost(index, content, imagesMultipart)
@@ -136,16 +148,42 @@ class AddPostViewModel @Inject constructor(
     }
 
     fun addImages(uris: List<Uri>, context: Context, errorMessage: String) {
+        showLoading()
         if (uris.size + filesState.size <= POST_PHOTO_MAX_SIZE) {
-            filesState.addAll(FileUtil.imageFilesResize(context, uris))
+            viewModelScope.launch(Dispatchers.Main) {
+                uris.forEach {
+                    filesState.add(it)
+                }
+            }
+
+            hideLoading()
+
+            viewModelScope.launch(Dispatchers.IO) {
+                uris.forEachIndexed { index, it ->
+                    val file: File = FileUtil.imageFileResize(context, it, index)
+                    resizedImages.add(file)
+                }
+            }
+
         } else {
             val availableCount = POST_PHOTO_MAX_SIZE - filesState.size
-            filesState.addAll(FileUtil.imageFilesResize(context, uris.subList(0, availableCount)))
-            _uiState.update {
-                it.copy(
-                    isSuccess = false,
-                    errorMessage = errorMessage
-                )
+            viewModelScope.launch(Dispatchers.Main) {
+                uris.subList(0, availableCount).forEach {
+                    filesState.add(it)
+                    _uiState.update {
+                        it.copy(
+                            isSuccess = false,
+                            errorMessage = errorMessage
+                        )
+                    }
+                }
+            }
+            hideLoading()
+            viewModelScope.launch(Dispatchers.IO) {
+                uris.subList(0, availableCount).forEachIndexed { index, it ->
+                    val file = FileUtil.imageFileResize(context, it, filesState.size + index)
+                    resizedImages.add(file)
+                }
             }
         }
     }

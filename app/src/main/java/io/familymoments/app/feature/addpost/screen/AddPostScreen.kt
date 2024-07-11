@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import io.familymoments.app.R
+import io.familymoments.app.core.component.LoadingIndicator
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
@@ -69,7 +71,6 @@ import io.familymoments.app.feature.addpost.uistate.AddPostUiState
 import io.familymoments.app.feature.addpost.viewmodel.AddPostViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.io.File
 
 @Composable
 fun AddPostScreen(
@@ -93,6 +94,7 @@ fun AddPostScreen(
     val scope = rememberCoroutineScope()
     val isKeyboardOpen by keyboardAsState()
     val focusManager = LocalFocusManager.current
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     AddPostScreenUI(
         modifier = modifier,
@@ -107,26 +109,26 @@ fun AddPostScreen(
         content = content,
         onContentUpdate = { content = it },
         isKeyboardOpen = isKeyboardOpen,
+        isLoading = isLoading,
         onButtonClick = {
-            onUploadClicked(focusManager, scope, fileList, addPostUiState, viewModel, content)
+            onUploadClicked(focusManager, scope, addPostUiState, viewModel, content)
         })
 }
 
 private fun onUploadClicked(
     focusManager: FocusManager,
     scope: CoroutineScope,
-    fileList: MutableList<File>,
     addPostUiState: AddPostUiState,
     viewModel: AddPostViewModel,
     content: String
 ) {
     focusManager.clearFocus()
+    viewModel.initUiState()
     scope.launch {
-        val imageFiles = fileList.toList()
         when (addPostUiState.mode) {
-            ADD -> viewModel.addPost(content, imageFiles)
+            ADD -> viewModel.addPost(content)
             EDIT -> viewModel.editPost(
-                addPostUiState.existPostUiState.editPostId, content, imageFiles
+                addPostUiState.existPostUiState.editPostId, content
             )
         }
     }
@@ -164,93 +166,97 @@ private fun AddPostScreenUI(
     modifier: Modifier = Modifier,
     focusManager: FocusManager = LocalFocusManager.current,
     modeEnum: AddPostMode = ADD,
-    fileList: MutableList<File> = mutableStateListOf(),
+    fileList: SnapshotStateList<Uri> = mutableStateListOf(),
     onLaunchPickVisualMediaRequest: () -> Unit = {},
     content: String = "",
     onContentUpdate: (String) -> Unit = {},
     isKeyboardOpen: Boolean = false,
+    isLoading: Boolean = false,
     onButtonClick: () -> Unit = {},
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 48.dp), text = when (modeEnum) {
-                ADD -> stringResource(id = R.string.add_post_title)
-                EDIT -> stringResource(id = R.string.edit_post_title)
-            }, style = AppTypography.SH1_20, color = AppColors.deepPurple1, textAlign = TextAlign.Center
-        )
-        ImageRow(focusManager, fileList, onLaunchPickVisualMediaRequest)
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 14.dp),
-            text = stringResource(id = R.string.add_post_write_content),
-            style = AppTypography.B1_16,
-            color = AppColors.black1,
-            textAlign = TextAlign.Center
-        )
-        BasicTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .heightIn(min = 268.dp)
-                .clip(shape = RoundedCornerShape(7.dp))
-                .background(color = AppColors.grey5)
-                .padding(all = 20.dp),
-            value = content,
-            onValueChange = { onContentUpdate(it) },
-            textStyle = AppTypography.LB1_13.copy(color = AppColors.black1),
-            decorationBox = { innerTextField ->
-                if (content.isEmpty()) {
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 48.dp), text = when (modeEnum) {
+                    ADD -> stringResource(id = R.string.add_post_title)
+                    EDIT -> stringResource(id = R.string.edit_post_title)
+                }, style = AppTypography.SH1_20, color = AppColors.deepPurple1, textAlign = TextAlign.Center
+            )
+            ImageRow(focusManager, fileList, onLaunchPickVisualMediaRequest)
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 14.dp),
+                text = stringResource(id = R.string.add_post_write_content),
+                style = AppTypography.B1_16,
+                color = AppColors.black1,
+                textAlign = TextAlign.Center
+            )
+            BasicTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .heightIn(min = 268.dp)
+                    .clip(shape = RoundedCornerShape(7.dp))
+                    .background(color = AppColors.grey5)
+                    .padding(all = 20.dp),
+                value = content,
+                onValueChange = { onContentUpdate(it) },
+                textStyle = AppTypography.LB1_13.copy(color = AppColors.black1),
+                decorationBox = { innerTextField ->
+                    if (content.isEmpty()) {
+                        Text(
+                            text = stringResource(id = R.string.add_post_write_content_hint),
+                            style = AppTypography.LB1_13,
+                            color = AppColors.grey3
+                        )
+                    }
+                    innerTextField()
+                },
+            )
+            if (!isKeyboardOpen) {
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 24.dp)
+                        .fillMaxWidth()
+                        .heightIn(min = 59.dp)
+                        .clip(RoundedCornerShape(60.dp))
+                        .then(
+                            if (content
+                                    .trim()
+                                    .isNotEmpty() && fileList.isNotEmpty()
+                            ) {
+                                Modifier
+                                    .background(color = AppColors.deepPurple1)
+                                    .oneClick(onButtonClick)
+                            } else {
+                                Modifier.background(color = AppColors.grey3)
+                            }
+                        ), contentAlignment = Alignment.Center
+                ) {
                     Text(
-                        text = stringResource(id = R.string.add_post_write_content_hint),
-                        style = AppTypography.LB1_13,
-                        color = AppColors.grey3
+                        text = when (modeEnum) {
+                            ADD -> stringResource(id = R.string.add_post_btn)
+                            EDIT -> stringResource(R.string.edit_post_btn)
+                        }, style = AppTypography.BTN4_18, color = AppColors.grey6, textAlign = TextAlign.Center
                     )
                 }
-                innerTextField()
-            },
-        )
-        if (!isKeyboardOpen) {
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 24.dp)
-                    .fillMaxWidth()
-                    .heightIn(min = 59.dp)
-                    .clip(RoundedCornerShape(60.dp))
-                    .then(
-                        if (content
-                                .trim()
-                                .isNotEmpty() && fileList.isNotEmpty()
-                        ) {
-                            Modifier
-                                .background(color = AppColors.deepPurple1)
-                                .oneClick(onButtonClick)
-                        } else {
-                            Modifier.background(color = AppColors.grey3)
-                        }
-                    ), contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = when (modeEnum) {
-                        ADD -> stringResource(id = R.string.add_post_btn)
-                        EDIT -> stringResource(R.string.edit_post_btn)
-                    }, style = AppTypography.BTN4_18, color = AppColors.grey6, textAlign = TextAlign.Center
-                )
             }
         }
+        LoadingIndicator(isLoading = isLoading)
     }
 }
 
 @Composable
 private fun ImageRow(
     focusManager: FocusManager = LocalFocusManager.current,
-    imageList: MutableList<File> = mutableListOf(),
+    imageList: SnapshotStateList<Uri> = mutableStateListOf(),
     onPickVisualMediaRequest: () -> Unit = {},
 ) {
     Row(

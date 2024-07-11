@@ -7,6 +7,7 @@ import io.familymoments.app.core.network.AuthErrorManager
 import io.familymoments.app.core.network.AuthErrorResponse
 import io.familymoments.app.core.network.HttpResponseMessage
 import io.familymoments.app.core.network.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,5 +55,13 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
                 }
             }
         }
+    }
+
+    fun showLoading() = viewModelScope.launch(Dispatchers.Main) {
+        _isLoading.value = true
+    }
+
+    fun hideLoading() = viewModelScope.launch(Dispatchers.Main) {
+        _isLoading.value = false
     }
 }
