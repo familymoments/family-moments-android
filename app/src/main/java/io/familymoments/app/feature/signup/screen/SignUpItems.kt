@@ -25,6 +25,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -191,7 +192,7 @@ fun ProfileImageSelectDropDownMenu(
     isMenuExpanded: Boolean,
     isMenuExpandedChanged: (Boolean) -> Unit,
     defaultProfileImageBitmap: Bitmap,
-    getBitmap: (Bitmap) -> Unit,
+    getBitmap: (Bitmap, Boolean) -> Unit,
 ) {
     val context = LocalContext.current
     var bitmap by remember {
@@ -205,13 +206,18 @@ fun ProfileImageSelectDropDownMenu(
     ) {
         if (it == null) return@rememberLauncherForActivityResult
         bitmap = FileUtil.convertUriToBitmap(it, context)
-        getBitmap(bitmap)
+        getBitmap(bitmap, true)
     }
 
-    DropdownMenu(expanded = isMenuExpanded,
-        onDismissRequest = { isMenuExpandedChanged(false) }) {
+    DropdownMenu(
+        expanded = isMenuExpanded,
+        onDismissRequest = { isMenuExpandedChanged(false) }
+    ) {
         MenuItemGallerySelect(launcher, isMenuExpandedChanged)
-        MenuItemDefaultImage({ getBitmap(defaultProfileImageBitmap) }, isMenuExpandedChanged)
+        MenuItemDefaultImage(
+            { getBitmap(defaultProfileImageBitmap, it) },
+            isMenuExpandedChanged
+        )
     }
 }
 
@@ -234,9 +240,9 @@ fun MenuItemGallerySelect(
 }
 
 @Composable
-fun MenuItemDefaultImage(getDefaultProfileImageBitmap: () -> Unit, isMenuExpandedChanged: (Boolean) -> Unit) {
+fun MenuItemDefaultImage(getDefaultProfileImageBitmap: (Boolean) -> Unit, isMenuExpandedChanged: (Boolean) -> Unit) {
     DropdownMenuItem(onClick = {
-        getDefaultProfileImageBitmap()
+        getDefaultProfileImageBitmap(false)
         isMenuExpandedChanged(false)
     }, text = {
         Text(text = stringResource(R.string.sign_up_select_profile_image_drop_down_menu_default_image))
@@ -244,7 +250,7 @@ fun MenuItemDefaultImage(getDefaultProfileImageBitmap: () -> Unit, isMenuExpande
 }
 
 @Composable
-fun ProfileImageField(defaultProfileImageBitmap: Bitmap, context: Context, onFileChange: (File) -> Unit) {
+fun ProfileImageField(defaultProfileImageBitmap: Bitmap, context: Context, isDefaultImage: MutableState<Boolean> = mutableStateOf(false), onFileChange: (File?) -> Unit) {
     var isMenuExpanded: Boolean by remember { mutableStateOf(false) }
     var bitmap: Bitmap? by remember { mutableStateOf(null) }
     Text(
@@ -262,24 +268,40 @@ fun ProfileImageField(defaultProfileImageBitmap: Bitmap, context: Context, onFil
         shape = RoundedCornerShape(7.dp),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
     ) {
-        ProfileImageSelectDropDownMenu(isMenuExpanded, { isMenuExpanded = it }, defaultProfileImageBitmap) {
-            onFileChange(FileUtil.convertBitmapToCompressedFile(it, context))
-            bitmap = it
+        ProfileImageSelectDropDownMenu(
+            isMenuExpanded,
+            { isMenuExpanded = it },
+            defaultProfileImageBitmap
+        ) { image, needToResize ->
+            if (needToResize) {
+                onFileChange(FileUtil.convertBitmapToCompressedFile(image, context))
+            } else {
+                isDefaultImage.value = true
+            }
+            bitmap = image
         }
         if (bitmap == null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(115.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+            if (isDefaultImage.value) {
                 Image(
-                    modifier = Modifier.padding(bottom = 2.dp),
-                    painter = painterResource(id = R.drawable.ic_select_pic),
+                    painter = painterResource(id = R.drawable.default_profile),
                     contentDescription = null,
+                    modifier = Modifier.size(400.dp)
                 )
-                Text(text = stringResource(R.string.sign_up_select_profile_image_btn), color = Color(0xFFBFBFBF))
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(115.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Image(
+                        modifier = Modifier.padding(bottom = 2.dp),
+                        painter = painterResource(id = R.drawable.ic_select_pic),
+                        contentDescription = null,
+                    )
+                    Text(text = stringResource(R.string.sign_up_select_profile_image_btn), color = Color(0xFFBFBFBF))
+                }
             }
         } else {
             Image(

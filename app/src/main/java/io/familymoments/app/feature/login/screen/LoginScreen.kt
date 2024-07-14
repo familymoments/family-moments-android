@@ -345,7 +345,7 @@ fun LoginOption(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            modifier = Modifier.oneClick {
+            modifier = Modifier.oneClick(500) {
                 onRouteToSignUp()
             },
             text = stringResource(id = R.string.login_signup),
