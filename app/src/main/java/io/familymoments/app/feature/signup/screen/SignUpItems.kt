@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -35,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -285,7 +285,8 @@ fun ProfileImageField(defaultProfileImageBitmap: Bitmap, context: Context, isDef
                 Image(
                     painter = painterResource(id = R.drawable.default_profile),
                     contentDescription = null,
-                    modifier = Modifier.size(400.dp)
+                    contentScale = ContentScale.FillHeight,
+                    modifier = Modifier.fillMaxWidth().height(150.dp)
                 )
             } else {
                 Column(
@@ -307,7 +308,8 @@ fun ProfileImageField(defaultProfileImageBitmap: Bitmap, context: Context, isDef
             Image(
                 bitmap = bitmap!!.asImageBitmap(),
                 contentDescription = null,
-                modifier = Modifier.size(400.dp)
+                contentScale = ContentScale.FillHeight,
+                modifier = Modifier.fillMaxWidth().height(150.dp)
             )
         }
 
