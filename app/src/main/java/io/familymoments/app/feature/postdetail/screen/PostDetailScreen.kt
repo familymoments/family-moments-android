@@ -214,12 +214,12 @@ fun PostDetailScreenUI(
 
 @Composable
 fun LaunchedEffectSetUpData(
-    index:Long,
-    getNickname:()->Unit,
-    getPostDetail:(Long)->Unit,
-    getComments:(Long)->Unit,
-    getPostLoves:(Long) ->Unit
-){
+    index: Long,
+    getNickname: () -> Unit,
+    getPostDetail: (Long) -> Unit,
+    getComments: (Long) -> Unit,
+    getPostLoves: (Long) -> Unit
+) {
     LaunchedEffect(Unit) {
         getNickname()
         getPostDetail(index)
@@ -570,7 +570,10 @@ fun CommentTextField(
         ) {
             val focusRequester = remember { FocusRequester() }
 
-            Row(modifier = Modifier.fillMaxHeight()) {
+            Row(modifier = Modifier
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(8.dp))
+                .background(AppColors.f4)) {
                 BasicTextField(
                     value = comment,
                     onValueChange = {
@@ -602,7 +605,10 @@ fun CommentTextField(
                         .height(52.dp)
                         .width(42.dp)
                         .align(Alignment.CenterVertically),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.purple1),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AppColors.commentEnabledButtonColor,
+                        disabledContainerColor = AppColors.commentDisabledButtonColor
+                    ),
                     contentPadding = PaddingValues(0.dp),
                     shape = RoundedCornerShape(10.dp)
                 ) {

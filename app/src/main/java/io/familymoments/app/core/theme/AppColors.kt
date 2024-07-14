@@ -23,8 +23,6 @@ object AppColors {
 
     val black1 = Color(0xFF000000)
     val black2 = Color(0xFF535353)
-    val black3 = Color(0x66000000)
-    val black4 = Color(0xFF1A1E25)
 
     val red1 = Color(0xFFF33434)
     val red2 = Color(0xFFFF7160)
@@ -34,5 +32,9 @@ object AppColors {
     val deepPurple3 = Color(0xFFA5A8BA)
 
     val shadowColor = Color(0x1A000000)
+
+    val f4 = Color(0xFFF4F4F4)
+    val commentDisabledButtonColor = Color(0xFFA5A8BA)
+    val commentEnabledButtonColor = Color(0xFF5B6380)
 }
 
