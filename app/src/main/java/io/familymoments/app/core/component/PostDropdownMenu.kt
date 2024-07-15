@@ -22,11 +22,11 @@ fun PostDropdownMenu(
     items: List<Pair<String, () -> Unit>>,
     modifier: Modifier = Modifier,
     expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit
+    onDismissRequest: () -> Unit
 ) {
     DropdownMenu(
         expanded = expanded,
-        onDismissRequest = { onExpandedChange(false) },
+        onDismissRequest = onDismissRequest,
         modifier = modifier.then(
             Modifier
                 .width(112.dp)
@@ -44,7 +44,7 @@ fun PostDropdownMenu(
                     )
                 },
                 onClick = {
-                    onExpandedChange(false)
+                    onDismissRequest()
                     it.second()
                 },
                 modifier = Modifier.height(35.dp)
@@ -71,6 +71,6 @@ fun PostDropdownMenuPreview() {
     PostDropdownMenu(
         items = items,
         expanded = true,
-        onExpandedChange = {}
+        onDismissRequest = {}
     )
 }

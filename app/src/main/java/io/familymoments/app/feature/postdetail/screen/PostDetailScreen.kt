@@ -483,7 +483,7 @@ fun PostContent(
                             },
                         ),
                         expanded = menuExpanded
-                    ) { menuExpanded = it }
+                    ) { menuExpanded = false }
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -717,7 +717,7 @@ fun CommentItem(
                         },
                     ),
                     expanded = menuExpanded
-                ) { menuExpanded = it }
+                ) { menuExpanded = false }
             }
 
             Icon(
