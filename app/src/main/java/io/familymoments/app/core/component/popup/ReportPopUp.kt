@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -53,7 +55,8 @@ fun ReportPopUp(
     Dialog(onDismissRequest = onDismissRequest) {
         Box(
             modifier = Modifier
-                .width(250.dp)
+                .width(270.dp)
+                .wrapContentHeight()
                 .clip(RoundedCornerShape(10.dp))
                 .background(AppColors.grey6),
         ) {
@@ -94,10 +97,11 @@ fun ReportPopUp(
                         .padding(start = 19.dp, end = 19.dp, bottom = 13.dp)
                         .border(width = 1.dp, color = AppColors.pink1)
                         .fillMaxWidth()
-                        .heightIn(103.dp)
+                        .height(103.dp)
                         .padding(10.dp)
                 ) {
                     BasicTextField(
+                        modifier = Modifier.fillMaxSize(),
                         value = reportContents,
                         onValueChange = {
                             reportContents = it
