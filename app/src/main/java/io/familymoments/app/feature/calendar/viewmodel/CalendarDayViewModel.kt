@@ -227,11 +227,11 @@ class CalendarDayViewModel @Inject constructor(
                     )
                 }
             },
-            onFailure = {
+            onFailure = { e ->
                 _calendarDayUiState.update {
                     it.copy(
                         isSuccess = false,
-                        popup = PostPopupType.ReportPostFailure
+                        popup = PostPopupType.ReportPostFailure(e.message.toString())
                     )
                 }
             }

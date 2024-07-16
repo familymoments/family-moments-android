@@ -38,6 +38,7 @@ import io.familymoments.app.core.component.PostItem
 import io.familymoments.app.core.component.popup.CompletePopUp
 import io.familymoments.app.core.component.popup.DeletePopUp
 import io.familymoments.app.core.component.popup.ReportPopUp
+import io.familymoments.app.core.component.popup.WarningPopup
 import io.familymoments.app.core.network.dto.response.Post
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
@@ -152,8 +153,8 @@ private fun LaunchedEffectShowPopup(
                 )
             }
 
-            PostPopupType.ReportPostFailure -> {
-
+            is PostPopupType.ReportPostFailure -> {
+                WarningPopup(content = popup.message, onDismissRequest = dismissPopup)
             }
 
             else -> {

@@ -194,11 +194,11 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             },
-            onFailure = {
+            onFailure = { e->
                 _homeUiState.update {
                     it.copy(
                         isSuccess = false,
-                        popup = PostPopupType.ReportPostFailure
+                        popup = PostPopupType.ReportPostFailure(e.message.toString())
                     )
                 }
             }

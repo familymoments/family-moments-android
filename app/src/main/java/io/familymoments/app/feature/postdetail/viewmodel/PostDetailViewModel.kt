@@ -416,11 +416,11 @@ class PostDetailViewModel @Inject constructor(
                     )
                 }
             },
-            onFailure = {
+            onFailure = { e ->
                 _uiState.update {
                     it.copy(
                         isSuccess = false,
-                        popup = PostDetailPopupType.ReportPostFailed
+                        popup = PostDetailPopupType.ReportPostFailed(e.message.toString())
                     )
                 }
             }

@@ -24,7 +24,7 @@ sealed interface PostDetailPopupType {
     data object DeleteCommentFailed : PostDetailPopupType
     data class ReportPost(val postId: Long) : PostDetailPopupType
     data object ReportPostSuccess : PostDetailPopupType
-    data object ReportPostFailed : PostDetailPopupType
+    data class ReportPostFailed(val message:String) : PostDetailPopupType
     data class ReportComment(val commentId: Long) : PostDetailPopupType
     data object ReportCommentSuccess : PostDetailPopupType
     data object ReportCommentFailed : PostDetailPopupType

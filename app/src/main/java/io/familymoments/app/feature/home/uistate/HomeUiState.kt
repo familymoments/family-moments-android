@@ -25,5 +25,5 @@ sealed interface PostPopupType {
     data object DeletePostFailure : PostPopupType
     data class ReportPost(val postId: Long) : PostPopupType
     data object ReportPostSuccess : PostPopupType
-    data object ReportPostFailure : PostPopupType
+    data class ReportPostFailure(val message:String) : PostPopupType
 }

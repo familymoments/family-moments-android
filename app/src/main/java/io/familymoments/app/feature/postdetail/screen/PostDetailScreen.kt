@@ -58,6 +58,7 @@ import io.familymoments.app.core.component.popup.CompletePopUp
 import io.familymoments.app.core.component.popup.DeletePopUp
 import io.familymoments.app.core.component.popup.LoveListPopUp
 import io.familymoments.app.core.component.popup.ReportPopUp
+import io.familymoments.app.core.component.popup.WarningPopup
 import io.familymoments.app.core.network.dto.response.GetCommentsResult
 import io.familymoments.app.core.network.dto.response.GetPostDetailResult
 import io.familymoments.app.core.network.dto.response.GetPostLovesResult
@@ -308,8 +309,8 @@ fun LaunchedEffectShowPopup(
                 )
             }
 
-            PostDetailPopupType.ReportPostFailed -> {
-                //todo: 글 신고 실패 팝업
+            is PostDetailPopupType.ReportPostFailed -> {
+                WarningPopup(content = popup.message, onDismissRequest = dismissPopup)
             }
 
             PostDetailPopupType.ReportPostSuccess -> {
