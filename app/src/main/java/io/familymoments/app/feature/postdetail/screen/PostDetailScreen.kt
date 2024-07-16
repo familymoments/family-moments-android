@@ -714,9 +714,6 @@ fun CommentItem(
                 PostDropdownMenu(
                     items =
                     if (userNickname == comment.nickname) listOf(
-                        Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_report)) {
-                            showReportCommentPopup(comment.commentId)
-                        },
                         Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_delete)) {
                             showDeleteCommentPopup(comment.commentId)
                         },
