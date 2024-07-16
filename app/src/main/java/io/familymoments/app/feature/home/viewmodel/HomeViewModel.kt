@@ -11,7 +11,6 @@ import io.familymoments.app.feature.home.uistate.PostPopupType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,7 +26,6 @@ class HomeViewModel @Inject constructor(
     private var minPostId: Long = 0
 
     fun getNicknameDday() {
-        Timber.d("getNicknameDday")
         async(
             operation = {
                 val familyId = userInfoPreferencesDataSource.loadFamilyId()
@@ -52,7 +50,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getPosts() {
-        Timber.d("getPosts")
         async(
             operation = {
                 val familyId = userInfoPreferencesDataSource.loadFamilyId()
@@ -81,7 +78,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadMorePosts() {
-        Timber.d("loadMorePosts")
         async(
             operation = {
                 val familyId = userInfoPreferencesDataSource.loadFamilyId()
@@ -108,18 +104,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun postPostLoves(postId: Long) {
-        Timber.d("postPostLoves")
         async(
             operation = { postRepository.postPostLoves(postId) },
-            onSuccess = { response ->
-                Timber.d("postPostLoves onSuccess: $response")
+            onSuccess = {
                 _homeUiState.update {
                     it.copy(
                         posts = it.posts.map { post ->
                             if (post.postId == postId) {
                                 post.copy(
                                     loved = true,
-                                    countLove = post.countLove+1
+                                    countLove = post.countLove + 1
                                 )
                             } else {
                                 post
@@ -128,8 +122,7 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             },
-            onFailure = { t ->
-                Timber.d("postPostLoves onFailure: ${t.message}")
+            onFailure = {
                 _homeUiState.update {
                     it.copy(
                         popup = PostPopupType.PostLovesFailure
@@ -140,18 +133,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun deletePostLoves(postId: Long) {
-        Timber.d("deletePostLoves")
         async(
             operation = { postRepository.deletePostLoves(postId) },
-            onSuccess = { response ->
-                Timber.d("deletePostLoves onSuccess: $response")
+            onSuccess = {
                 _homeUiState.update {
                     it.copy(
                         posts = it.posts.map { post ->
                             if (post.postId == postId) {
                                 post.copy(
                                     loved = false,
-                                    countLove = post.countLove-1
+                                    countLove = post.countLove - 1
                                 )
                             } else {
                                 post
@@ -160,8 +151,7 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             },
-            onFailure = { t ->
-                Timber.d("deletePostLoves onFailure: ${t.message}")
+            onFailure = {
                 _homeUiState.update {
                     it.copy(
                         popup = PostPopupType.DeleteLovesFailure
@@ -171,19 +161,10 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun showDeletePostPopup(postId: Long) {
-        Timber.d("showDeletePostPopup")
-        _homeUiState.update {
-            it.copy(popup = PostPopupType.DeletePost(postId))
-        }
-    }
-
     fun deletePost(postId: Long) {
-        Timber.d("deletePost")
         async(
             operation = { postRepository.deletePost(postId) },
-            onSuccess = { response ->
-                Timber.d("deletePost onSuccess: $response")
+            onSuccess = {
                 _homeUiState.update {
                     it.copy(
                         popup = PostPopupType.DeletePostSuccess
@@ -191,8 +172,7 @@ class HomeViewModel @Inject constructor(
                 }
                 getPosts()
             },
-            onFailure = { t ->
-                Timber.d("deletePost onFailure: ${t.message}")
+            onFailure = {
                 _homeUiState.update {
                     it.copy(
                         popup = PostPopupType.DeletePostFailure
@@ -202,8 +182,36 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+
+    fun reportPost(postId: Long, reason: String, details: String) {
+        async(
+            operation = { postRepository.reportPost(postId, reason, details) },
+            onSuccess = {
+                _homeUiState.update {
+                    it.copy(
+                        isSuccess = true,
+                        popup = PostPopupType.ReportPostSuccess
+                    )
+                }
+            },
+            onFailure = {
+                _homeUiState.update {
+                    it.copy(
+                        isSuccess = false,
+                        popup = PostPopupType.ReportPostFailure
+                    )
+                }
+            }
+        )
+    }
+
+    fun showDeletePostPopup(postId: Long) {
+        _homeUiState.update {
+            it.copy(popup = PostPopupType.DeletePost(postId))
+        }
+    }
+
     fun showReportPostPopup(postId: Long) {
-        Timber.d("showReportPostPopup")
         _homeUiState.update {
             it.copy(popup = PostPopupType.ReportPost(postId))
         }

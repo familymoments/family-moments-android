@@ -2,6 +2,7 @@ package io.familymoments.app.core.network.repository
 
 import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.dto.response.AddPostResponse
+import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.DeletePostLovesResponse
 import io.familymoments.app.core.network.dto.response.DeletePostResponse
 import io.familymoments.app.core.network.dto.response.GetAlbumDetailResponse
@@ -66,4 +67,5 @@ interface PostRepository {
         content: String,
         multipartImgs: List<MultipartBody.Part>?
     ):Flow<Resource<AddPostResponse>>
+    suspend fun reportPost(postId:Long, reason:String, details:String):Flow<Resource<ApiResponse<String>>>
 }

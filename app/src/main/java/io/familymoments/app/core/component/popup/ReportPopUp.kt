@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -20,6 +19,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,8 +51,21 @@ import io.familymoments.app.core.util.noRippleClickable
 @Composable
 fun ReportPopUp(
     onDismissRequest: () -> Unit = {},
-    onReportRequest: (String) -> Unit = {},
+    onReportRequest: (String, String) -> Unit = { _, _ -> },
 ) {
+
+    var reportContents by remember {
+        mutableStateOf(TextFieldValue())
+    }
+    var checkedIndex by remember {
+        mutableIntStateOf(0)
+    }
+    val reportItems = listOf(
+        "영리목적/홍보성", "저작권 침해",
+        "음란성/선정성", "욕설/인신공격",
+        "같은내용 반복게시", "개인정보노출",
+        "기타"
+    )
     Dialog(onDismissRequest = onDismissRequest) {
         Box(
             modifier = Modifier
@@ -86,11 +100,11 @@ fun ReportPopUp(
                         contentDescription = "close popup",
                     )
                 }
-                ReportItems(Modifier.padding(top = 42.dp, bottom = 13.dp))
-
-                var reportContents by remember {
-                    mutableStateOf(TextFieldValue())
-                }
+                ReportItems(
+                    modifier = Modifier.padding(top = 42.dp, bottom = 13.dp),
+                    reportItems = reportItems,
+                    checkedIndex = checkedIndex,
+                    onCheckedChanged = { checkedIndex = it })
 
                 Box(
                     modifier = Modifier
@@ -121,7 +135,7 @@ fun ReportPopUp(
                     colors = ButtonDefaults.buttonColors(containerColor = AppColors.pink1),
                     shape = RoundedCornerShape(60.dp),
                     onClick = {
-                        onReportRequest(reportContents.text)
+                        onReportRequest(reportItems[checkedIndex], reportContents.text)
                     },
                     modifier = Modifier
                         .padding(start = 26.dp, end = 26.dp, bottom = 20.dp)
@@ -140,51 +154,39 @@ fun ReportPopUp(
 }
 
 @Composable
-fun ReportItems(modifier: Modifier) {
+fun ReportItems(
+    modifier: Modifier,
+    reportItems: List<String>,
+    checkedIndex: Int = 0,
+    onCheckedChanged: (Int) -> Unit
+) {
     LazyVerticalGrid(
         modifier = modifier.then(Modifier.padding(start = 19.dp, end = 19.dp)),
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(19.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        val contents = listOf(
-            "영리목적/홍보성", "저작권 침해",
-            "음란성/선정성", "욕설/인신공격",
-            "같은내용 반복게시", "개인정보노출",
-            "기타"
-
-        )
-        items(contents) {
-            ReportItem(it)
-        }
-
-
-    }
-}
-
-@Composable
-fun ReportItem(content: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        var checkStatus by remember {
-            mutableStateOf(false)
-        }
-        Icon(
-            imageVector =
-            if (checkStatus) ImageVector.vectorResource(R.drawable.ic_pink_circle_check)
-            else ImageVector.vectorResource(R.drawable.ic_pink_circle_uncheck),
-            contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier.noRippleClickable {
-                checkStatus = !checkStatus
+        itemsIndexed(reportItems) { index, content ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector =
+                    if (checkedIndex == index) {
+                        ImageVector.vectorResource(R.drawable.ic_pink_circle_check)
+                    } else ImageVector.vectorResource(R.drawable.ic_pink_circle_uncheck),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.noRippleClickable {
+                        onCheckedChanged(index)
+                    }
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = content,
+                    style = AppTypography.LB2_11
+                )
             }
-        )
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(
-            text = content,
-            style = AppTypography.LB2_11
-        )
+        }
     }
-
 }
 
 @Preview(showBackground = true)

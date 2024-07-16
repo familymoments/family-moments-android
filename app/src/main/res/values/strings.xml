@@ -250,4 +250,5 @@
     <string name="account_deletion_delete_btn">계정 탈퇴하기</string>
     <string name="account_deletion_cancel_btn">취소</string>
     <string name="account_delete_popup_label">탈퇴되었습니다.</string>
+    <string name="complete_report_label">신고가 완료되었습니다.</string>
 </resources>

@@ -101,6 +101,7 @@ fun PostDetailScreen(
         viewModel::deleteComment,
         viewModel::dismissPopup,
         navigateToBack,
+        viewModel::reportPost,
     )
     LaunchedEffectShowErrorMessage(uiState, context, viewModel::resetSuccess)
     PostDetailScreenUI(
@@ -214,12 +215,12 @@ fun PostDetailScreenUI(
 
 @Composable
 fun LaunchedEffectSetUpData(
-    index:Long,
-    getNickname:()->Unit,
-    getPostDetail:(Long)->Unit,
-    getComments:(Long)->Unit,
-    getPostLoves:(Long) ->Unit
-){
+    index: Long,
+    getNickname: () -> Unit,
+    getPostDetail: (Long) -> Unit,
+    getComments: (Long) -> Unit,
+    getPostLoves: (Long) -> Unit
+) {
     LaunchedEffect(Unit) {
         getNickname()
         getPostDetail(index)
@@ -235,6 +236,7 @@ fun LaunchedEffectShowPopup(
     deleteComment: (Long) -> Unit,
     dismissPopup: () -> Unit,
     navigateToBack: () -> Unit,
+    reportPost: (Long, String, String) -> Unit
 ) {
     val showPopup = remember { mutableStateOf(false) }
     LaunchedEffect(popup) {
@@ -287,10 +289,7 @@ fun LaunchedEffectShowPopup(
 
             is PostDetailPopupType.ReportComment -> {
                 ReportPopUp(
-                    onDismissRequest = dismissPopup,
-                    onReportRequest = {
-                        //todo: 댓글 신고하기 기능 구현
-                    }
+                    onDismissRequest = dismissPopup
                 )
             }
 
@@ -305,9 +304,7 @@ fun LaunchedEffectShowPopup(
             is PostDetailPopupType.ReportPost -> {
                 ReportPopUp(
                     onDismissRequest = dismissPopup,
-                    onReportRequest = {
-                        //todo: 글 신고하기 기능 구현
-                    }
+                    onReportRequest = { reason, details -> reportPost(popup.postId, reason, details) }
                 )
             }
 
@@ -316,7 +313,7 @@ fun LaunchedEffectShowPopup(
             }
 
             PostDetailPopupType.ReportPostSuccess -> {
-                //todo: 글 신고 성공 팝업
+                CompletePopUp(content = stringResource(R.string.complete_report_label), onDismissRequest = dismissPopup)
             }
 
             is PostDetailPopupType.LoveList -> {

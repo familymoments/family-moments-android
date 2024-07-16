@@ -2,7 +2,9 @@ package io.familymoments.app.core.network.api
 
 import io.familymoments.app.core.network.dto.request.AddPostRequest
 import io.familymoments.app.core.network.dto.request.PostLovesRequest
+import io.familymoments.app.core.network.dto.request.ReportPostRequest
 import io.familymoments.app.core.network.dto.response.AddPostResponse
+import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.DeletePostLovesResponse
 import io.familymoments.app.core.network.dto.response.DeletePostResponse
 import io.familymoments.app.core.network.dto.response.GetAlbumDetailResponse
@@ -100,4 +102,10 @@ interface PostService {
         @Part("postInfo") postInfo: AddPostRequest,
         @Part images: List<MultipartBody.Part>?
     ):Response<AddPostResponse>
+
+    @POST("/posts/report/{postId}")
+    suspend fun reportPost(
+        @Path(value = "postId") postId: Long,
+        @Body reportPostRequest: ReportPostRequest
+    ): Response<ApiResponse<String>>
 }

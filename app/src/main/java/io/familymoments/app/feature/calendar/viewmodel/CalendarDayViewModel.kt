@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -46,7 +45,6 @@ class CalendarDayViewModel @Inject constructor(
     }
 
     private fun getPostsByDay() {
-        Timber.d("getPostsByDay")
         val selectedDate = _calendarDayUiState.value.selectedDate
         val year = selectedDate.year
         val month = selectedDate.monthValue
@@ -78,7 +76,6 @@ class CalendarDayViewModel @Inject constructor(
     }
 
     fun loadMorePostsByDay() {
-        Timber.d("loadMorePostsByDay")
         val selectedDate = _calendarDayUiState.value.selectedDate
         val year = selectedDate.year
         val month = selectedDate.monthValue
@@ -109,25 +106,21 @@ class CalendarDayViewModel @Inject constructor(
     }
 
     fun getPostsByPrevDay() {
-        Timber.d("getPostsByPrevDay")
         val selectedDate = _calendarDayUiState.value.selectedDate.minusDays(1)
         _calendarDayUiState.value = _calendarDayUiState.value.copy(selectedDate = selectedDate)
         getPostsByDay()
     }
 
     fun getPostsByNextDay() {
-        Timber.d("getPostsByNextDay")
         val selectedDate = _calendarDayUiState.value.selectedDate.plusDays(1)
         _calendarDayUiState.value = _calendarDayUiState.value.copy(selectedDate = selectedDate)
         getPostsByDay()
     }
 
     fun deletePost(postId: Long) {
-        Timber.d("deletePost")
         async(
             operation = { postRepository.deletePost(postId) },
-            onSuccess = { response ->
-                Timber.d("deletePost onSuccess: $response")
+            onSuccess = {
                 _calendarDayUiState.update {
                     it.copy(
                         popup = PostPopupType.DeletePostSuccess
@@ -135,8 +128,7 @@ class CalendarDayViewModel @Inject constructor(
                 }
                 getPostsByDay()
             },
-            onFailure = { t ->
-                Timber.d("deletePost onFailure: ${t.message}")
+            onFailure = {
                 _calendarDayUiState.update {
                     it.copy(
                         popup = PostPopupType.DeletePostFailure
@@ -147,18 +139,16 @@ class CalendarDayViewModel @Inject constructor(
     }
 
     fun deletePostLoves(postId: Long) {
-        Timber.d("deletePostLoves")
         async(
             operation = { postRepository.deletePostLoves(postId) },
-            onSuccess = { response ->
-                Timber.d("deletePostLoves onSuccess: $response")
+            onSuccess = {
                 _calendarDayUiState.update {
                     it.copy(
                         posts = it.posts.map { post ->
                             if (post.postId == postId) {
                                 post.copy(
                                     loved = false,
-                                    countLove = post.countLove-1
+                                    countLove = post.countLove - 1
                                 )
                             } else {
                                 post
@@ -167,8 +157,7 @@ class CalendarDayViewModel @Inject constructor(
                     )
                 }
             },
-            onFailure = { t ->
-                Timber.d("deletePostLoves onFailure: ${t.message}")
+            onFailure = {
                 _calendarDayUiState.update {
                     it.copy(
                         popup = PostPopupType.DeleteLovesFailure
@@ -179,18 +168,16 @@ class CalendarDayViewModel @Inject constructor(
     }
 
     fun postPostLoves(postId: Long) {
-        Timber.d("postPostLoves")
         async(
             operation = { postRepository.postPostLoves(postId) },
-            onSuccess = { response ->
-                Timber.d("postPostLoves onSuccess: $response")
+            onSuccess = {
                 _calendarDayUiState.update {
                     it.copy(
                         posts = it.posts.map { post ->
                             if (post.postId == postId) {
                                 post.copy(
                                     loved = true,
-                                    countLove = post.countLove+1
+                                    countLove = post.countLove + 1
                                 )
                             } else {
                                 post
@@ -199,8 +186,7 @@ class CalendarDayViewModel @Inject constructor(
                     )
                 }
             },
-            onFailure = { t ->
-                Timber.d("postPostLoves onFailure: ${t.message}")
+            onFailure = {
                 _calendarDayUiState.update {
                     it.copy(
                         popup = PostPopupType.PostLovesFailure
@@ -211,14 +197,12 @@ class CalendarDayViewModel @Inject constructor(
     }
 
     fun showDeletePostPopup(postId: Long) {
-        Timber.d("showDeletePostPopup")
         _calendarDayUiState.update {
             it.copy(popup = PostPopupType.DeletePost(postId))
         }
     }
 
     fun showReportPostPopup(postId: Long) {
-        Timber.d("showReportPostPopup")
         _calendarDayUiState.update {
             it.copy(popup = PostPopupType.ReportPost(postId))
         }
@@ -228,5 +212,29 @@ class CalendarDayViewModel @Inject constructor(
         _calendarDayUiState.update {
             it.copy(popup = null)
         }
+    }
+
+    fun reportPost(postId: Long, reason: String, details: String) {
+        async(
+            operation = {
+                postRepository.reportPost(postId, reason, details)
+            },
+            onSuccess = {
+                _calendarDayUiState.update {
+                    it.copy(
+                        isSuccess = true,
+                        popup = PostPopupType.ReportPostSuccess
+                    )
+                }
+            },
+            onFailure = {
+                _calendarDayUiState.update {
+                    it.copy(
+                        isSuccess = false,
+                        popup = PostPopupType.ReportPostFailure
+                    )
+                }
+            }
+        )
     }
 }

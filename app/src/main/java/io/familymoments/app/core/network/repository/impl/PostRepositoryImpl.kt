@@ -3,7 +3,9 @@ package io.familymoments.app.core.network.repository.impl
 import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.api.PostService
 import io.familymoments.app.core.network.dto.request.AddPostRequest
+import io.familymoments.app.core.network.dto.request.ReportPostRequest
 import io.familymoments.app.core.network.dto.response.AddPostResponse
+import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.DeletePostLovesResponse
 import io.familymoments.app.core.network.dto.response.DeletePostResponse
 import io.familymoments.app.core.network.dto.response.GetAlbumDetailResponse
@@ -13,6 +15,7 @@ import io.familymoments.app.core.network.dto.response.GetPostLovesResponse
 import io.familymoments.app.core.network.dto.response.GetPostsByMonthResponse
 import io.familymoments.app.core.network.dto.response.GetPostsResponse
 import io.familymoments.app.core.network.dto.response.PostPostLovesResponse
+import io.familymoments.app.core.network.dto.response.getResourceFlow
 import io.familymoments.app.core.network.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -312,5 +315,10 @@ class PostRepositoryImpl @Inject constructor(
         }.catch { e ->
             emit(Resource.Fail(e))
         }
+    }
+
+    override suspend fun reportPost(postId: Long, reason: String, details: String): Flow<Resource<ApiResponse<String>>> {
+        val response = postService.reportPost(postId, ReportPostRequest(reason, details))
+        return getResourceFlow(response)
     }
 }

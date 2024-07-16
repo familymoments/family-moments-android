@@ -402,4 +402,28 @@ class PostDetailViewModel @Inject constructor(
             else -> "${durationSeconds / oneYear}년 전"
         }
     }
+
+    fun reportPost(postId: Long, reason: String, details: String) {
+        async(
+            operation = {
+                postRepository.reportPost(postId, reason, details)
+            },
+            onSuccess = {
+                _uiState.update {
+                    it.copy(
+                        isSuccess = true,
+                        popup = PostDetailPopupType.ReportPostSuccess
+                    )
+                }
+            },
+            onFailure = {
+                _uiState.update {
+                    it.copy(
+                        isSuccess = false,
+                        popup = PostDetailPopupType.ReportPostFailed
+                    )
+                }
+            }
+        )
+    }
 }
