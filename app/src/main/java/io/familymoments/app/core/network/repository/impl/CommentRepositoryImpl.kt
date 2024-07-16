@@ -4,11 +4,14 @@ import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.api.CommentService
 import io.familymoments.app.core.network.dto.request.CommentLovesRequest
 import io.familymoments.app.core.network.dto.request.PostCommentRequest
+import io.familymoments.app.core.network.dto.request.ReportRequest
+import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.DeleteCommentLovesResponse
 import io.familymoments.app.core.network.dto.response.DeleteCommentResponse
 import io.familymoments.app.core.network.dto.response.GetCommentsIndexResponse
 import io.familymoments.app.core.network.dto.response.PostCommentLovesResponse
 import io.familymoments.app.core.network.dto.response.PostCommentResponse
+import io.familymoments.app.core.network.dto.response.getResourceFlow
 import io.familymoments.app.core.network.repository.CommentRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -115,5 +118,14 @@ class CommentRepositoryImpl @Inject constructor(
         }.catch { e ->
             emit(Resource.Fail(e))
         }
+    }
+
+    override suspend fun reportComment(
+        commentId: Long,
+        reason: String,
+        details: String
+    ): Flow<Resource<ApiResponse<String>>> {
+        val response = commentService.reportComment(commentId, ReportRequest(reason, details))
+        return getResourceFlow(response)
     }
 }

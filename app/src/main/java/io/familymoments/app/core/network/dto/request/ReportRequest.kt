@@ -1,6 +1,6 @@
 package io.familymoments.app.core.network.dto.request
 
-data class ReportPostRequest(
+data class ReportRequest(
     val reportReason: String,
     val details: String
 )

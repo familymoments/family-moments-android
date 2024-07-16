@@ -103,6 +103,7 @@ fun PostDetailScreen(
         viewModel::dismissPopup,
         navigateToBack,
         viewModel::reportPost,
+        viewModel::reportComment
     )
     LaunchedEffectShowErrorMessage(uiState, context, viewModel::resetSuccess)
     PostDetailScreenUI(
@@ -237,7 +238,8 @@ fun LaunchedEffectShowPopup(
     deleteComment: (Long) -> Unit,
     dismissPopup: () -> Unit,
     navigateToBack: () -> Unit,
-    reportPost: (Long, String, String) -> Unit
+    reportPost: (Long, String, String) -> Unit,
+    reportComment: (Long, String, String) -> Unit
 ) {
     val showPopup = remember { mutableStateOf(false) }
     LaunchedEffect(popup) {
@@ -290,16 +292,17 @@ fun LaunchedEffectShowPopup(
 
             is PostDetailPopupType.ReportComment -> {
                 ReportPopUp(
-                    onDismissRequest = dismissPopup
+                    onDismissRequest = dismissPopup,
+                    onReportRequest = { reason, details -> reportComment(popup.commentId, reason, details) }
                 )
             }
 
-            PostDetailPopupType.ReportCommentFailed -> {
-                //todo: 댓글 신고 실패 팝업
+            is PostDetailPopupType.ReportCommentFailed -> {
+                WarningPopup(content = popup.message, onDismissRequest = dismissPopup)
             }
 
             PostDetailPopupType.ReportCommentSuccess -> {
-                //todo: 댓글 신고 성공 팝업
+                CompletePopUp(content = stringResource(R.string.complete_report_label), onDismissRequest = dismissPopup)
             }
 
             is PostDetailPopupType.ReportPost -> {
@@ -568,10 +571,12 @@ fun CommentTextField(
         ) {
             val focusRequester = remember { FocusRequester() }
 
-            Row(modifier = Modifier
-                .fillMaxHeight()
-                .clip(RoundedCornerShape(8.dp))
-                .background(AppColors.grey4)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(AppColors.grey4)
+            ) {
                 BasicTextField(
                     value = comment,
                     onValueChange = {

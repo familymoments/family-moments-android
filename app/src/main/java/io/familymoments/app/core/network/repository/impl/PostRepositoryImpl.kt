@@ -3,7 +3,7 @@ package io.familymoments.app.core.network.repository.impl
 import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.api.PostService
 import io.familymoments.app.core.network.dto.request.AddPostRequest
-import io.familymoments.app.core.network.dto.request.ReportPostRequest
+import io.familymoments.app.core.network.dto.request.ReportRequest
 import io.familymoments.app.core.network.dto.response.AddPostResponse
 import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.DeletePostLovesResponse
@@ -318,7 +318,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun reportPost(postId: Long, reason: String, details: String): Flow<Resource<ApiResponse<String>>> {
-        val response = postService.reportPost(postId, ReportPostRequest(reason, details))
+        val response = postService.reportPost(postId, ReportRequest(reason, details))
         return getResourceFlow(response)
     }
 }

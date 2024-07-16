@@ -2,7 +2,7 @@ package io.familymoments.app.core.network.api
 
 import io.familymoments.app.core.network.dto.request.AddPostRequest
 import io.familymoments.app.core.network.dto.request.PostLovesRequest
-import io.familymoments.app.core.network.dto.request.ReportPostRequest
+import io.familymoments.app.core.network.dto.request.ReportRequest
 import io.familymoments.app.core.network.dto.response.AddPostResponse
 import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.DeletePostLovesResponse
@@ -106,6 +106,6 @@ interface PostService {
     @POST("/posts/report/{postId}")
     suspend fun reportPost(
         @Path(value = "postId") postId: Long,
-        @Body reportPostRequest: ReportPostRequest
+        @Body reportRequest: ReportRequest
     ): Response<ApiResponse<String>>
 }

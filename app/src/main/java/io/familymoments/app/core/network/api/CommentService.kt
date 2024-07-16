@@ -2,6 +2,8 @@ package io.familymoments.app.core.network.api
 
 import io.familymoments.app.core.network.dto.request.CommentLovesRequest
 import io.familymoments.app.core.network.dto.request.PostCommentRequest
+import io.familymoments.app.core.network.dto.request.ReportRequest
+import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.DeleteCommentLovesResponse
 import io.familymoments.app.core.network.dto.response.DeleteCommentResponse
 import io.familymoments.app.core.network.dto.response.GetCommentsIndexResponse
@@ -45,4 +47,9 @@ interface CommentService {
     suspend fun deleteCommentLoves(
         @Body commentLovesRequest: CommentLovesRequest
     ): Response<DeleteCommentLovesResponse>
+
+    @POST("/comments/report/{commentId}")
+    suspend fun reportComment(
+        @Path("commentId") commentId: Long, @Body reportRequest: ReportRequest
+    ): Response<ApiResponse<String>>
 }

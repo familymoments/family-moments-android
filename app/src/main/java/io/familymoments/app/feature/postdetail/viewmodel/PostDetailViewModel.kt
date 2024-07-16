@@ -426,4 +426,28 @@ class PostDetailViewModel @Inject constructor(
             }
         )
     }
+
+    fun reportComment(commentId: Long, reason: String, details: String) {
+        async(
+            operation = {
+                commentRepository.reportComment(commentId, reason, details)
+            },
+            onSuccess = {
+                _uiState.update {
+                    it.copy(
+                        isSuccess = true,
+                        popup = PostDetailPopupType.ReportCommentSuccess
+                    )
+                }
+            },
+            onFailure = { e ->
+                _uiState.update {
+                    it.copy(
+                        isSuccess = false,
+                        popup = PostDetailPopupType.ReportCommentFailed(e.message.toString())
+                    )
+                }
+            }
+        )
+    }
 }
