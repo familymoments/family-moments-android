@@ -37,7 +37,7 @@ interface FamilyRepository {
         modifyFamilyInfoRequest: ModifyFamilyInfoRequest
     ): Flow<Resource<FamilyInfo>>
 
-    suspend fun getFamilyName(familyId: Long): Flow<Resource<String>>
+    suspend fun getFamilyName(): Flow<Resource<ApiResponse<String>>>
 
     suspend fun getFamilyMember(familyId: Long): Flow<Resource<ApiResponse<List<Member>>>>
 
@@ -47,4 +47,8 @@ interface FamilyRepository {
     ): Flow<Resource<ApiResponse<String>>>
 
     suspend fun checkFamilyPermission(familyId: Long): Flow<Resource<ApiResponse<FamilyPermission>>>
+
+    suspend fun removeFamilyMember(familyId: Long, userIds: List<String>): Flow<Resource<ApiResponse<String>>>
+
+    suspend fun leaveFamily(familyId: Long): Flow<Resource<ApiResponse<String>>>
 }

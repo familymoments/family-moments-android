@@ -11,7 +11,8 @@ data class SearchMemberResponse(
 )
 
 data class Member(
-    val id: String,
-    val profileImg: String,
-    val status: Int
+    val id: String = "",
+    val profileImg: String = "",
+    val status: Int = 0,
+    val nickname: String = ""
 )

@@ -17,4 +17,6 @@ object HttpResponseMessage {
     const val NO_COMMENTS_404 = "댓글이 존재하지 않습니다."
     const val NO_POST_LOVES_404 = "좋아요가 존재하지 않습니다."
     const val ACCESS_TOKEN_EXPIRED_461 = "Access Token의 기한이 만료되었습니다. 재발급 API를 호출해주세요"
+    const val USER_NOT_IN_FAMILY_404 = "해당 유저가 해당 가족에 존재하지 않습니다."
+    const val FAMILY_NOT_EXIST_404 = "존재하지 않는 가족입니다."
 }

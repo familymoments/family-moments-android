@@ -45,6 +45,7 @@ import io.familymoments.app.core.component.SignUpTextFieldArea
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
+import io.familymoments.app.core.util.FileUtil
 import io.familymoments.app.feature.signup.uistate.SignUpInfoUiState
 import io.familymoments.app.feature.signup.uistate.SignUpTermUiState
 import io.familymoments.app.feature.signup.uistate.SignUpUiState
@@ -139,7 +140,7 @@ fun SignUpScreenUI(
             Text(
                 text = stringResource(id = R.string.sign_up_activity_app_bar_title),
                 style = AppTypography.SH3_16,
-                color = AppColors.deepPurple1
+                color = AppColors.grey8
             )
         },
         navigationIcon = {
@@ -153,6 +154,7 @@ fun SignUpScreenUI(
             )
         }
     ) {
+        val isDefaultProfileImage = remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
@@ -197,7 +199,7 @@ fun SignUpScreenUI(
                 nicknameFormatValidated = uiState.value.signUpValidatedUiState.nicknameFormValidated,
                 checkNicknameFormat = onCheckNicknameFormat,
             ) { signUpInfoUiState = signUpInfoUiState.copy(nickname = it) }
-            ProfileImageField(defaultProfileImageBitmap, context) {
+            ProfileImageField(defaultProfileImageBitmap, context, isDefaultProfileImage) {
                 signUpInfoUiState = signUpInfoUiState.copy(imgFile = it)
             }
             Spacer(modifier = Modifier.height(53.dp))
@@ -207,7 +209,11 @@ fun SignUpScreenUI(
                 passwordSameCheck,
                 allEssentialTermsAgree,
                 uiState.value.signUpValidatedUiState,
+                isDefaultProfileImage.value,
             ) {
+                if (isDefaultProfileImage.value) {
+                    signUpInfoUiState = signUpInfoUiState.copy(imgFile = FileUtil.getDefaultProfileImage(context))
+                }
                 onExecuteSignUp(signUpInfoUiState)
             }
             Spacer(modifier = Modifier.height(40.dp))
@@ -339,6 +345,7 @@ private fun StartButtonField(
     passwordSameCheck: Boolean,
     allEssentialTermsAgree: Boolean,
     signUpValidatedUiState: SignUpValidatedUiState,
+    isDefaultProfileImage: Boolean = false,
     onClick: () -> Unit,
 ) {
     var signUpEnable by remember {
@@ -353,7 +360,7 @@ private fun StartButtonField(
             && emailDuplicatedUiState.duplicatedPass
             && userIdDuplicatedUiState.duplicatedPass
     }
-    signUpEnable = passwordSameCheck && allEssentialTermsAgree && signUpValidated && signUpInfoUiState.imgFile != null
+    signUpEnable = passwordSameCheck && allEssentialTermsAgree && signUpValidated && (signUpInfoUiState.imgFile != null || isDefaultProfileImage)
     FMButton(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
@@ -431,7 +438,7 @@ fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit) {
     Spacer(modifier = Modifier.height(20.dp))
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, heightDp = 1500)
 @Composable
 fun SignUpScreenPreview() {
     FamilyMomentsTheme {

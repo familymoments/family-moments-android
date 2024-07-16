@@ -48,5 +48,4 @@ interface UserRepository {
     suspend fun modifyPwdInFindPwd(id:String, password: String, passwordConfirm:String):Flow<Resource<ModifyPwdInFindPwdResponse>>
     suspend fun findId(name:String, email:String, code:String):Flow<Resource<FindIdResponse>>
     suspend fun deleteAccount():Flow<Resource<ApiResponse<String>>>
-    suspend fun autoSignIn(): Flow<Resource<ApiResponse<UserProfile>>>
 }

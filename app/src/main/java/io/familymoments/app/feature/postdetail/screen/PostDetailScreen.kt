@@ -375,7 +375,7 @@ fun WriterInfo(
         )
     }
     Spacer(modifier = Modifier.height(15.dp))
-    HorizontalDivider(Modifier.height(1.dp), color = AppColors.deepPurple3)
+    HorizontalDivider(Modifier.height(1.dp), color = AppColors.grey7)
     Spacer(modifier = Modifier.height(19.dp))
 }
 
@@ -457,7 +457,7 @@ fun PostContent(
                 Box {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_three_dots_row),
-                        tint = AppColors.deepPurple1,
+                        tint = AppColors.grey8,
                         contentDescription = null,
                         modifier = Modifier.noRippleClickable {
                             menuExpanded = true
@@ -568,7 +568,10 @@ fun CommentTextField(
         ) {
             val focusRequester = remember { FocusRequester() }
 
-            Row(modifier = Modifier.fillMaxHeight()) {
+            Row(modifier = Modifier
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(8.dp))
+                .background(AppColors.grey4)) {
                 BasicTextField(
                     value = comment,
                     onValueChange = {
@@ -600,7 +603,10 @@ fun CommentTextField(
                         .height(52.dp)
                         .width(42.dp)
                         .align(Alignment.CenterVertically),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.purple1),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AppColors.grey8,
+                        disabledContainerColor = AppColors.grey7
+                    ),
                     contentPadding = PaddingValues(0.dp),
                     shape = RoundedCornerShape(10.dp)
                 ) {

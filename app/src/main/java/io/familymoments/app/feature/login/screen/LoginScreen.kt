@@ -98,7 +98,7 @@ fun LoginScreen(
         Text(
             text = stringResource(R.string.login_app_bar_screen_header),
             style = AppTypography.SH3_16,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
     }) {
         LoginScreen(
@@ -162,7 +162,7 @@ fun LoginLogo() {
             Text(
                 text = stringResource(id = R.string.login_description_01),
                 fontSize = 24.sp,
-                color = AppColors.deepPurple1,
+                color = AppColors.grey8,
                 style = AppTypography.H2_24,
             )
             Text(
@@ -238,7 +238,7 @@ fun LoginForm(
                 },
                 colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = AppColors.deepPurple1,
+                    containerColor = AppColors.grey8,
                     contentColor = Color.White,
                     disabledContainerColor = Color.Gray,
                     disabledContentColor = Color.White,
@@ -345,7 +345,7 @@ fun LoginOption(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            modifier = Modifier.oneClick {
+            modifier = Modifier.oneClick(500) {
                 onRouteToSignUp()
             },
             text = stringResource(id = R.string.login_signup),

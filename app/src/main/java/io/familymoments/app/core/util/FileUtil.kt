@@ -7,6 +7,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import io.familymoments.app.R
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -121,6 +122,16 @@ object FileUtil {
             }
         }
         inputStream?.close()
+        return file
+    }
+
+    fun getDefaultProfileImage(context: Context): File {
+        val defaultProfileImageBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.default_profile)
+        val file = File(context.cacheDir, "default_profile.png")
+        file.outputStream().use { outputStream ->
+            defaultProfileImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        }
+
         return file
     }
 

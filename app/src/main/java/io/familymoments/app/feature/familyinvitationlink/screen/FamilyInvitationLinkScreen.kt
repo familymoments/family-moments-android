@@ -79,7 +79,7 @@ private fun FamilyInvitationLinkScreenUI(
             modifier = Modifier.padding(top = 40.dp, bottom = 16.dp),
             text = stringResource(id = R.string.family_invitation_link_title),
             style = AppTypography.SH2_18,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
         Box(
             modifier = Modifier

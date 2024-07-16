@@ -75,15 +75,14 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    fun getFamilyName() {
+    private fun getFamilyName() {
         async(
             operation = {
-                val familyId = userInfoPreferencesDataSource.loadFamilyId()
-                familyRepository.getFamilyName(familyId)
+                familyRepository.getFamilyName()
             },
             onSuccess = {
                 _appBarUiState.value = _appBarUiState.value.copy(
-                    familyName = it
+                    familyName = it.result
                 )
             },
             onFailure = {}

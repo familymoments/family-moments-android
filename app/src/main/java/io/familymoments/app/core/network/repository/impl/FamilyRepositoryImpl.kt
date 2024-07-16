@@ -12,7 +12,6 @@ import io.familymoments.app.core.network.dto.response.CreateFamilyResponse
 import io.familymoments.app.core.network.dto.response.FamilyInfo
 import io.familymoments.app.core.network.dto.response.FamilyInfoResponse
 import io.familymoments.app.core.network.dto.response.FamilyPermission
-import io.familymoments.app.core.network.dto.response.GetFamilyNameResponse
 import io.familymoments.app.core.network.dto.response.GetNicknameDdayResponse
 import io.familymoments.app.core.network.dto.response.JoinFamilyResponse
 import io.familymoments.app.core.network.dto.response.Member
@@ -148,21 +147,10 @@ class FamilyRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getFamilyName(familyId: Long): Flow<Resource<String>> {
-        return flow {
-            emit(Resource.Loading)
-            val response = familyService.getFamilyName(familyId)
-            if (response.code() == HttpResponse.SUCCESS) {
-                val responseBody = response.body() ?: GetFamilyNameResponse()
-                if (responseBody.isSuccess) {
-                    emit(Resource.Success(responseBody.result))
-                } else {
-                    emit(Resource.Fail(Throwable(responseBody.message)))
-                }
-            } else {
-                emit(Resource.Fail(Throwable(response.message())))
-            }
-        }
+    override suspend fun getFamilyName(): Flow<Resource<ApiResponse<String>>> {
+        val familyId = userInfoPreferencesDataSource.loadFamilyId()
+        val response = familyService.getFamilyName(familyId)
+        return getResourceFlow(response)
     }
 
     override suspend fun getFamilyMember(familyId: Long): Flow<Resource<ApiResponse<List<Member>>>> {
@@ -180,6 +168,16 @@ class FamilyRepositoryImpl @Inject constructor(
 
     override suspend fun checkFamilyPermission(familyId: Long): Flow<Resource<ApiResponse<FamilyPermission>>> {
         val response = familyService.checkFamilyPermission(familyId)
+        return getResourceFlow(response)
+    }
+
+    override suspend fun removeFamilyMember(familyId: Long, userIds: List<String>): Flow<Resource<ApiResponse<String>>> {
+        val response = familyService.removeFamilyMember(familyId, userIds)
+        return getResourceFlow(response)
+    }
+
+    override suspend fun leaveFamily(familyId: Long): Flow<Resource<ApiResponse<String>>> {
+        val response = familyService.leaveFamily(familyId)
         return getResourceFlow(response)
     }
 }

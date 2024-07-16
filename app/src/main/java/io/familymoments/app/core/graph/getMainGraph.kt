@@ -16,6 +16,7 @@ import io.familymoments.app.feature.familysettings.graph.familySettingGraph
 import io.familymoments.app.feature.mypage.graph.myPageGraph
 import io.familymoments.app.feature.postdetail.screen.PostDetailScreen
 import io.familymoments.app.feature.profile.graph.profileGraph
+import io.familymoments.app.feature.removemember.screen.RemoveFamilyMemberConfirmScreen
 
 fun getMainGraph(
     navController: NavController
@@ -87,6 +88,20 @@ fun getMainGraph(
                     )
                 )
             }
+        )
+    }
+
+    composable(
+        route = Route.RemoveFamilyMember.routeWithArgs,
+        arguments = Route.RemoveFamilyMember.arguments
+    ) {
+        RemoveFamilyMemberConfirmScreen(
+            modifier = Modifier.scaffoldState(
+                hasShadow = false,
+                hasBackButton = true,
+            ),
+            viewModel = hiltViewModel(),
+            navigateBack = {navController.popBackStack()}
         )
     }
 }

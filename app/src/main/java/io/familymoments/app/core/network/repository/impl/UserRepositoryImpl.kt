@@ -329,12 +329,6 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun autoSignIn(): Flow<Resource<ApiResponse<UserProfile>>> {
-        val familyId = userInfoPreferencesDataSource.loadFamilyId()
-        val response = userService.loadUserProfile(familyId)
-        return getResourceFlow(response)
-    }
-
     override suspend fun deleteAccount(): Flow<Resource<ApiResponse<String>>> {
         val response = userService.deleteAccount()
         return getResourceFlow(response)

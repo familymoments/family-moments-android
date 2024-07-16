@@ -73,4 +73,13 @@ sealed interface Route {
             return "$route?$modeArg=$mode&$editPostIdArg=$editPostId&$editImagesArg=$encodedImageUrls&$editContentArg=$encodedContent"
         }
     }
+
+    data object RemoveFamilyMember : Route {
+        override val route: String = "RemoveFamilyMemberConfirm"
+        const val userIdsArg = "userIds"
+        val routeWithArgs = "$route/{$userIdsArg}"
+        val arguments = listOf(navArgument(userIdsArg) { type = NavType.StringArrayType })
+
+        fun getRoute(userIds: List<String>): String = "$route/$userIds"
+    }
 }

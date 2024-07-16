@@ -33,6 +33,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import io.familymoments.app.R
 import io.familymoments.app.core.theme.FamilyMomentsTheme
 import io.familymoments.app.feature.bottomnav.activity.MainActivity
+import io.familymoments.app.feature.choosingfamily.activity.ChoosingFamilyActivity
 import io.familymoments.app.feature.login.activity.LoginActivity
 import io.familymoments.app.feature.splash.viewmodel.SplashViewModel
 
@@ -57,18 +58,21 @@ private fun NextRouteLaunchedEffect(
     onFinish: () -> Unit
 ) {
     LaunchedEffect(nextRoute.value) {
-        if (nextRoute.value == SplashViewModel.NextRoute.LOGIN) {
-            val intent = Intent(context, LoginActivity::class.java)
-            intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
-            context.startActivity(intent)
-            onFinish()
-        } else if (nextRoute.value == SplashViewModel.NextRoute.MAIN) {
-            val intent = Intent(context, MainActivity::class.java)
-            intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
-            context.startActivity(intent)
-            onFinish()
+        when(nextRoute.value) {
+            SplashViewModel.NextRoute.LOGIN -> navigateTo(context, LoginActivity::class.java, onFinish)
+            SplashViewModel.NextRoute.MAIN -> navigateTo(context, MainActivity::class.java, onFinish)
+            SplashViewModel.NextRoute.CHOOSING_FAMILY -> navigateTo(context, ChoosingFamilyActivity::class.java, onFinish)
+            else -> {}
         }
     }
+}
+
+private fun navigateTo(context: Context, destination: Class<*>, onFinish: () -> Unit) {
+    val intent = Intent(context, destination).apply {
+        flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
+    }
+    context.startActivity(intent)
+    onFinish()
 }
 
 @Composable

@@ -5,7 +5,6 @@ import io.familymoments.app.core.network.dto.request.SearchFamilyByInviteLinkReq
 import io.familymoments.app.core.network.dto.request.TransferPermissionRequest
 import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.CreateFamilyResponse
-import io.familymoments.app.core.network.dto.response.GetFamilyNameResponse
 import io.familymoments.app.core.network.dto.response.GetNicknameDdayResponse
 import io.familymoments.app.core.network.dto.response.JoinFamilyResponse
 import io.familymoments.app.core.network.dto.response.SearchFamilyByInviteLinkResponse
@@ -16,12 +15,14 @@ import io.familymoments.app.feature.modifyfamilyInfo.model.ModifyFamilyInfoReque
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface FamilyService {
 
@@ -55,7 +56,7 @@ interface FamilyService {
     ): Response<FamilyInfoResponse>
 
     @GET("/families/{familyId}/famillyName")
-    suspend fun getFamilyName(@Path("familyId") familyId: Long): Response<GetFamilyNameResponse>
+    suspend fun getFamilyName(@Path("familyId") familyId: Long): Response<ApiResponse<String>>
 
     @GET("/families/{familyId}/users")
     suspend fun getFamilyMember(@Path("familyId") familyId: Long): Response<ApiResponse<List<Member>>>
@@ -68,4 +69,13 @@ interface FamilyService {
 
     @GET("/families/{familyId}/authority")
     suspend fun checkFamilyPermission(@Path("familyId") familyId: Long): Response<ApiResponse<FamilyPermission>>
+
+    @DELETE("/families/{familyId}/users")
+    suspend fun removeFamilyMember(
+        @Path("familyId") familyId: Long,
+        @Query("userIds") userIds: List<String>
+    ): Response<ApiResponse<String>>
+
+    @DELETE("/families/{familyId}/withdraw")
+    suspend fun leaveFamily(@Path("familyId") familyId: Long): Response<ApiResponse<String>>
 }

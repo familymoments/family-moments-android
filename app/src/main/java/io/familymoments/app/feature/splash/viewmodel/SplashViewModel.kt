@@ -3,19 +3,22 @@ package io.familymoments.app.feature.splash.viewmodel
 import androidx.lifecycle.MutableLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
-import io.familymoments.app.core.network.repository.UserRepository
+import io.familymoments.app.core.network.HttpResponseMessage.FAMILY_NOT_EXIST_404
+import io.familymoments.app.core.network.HttpResponseMessage.USER_NOT_IN_FAMILY_404
+import io.familymoments.app.core.network.repository.FamilyRepository
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val familyRepository: FamilyRepository
 ) : BaseViewModel() {
 
     enum class NextRoute {
         INIT,
         LOGIN,
-        MAIN
+        MAIN,
+        CHOOSING_FAMILY
     }
 
     val currentRoute = MutableLiveData(NextRoute.INIT)
@@ -24,17 +27,19 @@ class SplashViewModel @Inject constructor(
         delay(2000)
         async(
             operation = {
-                userRepository.autoSignIn()
+                familyRepository.getFamilyName()
             },
             onSuccess = {
                 if (it.isSuccess) {
                     currentRoute.value = NextRoute.MAIN
-                } else {
-                    currentRoute.value = NextRoute.LOGIN
                 }
             },
             onFailure = {
-                currentRoute.value = NextRoute.LOGIN
+                if (it.message == FAMILY_NOT_EXIST_404 || it.message == USER_NOT_IN_FAMILY_404) {
+                    currentRoute.value = NextRoute.CHOOSING_FAMILY
+                } else {
+                    currentRoute.value = NextRoute.LOGIN
+                }
             }
         )
     }

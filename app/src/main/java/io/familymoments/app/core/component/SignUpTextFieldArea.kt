@@ -72,7 +72,7 @@ fun SignUpTextFieldArea(
     Column {
         Text(
             text = title,
-            color = AppColors.deepPurple1,
+            color = AppColors.grey8,
             style = AppTypography.SH3_16
         )
         Spacer(modifier = Modifier.height(7.dp))
@@ -131,7 +131,7 @@ private fun CheckButton(
         enabled = textFieldValue.text.isNotEmpty() && checkButtonAvailable,
         onClick = { onCheckButtonClick(textFieldValue) },
         colors = ButtonDefaults.buttonColors(
-            containerColor = AppColors.deepPurple1,
+            containerColor = AppColors.grey8,
             contentColor = Color.White,
         ),
         shape = RoundedCornerShape(10.dp),
@@ -157,8 +157,7 @@ fun ShowWarningText(
         colorChange(AppColors.red1)
         Text(
             modifier = Modifier
-                .padding(top = 3.dp, bottom = 4.dp)
-                .height(13.dp),
+                .padding(top = 3.dp, bottom = 4.dp),
             text = text,
             color = AppColors.red2,
             style = AppTypography.LB2_11
@@ -180,4 +179,16 @@ private fun SignUpTextFieldPreview() {
 @Composable
 private fun SignUpTextFieldPreviewDisabled() {
     SignUpTextFieldArea(title = "이메일", hint = "example@gmail.com", isFocused = false, enabled = false, onValueChange = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SignUpTextFieldPreviewFocused() {
+    SignUpTextFieldArea(title = "이메일", hint = "", isFocused = true, onValueChange = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ShowWarningTextPreview() {
+    ShowWarningText(text = "이메일 형식이 올바르지 않습니다.", textFieldValue = TextFieldValue("example"), validation = false, colorChange = {})
 }

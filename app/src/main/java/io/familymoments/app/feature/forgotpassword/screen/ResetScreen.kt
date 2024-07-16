@@ -123,14 +123,14 @@ fun ResetScreenUI(
         Text(
             text = stringResource(id = R.string.forgot_password_title_02),
             style = AppTypography.H1_36,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
         Spacer(modifier = Modifier.height(31.dp))
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = R.string.forgot_password_desc_02),
             style = AppTypography.B1_16,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
 
         Spacer(modifier = Modifier.height(31.dp))

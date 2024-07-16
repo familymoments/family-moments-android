@@ -158,13 +158,13 @@ fun ModifyPasswordInfo() {
     Text(
         text = stringResource(id = R.string.modify_password_notification_1),
         style = AppTypography.B1_16,
-        color = AppColors.deepPurple1,
+        color = AppColors.grey8,
         modifier = Modifier.padding(bottom = 20.dp)
     )
     Text(
         text = stringResource(id = R.string.modify_password_notification_2),
         style = AppTypography.B1_16,
-        color = AppColors.deepPurple1
+        color = AppColors.grey8
     )
 }
 

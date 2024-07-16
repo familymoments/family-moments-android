@@ -20,9 +20,9 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -168,7 +168,7 @@ private fun AlbumHeader() {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(AppColors.deepPurple1)
+                .background(AppColors.grey8)
         )
         Row(
             modifier = Modifier
@@ -212,7 +212,7 @@ fun AlbumScreenPreview() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(AppColors.deepPurple1)
+                        .background(AppColors.grey8)
                 )
                 Row(
                     modifier = Modifier

@@ -92,7 +92,7 @@ fun IdentifyScreenUI(
         Text(
             text = stringResource(id = R.string.forgot_password_title_01),
             style = AppTypography.H1_36,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
         Spacer(modifier = Modifier.height(13.dp))
         Text(

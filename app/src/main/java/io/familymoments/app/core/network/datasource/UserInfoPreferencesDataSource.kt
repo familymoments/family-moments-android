@@ -15,6 +15,7 @@ interface UserInfoPreferencesDataSource {
     suspend fun loadUserProfileImg(): String
 
     fun resetPreferencesData()
+    fun removeFamilyId()
     suspend fun updateUserProfile(profileEditResult: ProfileEditResult)
     suspend fun saveRefreshToken(refreshToken: String)
     suspend fun loadRefreshToken(): String

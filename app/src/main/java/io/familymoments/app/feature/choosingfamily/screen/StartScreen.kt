@@ -7,7 +7,7 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +31,7 @@ import kotlin.math.sqrt
 
 @Composable
 fun StartScreen(goToCreating: () -> Unit = {}, goToJoining: () -> Unit = {}) {
-    DrawCircle(goToCreating = goToCreating, goToJoining = goToJoining, radius = 275)
+    DrawCircle(goToCreating = goToCreating, goToJoining = goToJoining)
     CreatingText()
     JoiningText()
 }
@@ -44,7 +44,7 @@ private fun CreatingText() {
             .padding(top = 146.dp, start = 43.dp),
         text = stringResource(id = R.string.create_family),
         style = AppTypography.BTN1_36,
-        color = AppColors.deepPurple1
+        color = AppColors.grey8
     )
 }
 
@@ -56,7 +56,7 @@ private fun JoiningText() {
                 .padding(bottom = 227.dp, end = 50.dp),
             text = stringResource(id = R.string.join_family),
             style = AppTypography.BTN1_36,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
     }
 }
@@ -71,7 +71,7 @@ private fun calculateJoinCircleCenter(radius: Int): Pair<Int, Int> {
 }
 
 @Composable
-private fun DrawCircle(goToCreating: () -> Unit, goToJoining: () -> Unit, radius: Int) {
+private fun DrawCircle(goToCreating: () -> Unit, goToJoining: () -> Unit, radius: Int = 275) {
     var creatingCircleColor by remember {
         mutableStateOf(AppColors.pink3)
     }

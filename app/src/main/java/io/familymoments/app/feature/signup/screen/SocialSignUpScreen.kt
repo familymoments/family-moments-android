@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +35,7 @@ import io.familymoments.app.core.component.SignUpTextFieldArea
 import io.familymoments.app.core.network.dto.response.LoginResult
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
+import io.familymoments.app.core.util.FileUtil
 import io.familymoments.app.feature.signup.uistate.SignUpInfoUiState
 import io.familymoments.app.feature.signup.uistate.SignUpUiState
 import io.familymoments.app.feature.signup.uistate.SignUpValidatedUiState
@@ -118,7 +118,7 @@ fun SocialSignUpScreenUI(
             Text(
                 text = stringResource(id = R.string.sign_up_activity_app_bar_title),
                 style = AppTypography.SH3_16,
-                color = AppColors.deepPurple1
+                color = AppColors.grey8
             )
         },
         navigationIcon = {
@@ -137,6 +137,8 @@ fun SocialSignUpScreenUI(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
         ) {
+            val isDefaultProfileImage = remember { mutableStateOf(false) }
+
             Spacer(modifier = Modifier.height(43.dp))
             IdField(
                 userIdFormatValidated = uiState.value.signUpValidatedUiState.userIdFormValidated,
@@ -162,7 +164,7 @@ fun SocialSignUpScreenUI(
                 nicknameFormatValidated = uiState.value.signUpValidatedUiState.nicknameFormValidated,
                 checkNicknameFormat = onCheckNicknameFormat,
             ) { signUpInfoUiState = signUpInfoUiState.copy(nickname = it) }
-            ProfileImageField(defaultProfileImageBitmap, context) {
+            ProfileImageField(defaultProfileImageBitmap, context, isDefaultProfileImage) {
                 signUpInfoUiState = signUpInfoUiState.copy(imgFile = it)
             }
             Spacer(modifier = Modifier.height(53.dp))
@@ -171,7 +173,11 @@ fun SocialSignUpScreenUI(
                 signUpInfoUiState,
                 allEssentialTermsAgree,
                 uiState.value.signUpValidatedUiState,
+                isDefaultProfileImage.value
             ) {
+                if (isDefaultProfileImage.value) {
+                    signUpInfoUiState = signUpInfoUiState.copy(imgFile = FileUtil.getDefaultProfileImage(context))
+                }
                 onExecuteSignUp(signUpInfoUiState)
             }
             Spacer(modifier = Modifier.height(40.dp))
@@ -204,6 +210,7 @@ private fun StartButtonField(
     signUpInfoUiState: SignUpInfoUiState,
     allEssentialTermsAgree: Boolean,
     signUpValidatedUiState: SignUpValidatedUiState,
+    isDefaultProfileImage: Boolean = false,
     onClick: () -> Unit,
 ) {
     var signUpEnable by remember {
@@ -215,7 +222,7 @@ private fun StartButtonField(
             && userIdFormValidated
             && userIdDuplicatedUiState.duplicatedPass
     }
-    signUpEnable = allEssentialTermsAgree && signUpValidated && signUpInfoUiState.imgFile != null
+    signUpEnable = allEssentialTermsAgree && signUpValidated && (signUpInfoUiState.imgFile != null || isDefaultProfileImage)
     FMButton(
         modifier = Modifier.fillMaxWidth(),
         onClick = {

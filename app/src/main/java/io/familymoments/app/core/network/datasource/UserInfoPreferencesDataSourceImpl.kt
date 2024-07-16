@@ -116,6 +116,10 @@ class UserInfoPreferencesDataSourceImpl @Inject constructor(
         sharedPreferences.edit().clear().apply()
     }
 
+    override fun removeFamilyId() {
+        sharedPreferences.edit().remove(FAMILY_ID_KEY).apply()
+    }
+
     override suspend fun updateUserProfile(profileEditResult: ProfileEditResult) {
         with(sharedPreferences.edit()) {
             putString(USER_NAME_KEY, profileEditResult.name)

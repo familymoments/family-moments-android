@@ -24,7 +24,7 @@ fun FMButton(
     radius: Dp = 60.dp,
     textStyle: TextStyle = AppTypography.BTN4_18,
     contentPaddingValues: PaddingValues = PaddingValues(vertical = 10.dp, horizontal = 18.dp),
-    containerColor:Color = AppColors.deepPurple1
+    containerColor:Color = AppColors.grey8
 ) {
     Button(
         onClick = onClick,

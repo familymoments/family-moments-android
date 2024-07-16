@@ -43,7 +43,7 @@ private fun Header(headerBottomPadding: Dp, header: String) {
         modifier = Modifier.padding(top = 55.dp, bottom = headerBottomPadding),
         text = header,
         style = AppTypography.SH2_18,
-        color = AppColors.deepPurple1
+        color = AppColors.grey8
     )
 }
 
@@ -54,7 +54,7 @@ private fun NextButton(button: String, onClick: () -> Unit, buttonEnabled: Boole
             .fillMaxWidth()
             .padding(bottom = 100.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = AppColors.deepPurple1,
+            containerColor = AppColors.grey8,
             disabledContainerColor = AppColors.grey3
         ),
         shape = RoundedCornerShape(60.dp),

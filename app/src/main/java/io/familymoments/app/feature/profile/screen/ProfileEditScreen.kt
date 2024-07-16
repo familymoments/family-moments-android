@@ -246,7 +246,7 @@ private fun ProfileTextField(
         Text(
             text = title,
             style = AppTypography.B1_16,
-            color = AppColors.deepPurple1,
+            color = AppColors.grey8,
             modifier = Modifier.padding(start = 1.dp, bottom = 2.dp)
         )
         FMTextField(

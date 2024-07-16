@@ -97,14 +97,14 @@ private fun DeleteAccountContent(deleteAccount: () -> Unit, navigateToBack: () -
             modifier = Modifier.padding(horizontal = 3.dp),
             text = stringResource(R.string.account_deletion_notice_text),
             style = AppTypography.BTN4_18,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
         Spacer(modifier = Modifier.height(58.dp))
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.account_deletion_farewell_text),
             style = AppTypography.BTN3_20,
-            color = AppColors.deepPurple1,
+            color = AppColors.grey8,
             textAlign = TextAlign.Center,
             lineHeight = 24.sp
         )
@@ -120,7 +120,7 @@ private fun DeleteAccountContent(deleteAccount: () -> Unit, navigateToBack: () -
         FMButton(
             onClick = navigateToBack,
             text = stringResource(R.string.account_deletion_cancel_btn),
-            containerColor = AppColors.deepPurple1,
+            containerColor = AppColors.grey8,
             modifier = Modifier.fillMaxWidth(),
             contentPaddingValues = PaddingValues(vertical = 18.dp)
         )

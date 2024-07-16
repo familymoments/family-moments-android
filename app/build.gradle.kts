@@ -26,8 +26,8 @@ android {
         applicationId = "io.familymoments.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.0.1"
+        versionCode = 3
+        versionName = "0.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -60,6 +60,7 @@ android {
         }
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

@@ -45,14 +45,14 @@ fun FindIdScreen(
         Text(
             text = stringResource(id = R.string.login_forgot_id),
             style = AppTypography.H1_36,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
         Spacer(modifier = Modifier.height(31.dp))
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.forgot_id_display_id_label),
             style = AppTypography.B1_16,
-            color = AppColors.deepPurple1,
+            color = AppColors.grey8,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(31.dp))
@@ -68,7 +68,7 @@ fun FindIdScreen(
                     value = TextFieldValue(userId),
                     onValueChange = { },
                     readOnly = true,
-                    textStyle = AppTypography.SH2_18.copy(AppColors.deepPurple1),
+                    textStyle = AppTypography.SH2_18.copy(AppColors.grey8),
                     singleLine = true
                 ) { innerTextField ->
                     innerTextField()

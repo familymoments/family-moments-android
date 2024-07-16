@@ -58,7 +58,7 @@ fun DeletePopUp(
                 Text(
                     text = content,
                     style = AppTypography.BTN4_18,
-                    color = AppColors.deepPurple1,
+                    color = AppColors.grey8,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(bottom = 23.dp),

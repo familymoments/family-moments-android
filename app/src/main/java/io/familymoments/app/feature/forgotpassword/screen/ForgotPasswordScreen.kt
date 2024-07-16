@@ -31,7 +31,7 @@ fun ForgotPasswordScreen(forgotPasswordSharedViewModel: ForgotPasswordSharedView
             Text(
                 text = stringResource(id = R.string.forgot_password_title_01),
                 style = AppTypography.SH3_16,
-                color = AppColors.deepPurple1
+                color = AppColors.grey8
             )
         },
         navigationIcon = {

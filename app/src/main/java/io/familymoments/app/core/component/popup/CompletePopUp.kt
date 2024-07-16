@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import io.familymoments.app.core.util.noRippleClickable
 fun CompletePopUp(
     content: String,
     dismissText:String = stringResource(R.string.complete_pop_up_btn_ok),
+    textStyle: TextStyle = AppTypography.BTN4_18,
     buttonColors: ButtonColors = ButtonDefaults.buttonColors(containerColor = AppColors.pink1),
     onDismissRequest: () -> Unit = {}
 ) {
@@ -63,7 +65,7 @@ fun CompletePopUp(
                 Text(
                     text = content,
                     style = AppTypography.BTN4_18,
-                    color = AppColors.deepPurple1,
+                    color = AppColors.grey8,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(top = 4.dp, bottom = 30.dp),
@@ -81,7 +83,7 @@ fun CompletePopUp(
                 ) {
                     Text(
                         text = dismissText,
-                        style = AppTypography.BTN4_18,
+                        style = textStyle,
                         color = AppColors.grey6
                     )
                 }
