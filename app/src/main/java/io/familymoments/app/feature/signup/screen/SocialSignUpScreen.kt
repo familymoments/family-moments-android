@@ -118,7 +118,7 @@ fun SocialSignUpScreenUI(
             Text(
                 text = stringResource(id = R.string.sign_up_activity_app_bar_title),
                 style = AppTypography.SH3_16,
-                color = AppColors.deepPurple1
+                color = AppColors.grey8
             )
         },
         navigationIcon = {

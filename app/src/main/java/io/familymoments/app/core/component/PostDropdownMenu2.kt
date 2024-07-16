@@ -28,7 +28,7 @@ fun PostDropdownMenu2(
         modifier = modifier.then(
             Modifier
                 .width(112.dp)
-                .background(color = AppColors.deepPurple3, shape = RoundedCornerShape(5.dp))
+                .background(color = AppColors.grey7, shape = RoundedCornerShape(5.dp))
         )
     )
     {

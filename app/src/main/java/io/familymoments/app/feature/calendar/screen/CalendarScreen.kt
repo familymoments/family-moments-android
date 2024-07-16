@@ -197,7 +197,7 @@ private fun CalendarHeader(
             .height(64.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(color = AppColors.deepPurple2),
+            .background(color = AppColors.grey9),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(modifier = Modifier.size(32.dp), onClick = onClickPrevMonth) {

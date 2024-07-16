@@ -95,7 +95,7 @@ fun TransferPermissionScreenUI(
             modifier = Modifier.padding(top = 55.dp, bottom = 33.dp),
             text = stringResource(id = R.string.transfer_permission_title),
             style = AppTypography.SH2_18,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(items = members, key = { it.id }) { member ->
@@ -115,7 +115,7 @@ fun TransferPermissionScreenUI(
             enabled = selectedMember != null,
             onClick = { onDoneButtonClicked(selectedMember!!.id) },
             text = stringResource(id = R.string.transfer_permission_title),
-            containerColor = AppColors.deepPurple1
+            containerColor = AppColors.grey8
         )
     }
 }

@@ -28,7 +28,7 @@ fun ForgotIdScreen(goToLogin: () -> Unit, goToForgotPwd: () -> Unit) {
             Text(
                 text = stringResource(id = R.string.login_forgot_id),
                 style = AppTypography.SH3_16,
-                color = AppColors.deepPurple1
+                color = AppColors.grey8
             )
         },
         navigationIcon = {

@@ -64,10 +64,10 @@ fun ImageSelectionMenu(
                     Text(
                         text = stringResource(id = R.string.edit_image_gallery_select),
                         style = AppTypography.BTN4_18,
-                        color = AppColors.deepPurple2
+                        color = AppColors.grey9
                     )
                 }
-                HorizontalDivider(color = AppColors.deepPurple2, thickness = 1.dp)
+                HorizontalDivider(color = AppColors.grey9, thickness = 1.dp)
                 TextButton(
                     onClick = {
                         onDefaultImageSelected()
@@ -80,7 +80,7 @@ fun ImageSelectionMenu(
                     Text(
                         text = stringResource(id = R.string.edit_image_default_image),
                         style = AppTypography.BTN4_18,
-                        color = AppColors.deepPurple2
+                        color = AppColors.grey9
                     )
                 }
             }
@@ -96,7 +96,7 @@ fun ImageSelectionMenu(
                 Text(
                     text = stringResource(id = R.string.edit_image_cancel),
                     style = AppTypography.BTN3_20,
-                    color = AppColors.deepPurple2
+                    color = AppColors.grey9
                 )
             }
         }

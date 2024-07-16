@@ -298,7 +298,7 @@ fun HomeScreenTitle(
         modifier = Modifier
             .width(67.dp)
             .height(1.dp)
-            .background(AppColors.deepPurple1)
+            .background(AppColors.grey8)
     )
     Spacer(modifier = Modifier.height(8.dp))
 }

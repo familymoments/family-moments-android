@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomNavigation
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -140,7 +140,7 @@ fun MainScreen(viewModel: MainViewModel, authErrorManager: AuthErrorManager) {
             Text(
                 text = appBarUiState.value.familyName,
                 style = AppTypography.SH3_16,
-                color = AppColors.deepPurple1
+                color = AppColors.grey8
             )
         },
         navigationIcon = navigationIcon,
@@ -173,13 +173,13 @@ fun BottomNavigationBar(
     bottomNavItems: List<BottomNavItem>,
     currentDestination: NavDestination?
 ) {
-    BottomNavigation(
+    NavigationBar(
         modifier = Modifier
             .bottomNavShadow()
             .navigationBarsPadding()
             .height(75.dp)
             .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)),
-        backgroundColor = Color.White
+        containerColor = Color.White
     ) {
         bottomNavItems.forEach { item ->
             val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
@@ -212,12 +212,12 @@ fun BottomNavigationBar(
                         Icon(
                             imageVector = ImageVector.vectorResource(id = item.iconResId),
                             contentDescription = null,
-                            tint = if (selected) AppColors.deepPurple1 else AppColors.grey3,
+                            tint = if (selected) AppColors.grey8 else AppColors.grey3,
                         )
                         Text(
                             text = stringResource(id = item.labelResId),
                             style = LB2_11,
-                            color = if (selected) AppColors.deepPurple1 else AppColors.grey3,
+                            color = if (selected) AppColors.grey8 else AppColors.grey3,
                             overflow = TextOverflow.Visible,
                         )
                     }
@@ -231,7 +231,7 @@ fun BottomNavigationBar(
 @Composable
 fun MainScreenPreview() {
     AppBarScreen(
-        title = { Text(text = "sweety home", style = AppTypography.SH3_16, color = AppColors.deepPurple1) },
+        title = { Text(text = "sweety home", style = AppTypography.SH3_16, color = AppColors.grey8) },
         navigationIcon = {
             Icon(
                 modifier = Modifier.padding(start = 12.dp),

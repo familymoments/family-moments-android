@@ -179,7 +179,7 @@ fun ModifyFamilyInfoScreenUI(
         Text(
             text = stringResource(id = R.string.modify_family_info_family_name),
             style = AppTypography.B1_16,
-            color = AppColors.deepPurple1,
+            color = AppColors.grey8,
             modifier = Modifier
                 .align(Alignment.Start)
                 .padding(top = 20.dp, bottom = 9.dp)
@@ -208,7 +208,7 @@ fun ModifyFamilyInfoScreenUI(
                 .padding(top = 187.dp)
                 .height(59.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = AppColors.deepPurple1,
+                containerColor = AppColors.grey8,
                 disabledContainerColor = AppColors.grey3,
                 disabledContentColor = AppColors.grey6
             ),

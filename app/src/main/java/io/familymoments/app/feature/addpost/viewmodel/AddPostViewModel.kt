@@ -3,7 +3,6 @@ package io.familymoments.app.feature.addpost.viewmodel
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
-import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,7 +42,7 @@ class AddPostViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AddPostUiState())
     val uiState = _uiState.asStateFlow()
 
-    val filesState = mutableStateListOf<Uri>()
+    val uriState = mutableStateListOf<Uri>()
 
     init {
         initUiState()
@@ -72,7 +71,7 @@ class AddPostViewModel @Inject constructor(
             getEditImagesUrlList(editImages).forEachIndexed { i, it ->
                 val uri = Uri.parse(it)
                 val file = FileUtil.uriToFile(uri, i)
-                filesState.add(file.toUri())
+                uriState.add(uri)
                 resizedImages.add(file)
             }
         }
@@ -85,7 +84,7 @@ class AddPostViewModel @Inject constructor(
 
     suspend fun addPost(content: String) {
         showLoading()
-        while (filesState.size != resizedImages.size) {
+        while (uriState.size != resizedImages.size) {
             Timber.tag("Image").i("Image resizing...")
             delay(100)
         }
@@ -149,12 +148,8 @@ class AddPostViewModel @Inject constructor(
 
     fun addImages(uris: List<Uri>, context: Context, errorMessage: String) {
         showLoading()
-        if (uris.size + filesState.size <= POST_PHOTO_MAX_SIZE) {
-            viewModelScope.launch(Dispatchers.Main) {
-                uris.forEach {
-                    filesState.add(it)
-                }
-            }
+        if (uris.size + uriState.size <= POST_PHOTO_MAX_SIZE) {
+            uriState.addAll(uris)
 
             hideLoading()
 
@@ -166,10 +161,10 @@ class AddPostViewModel @Inject constructor(
             }
 
         } else {
-            val availableCount = POST_PHOTO_MAX_SIZE - filesState.size
+            val availableCount = POST_PHOTO_MAX_SIZE - uriState.size
             viewModelScope.launch(Dispatchers.Main) {
                 uris.subList(0, availableCount).forEach {
-                    filesState.add(it)
+                    uriState.add(it)
                     _uiState.update {
                         it.copy(
                             isSuccess = false,
@@ -181,7 +176,7 @@ class AddPostViewModel @Inject constructor(
             hideLoading()
             viewModelScope.launch(Dispatchers.IO) {
                 uris.subList(0, availableCount).forEachIndexed { index, it ->
-                    val file = FileUtil.imageFileResize(context, it, filesState.size + index)
+                    val file = FileUtil.imageFileResize(context, it, uriState.size + index)
                     resizedImages.add(file)
                 }
             }
@@ -192,5 +187,10 @@ class AddPostViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(
             isSuccess = null,
         )
+    }
+
+    fun removeImage(index: Int) {
+        uriState.removeAt(index)
+        resizedImages.removeAt(index)
     }
 }

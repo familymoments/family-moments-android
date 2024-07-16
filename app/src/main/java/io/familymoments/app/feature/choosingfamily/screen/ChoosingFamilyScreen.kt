@@ -1,7 +1,7 @@
 package io.familymoments.app.feature.choosingfamily.screen
 
 import android.content.Intent
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -42,7 +42,7 @@ fun ChoosingFamilyScreen(
         Text(
             text = stringResource(R.string.choosing_family_app_bar_screen_header),
             style = AppTypography.SH3_16,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
     }) {
         val navController = rememberNavController()

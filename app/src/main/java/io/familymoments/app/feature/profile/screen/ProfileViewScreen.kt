@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,7 +64,7 @@ fun ProfileViewScreen(
             userProfile = profileViewUiState.value.userProfile,
             navigateToProfileEdit = navigateToProfileEdit
         )
-        Divider(
+        HorizontalDivider(
             color = AppColors.grey3, thickness = 0.6.dp,
             modifier = Modifier
                 .fillMaxWidth()
@@ -74,7 +74,7 @@ fun ProfileViewScreen(
             totalUpload = profileViewUiState.value.userProfile.totalUpload,
             duration = profileViewUiState.value.userProfile.duration
         )
-        Divider(
+        HorizontalDivider(
             color = AppColors.grey3, thickness = 0.6.dp,
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,7 +119,7 @@ private fun UserProfileInfo(
     Text(
         text = userProfile.nickName,
         style = AppTypography.H2_24,
-        color = AppColors.deepPurple1,
+        color = AppColors.grey8,
         modifier = Modifier.padding(bottom = 12.dp)
     )
     Text(
@@ -240,7 +240,7 @@ fun ProfileViewScreenPreview() {
             ),
             navigateToProfileEdit = { }
         )
-        Divider(
+        HorizontalDivider(
             color = AppColors.grey3, thickness = 0.6.dp,
             modifier = Modifier
                 .fillMaxWidth()
@@ -250,7 +250,7 @@ fun ProfileViewScreenPreview() {
             totalUpload = 8,
             duration = 134
         )
-        Divider(
+        HorizontalDivider(
             color = AppColors.grey3, thickness = 0.6.dp,
             modifier = Modifier
                 .fillMaxWidth()

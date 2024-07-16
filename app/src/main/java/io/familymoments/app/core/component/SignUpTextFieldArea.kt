@@ -72,7 +72,7 @@ fun SignUpTextFieldArea(
     Column {
         Text(
             text = title,
-            color = AppColors.deepPurple1,
+            color = AppColors.grey8,
             style = AppTypography.SH3_16
         )
         Spacer(modifier = Modifier.height(7.dp))
@@ -131,7 +131,7 @@ private fun CheckButton(
         enabled = textFieldValue.text.isNotEmpty() && checkButtonAvailable,
         onClick = { onCheckButtonClick(textFieldValue) },
         colors = ButtonDefaults.buttonColors(
-            containerColor = AppColors.deepPurple1,
+            containerColor = AppColors.grey8,
             contentColor = Color.White,
         ),
         shape = RoundedCornerShape(10.dp),

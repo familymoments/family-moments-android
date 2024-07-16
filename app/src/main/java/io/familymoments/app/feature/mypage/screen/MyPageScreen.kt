@@ -115,7 +115,7 @@ fun MyPageGroupHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(32.dp)
-                .background(AppColors.deepPurple1)
+                .background(AppColors.grey8)
         ) {
             Text(
                 text = stringResource(id = groupNameResId),

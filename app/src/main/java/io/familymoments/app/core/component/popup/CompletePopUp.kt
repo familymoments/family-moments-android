@@ -63,7 +63,7 @@ fun CompletePopUp(
                 Text(
                     text = content,
                     style = AppTypography.BTN4_18,
-                    color = AppColors.deepPurple1,
+                    color = AppColors.grey8,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(top = 4.dp, bottom = 30.dp),

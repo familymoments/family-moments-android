@@ -82,7 +82,7 @@ fun AddPostScreen(
 
     LaunchedEffectWithSuccess(addPostUiState, popBackStack, context, viewModel)
 
-    val fileList = viewModel.filesState
+    val uriList = viewModel.uriState
     val launcher = generateVisualMediaRequestLauncher { uris ->
         viewModel.addImages(
             uris = uris,
@@ -100,11 +100,14 @@ fun AddPostScreen(
         modifier = modifier,
         modeEnum = addPostUiState.mode,
         focusManager = focusManager,
-        fileList = fileList,
+        uriList = uriList,
         onLaunchPickVisualMediaRequest = {
             launcher.launch(
                 PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
+        },
+        onRemoveImageClicked = {
+          viewModel.removeImage(it)
         },
         content = content,
         onContentUpdate = { content = it },
@@ -123,7 +126,6 @@ private fun onUploadClicked(
     content: String
 ) {
     focusManager.clearFocus()
-    viewModel.initUiState()
     scope.launch {
         when (addPostUiState.mode) {
             ADD -> viewModel.addPost(content)
@@ -166,12 +168,13 @@ private fun AddPostScreenUI(
     modifier: Modifier = Modifier,
     focusManager: FocusManager = LocalFocusManager.current,
     modeEnum: AddPostMode = ADD,
-    fileList: SnapshotStateList<Uri> = mutableStateListOf(),
+    uriList: SnapshotStateList<Uri> = mutableStateListOf(),
     onLaunchPickVisualMediaRequest: () -> Unit = {},
     content: String = "",
     onContentUpdate: (String) -> Unit = {},
     isKeyboardOpen: Boolean = false,
     isLoading: Boolean = false,
+    onRemoveImageClicked: (Int) -> Unit = {},
     onButtonClick: () -> Unit = {},
 ) {
     Box(Modifier.fillMaxSize()) {
@@ -186,9 +189,9 @@ private fun AddPostScreenUI(
                     .padding(top = 48.dp), text = when (modeEnum) {
                     ADD -> stringResource(id = R.string.add_post_title)
                     EDIT -> stringResource(id = R.string.edit_post_title)
-                }, style = AppTypography.SH1_20, color = AppColors.deepPurple1, textAlign = TextAlign.Center
+                }, style = AppTypography.SH1_20, color = AppColors.grey8, textAlign = TextAlign.Center
             )
-            ImageRow(focusManager, fileList, onLaunchPickVisualMediaRequest)
+            ImageRow(focusManager, uriList, onRemoveImageClicked, onLaunchPickVisualMediaRequest)
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -230,10 +233,10 @@ private fun AddPostScreenUI(
                         .then(
                             if (content
                                     .trim()
-                                    .isNotEmpty() && fileList.isNotEmpty()
+                                    .isNotEmpty() && uriList.isNotEmpty()
                             ) {
                                 Modifier
-                                    .background(color = AppColors.deepPurple1)
+                                    .background(color = AppColors.grey8)
                                     .oneClick(onButtonClick)
                             } else {
                                 Modifier.background(color = AppColors.grey3)
@@ -257,6 +260,7 @@ private fun AddPostScreenUI(
 private fun ImageRow(
     focusManager: FocusManager = LocalFocusManager.current,
     imageList: SnapshotStateList<Uri> = mutableStateListOf(),
+    onRemoveImageClicked: (Int) -> Unit = {},
     onPickVisualMediaRequest: () -> Unit = {},
 ) {
     Row(
@@ -267,7 +271,7 @@ private fun ImageRow(
         Box(modifier = Modifier
             .width(63.dp)
             .heightIn(min = 63.dp)
-            .border(width = 1.dp, color = AppColors.deepPurple3, shape = RoundedCornerShape(size = 6.dp))
+            .border(width = 1.dp, color = AppColors.grey7, shape = RoundedCornerShape(size = 6.dp))
             .oneClick(1000) {
                 focusManager.clearFocus()
                 onPickVisualMediaRequest()
@@ -318,7 +322,7 @@ private fun ImageRow(
                                     x = (63 - 13).dp, y = (-8).dp
                                 )
                                 .oneClick(1000) {
-                                    imageList.removeAt(i)
+                                    onRemoveImageClicked(i)
                                 },
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_text_field_clear),
                             contentDescription = null,

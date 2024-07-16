@@ -188,7 +188,7 @@ private fun PostItemContent(
                 Box {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_three_dots_row),
-                        tint = AppColors.deepPurple1,
+                        tint = AppColors.grey8,
                         contentDescription = null,
                         modifier = Modifier.noRippleClickable {
                             menuExpanded.value = true

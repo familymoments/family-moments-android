@@ -112,7 +112,7 @@ fun VerifyIdScreenUI(
         Text(
             text = stringResource(id = R.string.login_forgot_id),
             style = AppTypography.H1_36,
-            color = AppColors.deepPurple1
+            color = AppColors.grey8
         )
         Spacer(modifier = Modifier.height(13.dp))
         Text(
