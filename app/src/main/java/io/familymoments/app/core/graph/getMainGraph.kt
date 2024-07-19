@@ -34,11 +34,6 @@ fun getMainGraph(
         PostDetailScreen(
             viewModel = hiltViewModel(),
             index = backStackEntry.arguments?.getLong("postId") ?: -1,
-            modifier = Modifier
-                .scaffoldState(
-                    hasShadow = true,
-                    hasBackButton = true,
-                ),
             navigateToBack = {
                 navController.popBackStack()
             }

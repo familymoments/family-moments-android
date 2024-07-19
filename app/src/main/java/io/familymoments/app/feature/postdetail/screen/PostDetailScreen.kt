@@ -65,6 +65,7 @@ import io.familymoments.app.core.network.dto.response.GetPostLovesResult
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.util.noRippleClickable
+import io.familymoments.app.core.util.scaffoldState
 import io.familymoments.app.feature.postdetail.component.postDetailContentShadow
 import io.familymoments.app.feature.postdetail.uistate.PostDetailPopupType
 import io.familymoments.app.feature.postdetail.uistate.PostDetailUiState
@@ -74,7 +75,6 @@ import io.familymoments.app.feature.postdetail.viewmodel.PostDetailViewModel
 fun PostDetailScreen(
     viewModel: PostDetailViewModel,
     index: Long,
-    modifier: Modifier,
     navigateToBack: () -> Unit,
     navigateToModify: (GetPostDetailResult) -> Unit,
 ) {
@@ -107,7 +107,7 @@ fun PostDetailScreen(
     )
     LaunchedEffectShowErrorMessage(uiState, context, viewModel::resetSuccess)
     PostDetailScreenUI(
-        modifier = modifier,
+        modifier = Modifier.scaffoldState(hasShadow = true, hasBackButton = true),
         uiState = uiState,
         isPostDetailExist = viewModel.checkPostDetailExist(postDetail),
         formatPostCreatedDate = viewModel::formatPostCreatedDate,
