@@ -501,9 +501,6 @@ fun PostContent(
                             Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_modify)) {
                                 navigateToModify()
                             },
-                            Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_report)) {
-                                showReportPostPopup(postInfo.postId)
-                            },
                             Pair(stringResource(id = R.string.post_detail_screen_drop_down_menu_delete)) {
                                 showDeletePostPopup(postInfo.postId)
                             },
