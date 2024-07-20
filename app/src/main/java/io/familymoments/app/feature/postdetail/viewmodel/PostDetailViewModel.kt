@@ -1,6 +1,5 @@
 package io.familymoments.app.feature.postdetail.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.familymoments.app.core.base.BaseViewModel
@@ -102,7 +101,6 @@ class PostDetailViewModel @Inject constructor(
         async(
             operation = { postRepository.getPostLoves(index) },
             onSuccess = { response ->
-                Log.d("hkhk", "getPostLoves: $response")
                 _uiState.update {
                     it.copy(
                         isSuccess = true,
@@ -333,7 +331,6 @@ class PostDetailViewModel @Inject constructor(
     }
 
     fun showLoveListPopup(loves: List<GetPostLovesResult>) {
-        Log.d("hkhk", "showLoveListPopup: $loves")
         _uiState.update {
             it.copy(popup = PostDetailPopupType.LoveList(loves))
         }
