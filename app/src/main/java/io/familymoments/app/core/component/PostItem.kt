@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -34,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -128,7 +128,7 @@ private fun PostItemContent(
     Column(
         modifier = Modifier
             .padding(horizontal = 11.dp)
-            .heightIn(min = 282.dp)
+            .height(282.dp)
             .clip(shape = RoundedCornerShape(10.dp))
             .background(AppColors.grey6)
             .clickable {
@@ -139,16 +139,18 @@ private fun PostItemContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 18.dp, end = 6.dp),
+                .padding(start = 18.dp, end = 6.dp, top = 11.dp, bottom = 11.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 modifier = Modifier
-                    .padding(top = 11.dp, end = 10.dp)
+                    .height(114.dp)
+                    .padding(end = 10.dp)
                     .weight(1f),
                 text = post.content,
                 style = AppTypography.B2_14,
-                color = AppColors.black2
+                color = AppColors.black2,
+                overflow = TextOverflow.Ellipsis
             )
             Column(
                 modifier = Modifier.padding(top = 5.dp),
