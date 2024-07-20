@@ -61,7 +61,6 @@ import io.familymoments.app.core.component.popup.ReportPopUp
 import io.familymoments.app.core.component.popup.WarningPopup
 import io.familymoments.app.core.network.dto.response.GetCommentsResult
 import io.familymoments.app.core.network.dto.response.GetPostDetailResult
-import io.familymoments.app.core.network.dto.response.GetPostLovesResult
 import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.util.noRippleClickable
@@ -71,6 +70,7 @@ import io.familymoments.app.feature.postdetail.uistate.PostDetailPopupType
 import io.familymoments.app.feature.postdetail.uistate.PostDetailUiState
 import io.familymoments.app.feature.postdetail.viewmodel.PostDetailViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PostDetailScreen(
     viewModel: PostDetailViewModel,
@@ -84,10 +84,17 @@ fun PostDetailScreen(
         viewModel.getComments(index)
         viewModel.getPostLoves(index)
     }
+
     val context = LocalContext.current
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
     val popup = uiState.popup
     val postDetail = uiState.postDetail
+    val pagerState = rememberPagerState(pageCount = { uiState.postDetail.imgs.size })
+    var commentMenuExpanded by remember { mutableStateOf(false) }
+    var postMenuExpanded by remember { mutableStateOf(false) }
+    var comment by remember { mutableStateOf(TextFieldValue()) }
+    val focusRequester = remember { FocusRequester() }
+    var showPopup by remember { mutableStateOf(false) }
 
     LaunchedEffectSetUpData(
         index,
@@ -103,8 +110,9 @@ fun PostDetailScreen(
         viewModel::dismissPopup,
         navigateToBack,
         viewModel::reportPost,
-        viewModel::reportComment
-    )
+        viewModel::reportComment,
+        showPopup
+    ) { showPopup = it }
     LaunchedEffectShowErrorMessage(uiState, context, viewModel::resetSuccess)
     PostDetailScreenUI(
         modifier = Modifier.scaffoldState(hasShadow = true, hasBackButton = true),
@@ -115,7 +123,7 @@ fun PostDetailScreen(
         showReportPostPopup = viewModel::showReportPostPopup,
         navigateToPostModify = navigateToModify,
         postComment = viewModel::postComment,
-        showLoveListPopup = viewModel::showLoveListPopup,
+        showLoveListPopup = { viewModel.showLoveListPopup(uiState.postLoves) },
         makeCommentAvailable = viewModel::makeCommentAvailable,
         formatCommentCreatedDate = viewModel::formatCommentCreatedDate,
         showReportCommentPopup = viewModel::showReportCommentPopup,
@@ -133,7 +141,15 @@ fun PostDetailScreen(
             } else {
                 viewModel.postCommentLoves(id)
             }
-        }
+        },
+        pagerState = pagerState,
+        commentMenuExpanded = commentMenuExpanded,
+        onCommentMenuExpandedChanged = { commentMenuExpanded = it },
+        postMenuExpanded = postMenuExpanded,
+        onPostMenuExpandedChanged = { postMenuExpanded = it },
+        comment = comment,
+        onCommentChanged = { comment = it },
+        focusRequester = focusRequester
     )
 }
 
@@ -148,16 +164,23 @@ fun PostDetailScreenUI(
     showReportPostPopup: (Long) -> Unit = {},
     navigateToPostModify: (GetPostDetailResult) -> Unit = {},
     postComment: (Long, String) -> Unit = { _, _ -> },
-    showLoveListPopup: (List<GetPostLovesResult>) -> Unit = {},
+    showLoveListPopup: () -> Unit = {},
     makeCommentAvailable: () -> Unit = {},
     formatCommentCreatedDate: (String) -> String,
     showReportCommentPopup: (Long) -> Unit = {},
     showDeleteCommentPopup: (Long) -> Unit = {},
     onClickPostLoves: (Long) -> Unit = {},
     onClickCommentLoves: (Boolean, Long) -> Unit = { _, _ -> },
+    pagerState: PagerState,
+    commentMenuExpanded: Boolean = false,
+    onCommentMenuExpandedChanged: (Boolean) -> Unit = {},
+    postMenuExpanded: Boolean = false,
+    onPostMenuExpandedChanged: (Boolean) -> Unit = {},
+    comment: TextFieldValue = TextFieldValue(),
+    onCommentChanged: (TextFieldValue) -> Unit = {},
+    focusRequester: FocusRequester = FocusRequester()
 ) {
 
-    val pagerState = rememberPagerState(pageCount = { uiState.postDetail.imgs.size })
     LazyColumn {
         item {
             Column(
@@ -184,7 +207,9 @@ fun PostDetailScreenUI(
                             uiState.postDetail,
                             showDeletePostPopup,
                             showReportPostPopup,
-                            onClickPostLoves
+                            onClickPostLoves,
+                            postMenuExpanded,
+                            onPostMenuExpandedChanged
                         ) { navigateToPostModify(uiState.postDetail) }
 
                         CommentTextField(
@@ -192,9 +217,11 @@ fun PostDetailScreenUI(
                             uiState.postDetail.postId,
                             postComment,
                             showLoveListPopup,
-                            uiState.postLoves,
                             uiState.resetComment,
-                            makeCommentAvailable
+                            makeCommentAvailable,
+                            comment,
+                            onCommentChanged,
+                            focusRequester
                         )
                         if (uiState.comments.isNotEmpty()) {
                             CommentItems(
@@ -203,7 +230,9 @@ fun PostDetailScreenUI(
                                 formatCommentCreatedDate,
                                 showReportCommentPopup,
                                 showDeleteCommentPopup,
-                                onClickCommentLoves
+                                onClickCommentLoves,
+                                commentMenuExpanded,
+                                onCommentMenuExpandedChanged
                             )
                         }
 
@@ -239,13 +268,14 @@ fun LaunchedEffectShowPopup(
     dismissPopup: () -> Unit,
     navigateToBack: () -> Unit,
     reportPost: (Long, String, String) -> Unit,
-    reportComment: (Long, String, String) -> Unit
+    reportComment: (Long, String, String) -> Unit,
+    showPopup: Boolean = false,
+    onShowPopupChanged: (Boolean) -> Unit = {}
 ) {
-    val showPopup = remember { mutableStateOf(false) }
     LaunchedEffect(popup) {
-        showPopup.value = popup != null
+        onShowPopupChanged(popup != null)
     }
-    if (showPopup.value) {
+    if (showPopup) {
         when (popup) {
             is PostDetailPopupType.DeleteComment -> {
                 DeletePopUp(
@@ -431,11 +461,10 @@ fun PostContent(
     showDeletePostPopup: (Long) -> Unit,
     showReportPostPopup: (Long) -> Unit,
     onClickPostLoves: (Long) -> Unit,
+    menuExpanded: Boolean,
+    onMenuExpandedChanged: (Boolean) -> Unit,
     navigateToModify: () -> Unit,
 ) {
-    var menuExpanded by remember {
-        mutableStateOf(false)
-    }
 
     Box {
         Row(
@@ -463,7 +492,7 @@ fun PostContent(
                         tint = AppColors.grey8,
                         contentDescription = null,
                         modifier = Modifier.noRippleClickable {
-                            menuExpanded = true
+                            onMenuExpandedChanged(true)
                         }
                     )
                     PostDropdownMenu(
@@ -484,7 +513,7 @@ fun PostContent(
                             },
                         ),
                         expanded = menuExpanded
-                    ) { menuExpanded = false }
+                    ) { onMenuExpandedChanged(false) }
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -521,17 +550,16 @@ fun CommentTextField(
     commentsCount: Int,
     postId: Long,
     postComment: (Long, String) -> Unit,
-    showLoveListPopup: (List<GetPostLovesResult>) -> Unit,
-    postLoves: List<GetPostLovesResult>,
+    showLoveListPopup: () -> Unit,
     resetComment: Boolean,
-    makeCommentAvailable: () -> Unit
+    makeCommentAvailable: () -> Unit,
+    comment: TextFieldValue,
+    onCommentChanged: (TextFieldValue) -> Unit,
+    focusRequester: FocusRequester
 ) {
-    var comment by remember {
-        mutableStateOf(TextFieldValue())
-    }
 
     if (resetComment) {
-        comment = TextFieldValue()
+        onCommentChanged(TextFieldValue())
         makeCommentAvailable()
     }
 
@@ -554,7 +582,7 @@ fun CommentTextField(
                 style = AppTypography.B2_14,
                 color = AppColors.grey2,
                 modifier = Modifier.noRippleClickable {
-                    showLoveListPopup(postLoves)
+                    showLoveListPopup()
                 }
             )
         }
@@ -569,7 +597,6 @@ fun CommentTextField(
                     shape = RoundedCornerShape(size = 8.dp)
                 )
         ) {
-            val focusRequester = remember { FocusRequester() }
 
             Row(
                 modifier = Modifier
@@ -580,7 +607,7 @@ fun CommentTextField(
                 BasicTextField(
                     value = comment,
                     onValueChange = {
-                        if (it.text.length <= 50) comment = it
+                        if (it.text.length <= 50) onCommentChanged(it)
                     },
                     textStyle = AppTypography.LB2_11.copy(AppColors.black1),
                     modifier = Modifier
@@ -635,6 +662,8 @@ fun CommentItems(
     showReportCommentPopup: (Long) -> Unit,
     showDeleteCommentPopup: (Long) -> Unit,
     onClickCommentLoves: (Boolean, Long) -> Unit,
+    menuExpanded: Boolean,
+    onMenuExpandedChanged: (Boolean) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         comments.forEach {
@@ -644,7 +673,9 @@ fun CommentItems(
                 formatCommentCreatedDate,
                 showReportCommentPopup,
                 showDeleteCommentPopup,
-                onClickCommentLoves
+                onClickCommentLoves,
+                menuExpanded,
+                onMenuExpandedChanged
             )
         }
     }
@@ -658,11 +689,10 @@ fun CommentItem(
     formatCommentCreatedDate: (String) -> String,
     showReportCommentPopup: (Long) -> Unit,
     showDeleteCommentPopup: (Long) -> Unit,
-    onClickCommentLoves: (Boolean, Long) -> Unit
+    onClickCommentLoves: (Boolean, Long) -> Unit,
+    menuExpanded: Boolean,
+    onMenuExpandedChanged: (Boolean) -> Unit
 ) {
-    var menuExpanded by remember {
-        mutableStateOf(false)
-    }
 
     Row(
         modifier = Modifier
@@ -708,7 +738,7 @@ fun CommentItem(
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_three_dots_row),
                     contentDescription = null,
-                    modifier = Modifier.noRippleClickable { menuExpanded = true },
+                    modifier = Modifier.noRippleClickable { onMenuExpandedChanged(true) },
                     tint = Color.Unspecified,
                 )
                 PostDropdownMenu(
@@ -723,7 +753,7 @@ fun CommentItem(
                         },
                     ),
                     expanded = menuExpanded
-                ) { menuExpanded = false }
+                ) { onMenuExpandedChanged(false) }
             }
 
             Icon(
@@ -750,9 +780,11 @@ fun CommentItem(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Preview(showBackground = true)
 @Composable
 fun PostDetailScreenUIPreview() {
+    val pagerState = rememberPagerState(pageCount = { 0 })
     PostDetailScreenUI(
         uiState = PostDetailUiState(
             postDetail = GetPostDetailResult(
@@ -769,6 +801,7 @@ fun PostDetailScreenUIPreview() {
         ),
         formatPostCreatedDate = { "2024-04-29" },
         formatCommentCreatedDate = { "방금" },
+        pagerState = pagerState
     )
 }
 

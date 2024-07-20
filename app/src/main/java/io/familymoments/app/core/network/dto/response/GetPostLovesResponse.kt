@@ -7,7 +7,7 @@ data class GetPostLovesResponse(
     val isSuccess: Boolean = false,
     val code: Int = 0,
     val message: String = "",
-    val results: List<GetPostLovesResult> = listOf()
+    val result: List<GetPostLovesResult> = listOf()
 )
 
 data class GetPostLovesResult(
