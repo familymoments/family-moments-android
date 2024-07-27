@@ -52,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import io.familymoments.app.R
 import io.familymoments.app.core.component.PostDropdownMenu
 import io.familymoments.app.core.component.popup.CompletePopUp
@@ -415,8 +416,7 @@ fun WriterInfo(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PostPhotos(imgs: List<String>, pagerState: PagerState) {
-    Box(
-    ) {
+    Box {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
@@ -425,7 +425,7 @@ fun PostPhotos(imgs: List<String>, pagerState: PagerState) {
                 modifier = Modifier
                     .fillMaxSize()
                     .align(Alignment.Center),
-                model = imgs[page],
+                model = ImageRequest.Builder(LocalContext.current).data(imgs[page]).crossfade(true).build(),
                 contentDescription = null
             )
         }

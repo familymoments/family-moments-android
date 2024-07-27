@@ -108,14 +108,12 @@ class AddPostViewModel @Inject constructor(
             },
             onSuccess = {
                 _uiState.value = _uiState.value.copy(
-                    isSuccess = true,
-                    isLoading = isLoading.value
+                    isSuccess = true
                 )
             },
             onFailure = {
                 _uiState.value = _uiState.value.copy(
                     isSuccess = false,
-                    isLoading = isLoading.value,
                     errorMessage = it.message
                 )
             }
@@ -123,8 +121,14 @@ class AddPostViewModel @Inject constructor(
     }
 
     fun editPost(index: Long, content: String) {
+        showLoading()
         async(
             operation = {
+                while (uriState.size != resizedImages.size) {
+                    Timber.tag("Image").i("Image resizing...")
+                    delay(200)
+                }
+
                 val imagesMultipart = resizedImages.map { file ->
                     createImageMultiPart(file, "imgs")
                 }
@@ -133,13 +137,11 @@ class AddPostViewModel @Inject constructor(
             onSuccess = {
                 _uiState.value = _uiState.value.copy(
                     isSuccess = true,
-                    isLoading = isLoading.value
                 )
             },
             onFailure = {
                 _uiState.value = _uiState.value.copy(
                     isSuccess = false,
-                    isLoading = isLoading.value,
                     errorMessage = it.message
                 )
             }
