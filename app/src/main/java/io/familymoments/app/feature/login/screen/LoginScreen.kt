@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -229,28 +230,26 @@ fun LoginForm(
         } else {
             Box(modifier = Modifier.height(37.dp))
         }
-        Surface(shape = RoundedCornerShape(8.dp), modifier = Modifier.fillMaxWidth()) {
-            Button(
-                modifier = Modifier.bringIntoViewRequester(requester),
-                onClick = {
-                    login(id.text, password.text)
-                    focusManager.clearFocus()
-                },
-                colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = AppColors.grey8,
-                    contentColor = Color.White,
-                    disabledContainerColor = Color.Gray,
-                    disabledContentColor = Color.White,
-                ),
-                contentPadding = PaddingValues(vertical = 20.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.login_login),
-                    fontSize = 18.sp,
-                    style = AppTypography.BTN4_18
-                )
-            }
+        Button(
+            modifier = Modifier.fillMaxSize().bringIntoViewRequester(requester),
+            onClick = {
+                login(id.text, password.text)
+                focusManager.clearFocus()
+            },
+            colors =
+            ButtonDefaults.buttonColors(
+                containerColor = AppColors.grey8,
+                contentColor = Color.White,
+                disabledContainerColor = Color.Gray,
+                disabledContentColor = Color.White,
+            ),
+            contentPadding = PaddingValues(vertical = 20.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.login_login),
+                fontSize = 18.sp,
+                style = AppTypography.BTN4_18
+            )
         }
     }
 }

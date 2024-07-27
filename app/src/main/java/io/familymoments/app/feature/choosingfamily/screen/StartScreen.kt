@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,17 +32,21 @@ import kotlin.math.sqrt
 
 @Composable
 fun StartScreen(goToCreating: () -> Unit = {}, goToJoining: () -> Unit = {}) {
-    DrawCircle(goToCreating = goToCreating, goToJoining = goToJoining)
-    CreatingText()
-    JoiningText()
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp
+    val screenHeightDp = LocalConfiguration.current.screenHeightDp
+    DrawCircle(screenWidthDp, screenHeightDp, goToCreating = goToCreating, goToJoining = goToJoining)
+    CreatingText(screenWidthDp, screenHeightDp)
+    JoiningText(screenWidthDp, screenHeightDp)
 }
 
 
 @Composable
-private fun CreatingText() {
+private fun CreatingText(screenWidthDp: Int, screenHeightDp: Int) {
+    val widthRatio = screenWidthDp.toDouble() / 360
+    val heightRatio = screenHeightDp.toDouble() / 800
     Text(
         modifier = Modifier
-            .padding(top = 146.dp, start = 43.dp),
+            .padding(top = (146 * heightRatio).dp, start = (43 * widthRatio).dp),
         text = stringResource(id = R.string.create_family),
         style = AppTypography.BTN1_36,
         color = AppColors.grey8
@@ -49,11 +54,13 @@ private fun CreatingText() {
 }
 
 @Composable
-private fun JoiningText() {
+private fun JoiningText(screenWidthDp: Int, screenHeightDp: Int) {
+    val widthRatio = screenWidthDp.toDouble() / 360
+    val heightRatio = screenHeightDp.toDouble() / 800
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
         Text(
             modifier = Modifier
-                .padding(bottom = 227.dp, end = 50.dp),
+                .padding(bottom = (227 * heightRatio).dp, end = (50 * widthRatio).dp),
             text = stringResource(id = R.string.join_family),
             style = AppTypography.BTN1_36,
             color = AppColors.grey8
@@ -62,16 +69,20 @@ private fun JoiningText() {
 }
 
 
-private fun calculateCreateCircleCenter(radius: Int): Pair<Int, Int> {
-    return (radius - 226 to 27 + radius)
+private fun calculateCreateCircleCenter(radius: Int, widthRatio: Double, heightRatio: Double): Pair<Int, Int> {
+    return (radius - (226 * widthRatio).toInt() to (27 * heightRatio).toInt() + radius)
 }
 
-private fun calculateJoinCircleCenter(radius: Int): Pair<Int, Int> {
-    return (50 + radius to 234 + radius)
+private fun calculateJoinCircleCenter(radius: Int, widthRatio: Double, heightRatio: Double): Pair<Int, Int> {
+    return ((50 * widthRatio).toInt() + radius to (234 * heightRatio).toInt() + radius)
 }
 
 @Composable
-private fun DrawCircle(goToCreating: () -> Unit, goToJoining: () -> Unit, radius: Int = 275) {
+private fun DrawCircle(screenWidthDp: Int, screenHeightDp: Int, goToCreating: () -> Unit, goToJoining: () -> Unit) {
+    val widthRatio = screenWidthDp.toDouble() / 360
+    val heightRatio = screenHeightDp.toDouble() / 800
+    val radius = ((550 * screenWidthDp.toDouble() / 360) / 2).toInt()
+
     var creatingCircleColor by remember {
         mutableStateOf(AppColors.pink3)
     }
@@ -79,11 +90,11 @@ private fun DrawCircle(goToCreating: () -> Unit, goToJoining: () -> Unit, radius
         mutableStateOf(AppColors.purple4)
     }
 
-    val creatingCircleCenter = calculateCreateCircleCenter(radius)
+    val creatingCircleCenter = calculateCreateCircleCenter(radius, widthRatio, heightRatio)
     val creatingCircleCenterX = creatingCircleCenter.first.dp
     val creatingCircleCenterY = creatingCircleCenter.second.dp
 
-    val joiningCircleCenter = calculateJoinCircleCenter(radius)
+    val joiningCircleCenter = calculateJoinCircleCenter(radius, widthRatio, heightRatio)
     val joiningCircleCenterX = joiningCircleCenter.first.dp
     val joiningCircleCenterY = joiningCircleCenter.second.dp
 
@@ -161,7 +172,7 @@ private fun drawEachCircle(radius: Int, color: Color, circleCenter: Pair<Int, In
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun PreviewStartScreen() {
     FamilyMomentsTheme {
