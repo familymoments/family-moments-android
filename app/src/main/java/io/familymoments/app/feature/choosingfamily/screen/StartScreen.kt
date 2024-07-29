@@ -34,16 +34,16 @@ import kotlin.math.sqrt
 fun StartScreen(goToCreating: () -> Unit = {}, goToJoining: () -> Unit = {}) {
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
     val screenHeightDp = LocalConfiguration.current.screenHeightDp
-    DrawCircle(screenWidthDp, screenHeightDp, goToCreating = goToCreating, goToJoining = goToJoining)
-    CreatingText(screenWidthDp, screenHeightDp)
-    JoiningText(screenWidthDp, screenHeightDp)
+    val widthRatio = screenWidthDp.toDouble() / 360
+    val heightRatio = screenHeightDp.toDouble() / 800
+    DrawCircle(screenWidthDp, widthRatio, heightRatio, goToCreating = goToCreating, goToJoining = goToJoining)
+    CreatingText(widthRatio, heightRatio)
+    JoiningText(widthRatio, heightRatio)
 }
 
 
 @Composable
-private fun CreatingText(screenWidthDp: Int, screenHeightDp: Int) {
-    val widthRatio = screenWidthDp.toDouble() / 360
-    val heightRatio = screenHeightDp.toDouble() / 800
+private fun CreatingText(widthRatio: Double, heightRatio: Double) {
     Text(
         modifier = Modifier
             .padding(top = (146 * heightRatio).dp, start = (43 * widthRatio).dp),
@@ -54,9 +54,7 @@ private fun CreatingText(screenWidthDp: Int, screenHeightDp: Int) {
 }
 
 @Composable
-private fun JoiningText(screenWidthDp: Int, screenHeightDp: Int) {
-    val widthRatio = screenWidthDp.toDouble() / 360
-    val heightRatio = screenHeightDp.toDouble() / 800
+private fun JoiningText(widthRatio: Double, heightRatio: Double) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
         Text(
             modifier = Modifier
@@ -78,9 +76,14 @@ private fun calculateJoinCircleCenter(radius: Int, widthRatio: Double, heightRat
 }
 
 @Composable
-private fun DrawCircle(screenWidthDp: Int, screenHeightDp: Int, goToCreating: () -> Unit, goToJoining: () -> Unit) {
-    val widthRatio = screenWidthDp.toDouble() / 360
-    val heightRatio = screenHeightDp.toDouble() / 800
+private fun DrawCircle(
+    screenWidthDp: Int,
+    widthRatio: Double,
+    heightRatio: Double,
+    goToCreating: () -> Unit,
+    goToJoining: () -> Unit
+) {
+
     val radius = ((550 * screenWidthDp.toDouble() / 360) / 2).toInt()
 
     var creatingCircleColor by remember {
