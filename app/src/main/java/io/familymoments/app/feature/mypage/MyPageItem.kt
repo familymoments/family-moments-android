@@ -3,6 +3,8 @@ package io.familymoments.app.feature.mypage
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import io.familymoments.app.R
+import io.familymoments.app.core.util.PRIVACY_POLICY_URL
+import io.familymoments.app.core.util.SERVICE_TERM_URL
 import io.familymoments.app.feature.mypage.graph.MyPageRoute
 import io.familymoments.app.feature.profile.graph.ProfileScreenRoute
 
@@ -36,6 +38,20 @@ sealed class MyPageItem(
             MyPageRoute.FamilySettings.name,
             R.string.my_page_label_family_settings,
             R.drawable.ic_my_page_family_settings
+        )
+
+    data object ServiceTerms :
+        MyPageItem(
+            SERVICE_TERM_URL,
+            R.string.service_terms,
+            R.drawable.ic_my_page_profile
+        )
+
+    data object PrivacyPolicy :
+        MyPageItem(
+            PRIVACY_POLICY_URL,
+            R.string.privacy_policy,
+            R.drawable.ic_my_page_profile
         )
 
     data object Logout :

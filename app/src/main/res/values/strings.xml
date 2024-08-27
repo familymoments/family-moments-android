@@ -96,7 +96,7 @@
     <string name="sign_up_nickname_validation_warning">닉네임 형식이 올바르지 않습니다. (3~8자리, 특수문자 불가)</string>
     <string name="sign_up_all_term_agree">모두 동의합니다</string>
     <string name="sign_up_service_term_agree">(필수) 서비스 이용약관에 동의</string>
-    <string name="sign_up_identification_term_agree">(필수) 본인확인 서비스 관련 이용 약관</string>
+    <string name="sign_up_identification_term_agree">(필수) 개인정보 처리방침에 동의</string>
     <string name="sign_up_marketing_alarm_term_agree">(선택) 마케팅 정보 알림 및 수신 동의</string>
     <string name="sign_up_btn">Family Moments 시작하기</string>
     <string name="sign_up_select_profile_image_description">사용하실 프로필 이미지를 선택해주세요.</string>
@@ -293,5 +293,7 @@
 
     <string name="update_cycle_title">업로드 주기 변경</string>
     <string name="update_cycle_btn">업로드 주기 변경 완료</string>
+    <string name="service_terms">서비스 이용약관</string>
+    <string name="privacy_policy">개인정보 처리방침</string>
 
 </resources>

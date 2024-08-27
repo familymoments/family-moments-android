@@ -1,5 +1,8 @@
 package io.familymoments.app.feature.mypage.screen
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,11 +55,21 @@ fun MyPageScreen(
             myPageItems = MyPageGroups.accountGroup,
             onItemClick = onItemClick
         )
+        val activity = LocalContext.current as Activity
+
         MyPageGroup(
             groupNameResId = R.string.my_page_more_group,
             myPageItems = MyPageGroups.moreGroup,
             onItemClick = onItemClick,
-            onLogoutItemClick = { showLogoutPopup.value = true }
+            onLogoutItemClick = { showLogoutPopup.value = true },
+            onShowServiceTerms = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.route))
+                activity.startActivity(intent)
+            },
+            onShowPrivacyPolicy = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.route))
+                activity.startActivity(intent)
+            }
         )
         Spacer(modifier = Modifier.padding(bottom = 27.dp))
     }
@@ -89,13 +103,17 @@ fun MyPageGroup(
     @StringRes groupNameResId: Int,
     myPageItems: List<MyPageItem>,
     onItemClick: (clickedItem: MyPageItem) -> Unit,
-    onLogoutItemClick: (clickedItem: MyPageItem) -> Unit = {}
+    onLogoutItemClick: (clickedItem: MyPageItem) -> Unit = {},
+    onShowServiceTerms: (clickedItem: MyPageItem) -> Unit = {},
+    onShowPrivacyPolicy: (clickedItem: MyPageItem) -> Unit = {}
 ) {
     Column {
         MyPageGroupHeader(groupNameResId = groupNameResId)
         myPageItems.forEach { item ->
             when (item.route) {
                 MyPageItem.Logout.route -> MyPageGroupItem(item = item, onItemClick = onLogoutItemClick)
+                MyPageItem.ServiceTerms.route -> MyPageGroupItem(item = item, onItemClick = onShowServiceTerms)
+                MyPageItem.PrivacyPolicy.route -> MyPageGroupItem(item = item, onItemClick = onShowPrivacyPolicy)
                 else -> MyPageGroupItem(item = item, onItemClick = onItemClick)
             }
         }
@@ -182,6 +200,8 @@ private object MyPageGroups {
         MyPageItem.FamilySettings
     )
     val moreGroup = listOf(
+        MyPageItem.ServiceTerms,
+        MyPageItem.PrivacyPolicy,
         MyPageItem.Logout,
         MyPageItem.AccountDeletion
     )
