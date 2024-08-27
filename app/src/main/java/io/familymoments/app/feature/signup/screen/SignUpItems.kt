@@ -1,6 +1,8 @@
 package io.familymoments.app.feature.signup.screen
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.Toast
@@ -21,11 +23,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,10 +47,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.familymoments.app.R
+import io.familymoments.app.core.component.CheckedStatus
 import io.familymoments.app.core.component.SignUpTextFieldArea
+import io.familymoments.app.core.theme.AppColors
 import io.familymoments.app.core.theme.FamilyMomentsTheme
 import io.familymoments.app.core.util.FileUtil
+import io.familymoments.app.core.util.PRIVACY_POLICY_URL
+import io.familymoments.app.core.util.SERVICE_TERM_URL
 import io.familymoments.app.core.util.defaultBitmap
+import io.familymoments.app.feature.signup.uistate.SignUpTermUiState
 import java.io.File
 
 @Composable
@@ -395,5 +404,60 @@ fun ProfileImageFieldPreview() {
             ProfileImageField(defaultBitmap, LocalContext.current) {}
         }
     }
+}
+
+@Composable
+fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit = {}) {
+    val terms = remember {
+        mutableStateListOf(
+            SignUpTermUiState(true, R.string.sign_up_service_term_agree, CheckedStatus.UNCHECKED),
+            SignUpTermUiState(true, R.string.sign_up_identification_term_agree, CheckedStatus.UNCHECKED)
+        )
+    }
+
+    Column {
+        TermItem(
+            imageResources = listOf(R.drawable.circle_uncheck, R.drawable.circle_check),
+            description = R.string.sign_up_all_term_agree,
+            checked = if (terms.all { it.checkedStatus == CheckedStatus.CHECKED }) CheckedStatus.CHECKED else CheckedStatus.UNCHECKED,
+            fontSize = 16,
+            onCheckedChange = {
+                for (index in terms.indices) {
+                    terms[index] = terms[index].copy(checkedStatus = it)
+                }
+            })
+        HorizontalDivider(modifier = Modifier.padding(vertical = 11.dp), thickness = 1.dp, color = AppColors.grey2)
+        onAllEssentialTermsAgree(terms.filter { it.isEssential }.all { it.checkedStatus == CheckedStatus.CHECKED })
+
+        val activity = LocalContext.current as Activity
+
+        TermItem(
+            imageResources = listOf(R.drawable.uncheck, R.drawable.check),
+            description = terms[0].description,
+            checked = terms[0].checkedStatus,
+            fontSize = 13,
+            onCheckedChange = {
+                terms[0] = terms[0].copy(checkedStatus = it)
+            },
+            onShowDetail = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(SERVICE_TERM_URL))
+                activity.startActivity(intent)
+            }
+        )
+        TermItem(
+            imageResources = listOf(R.drawable.uncheck, R.drawable.check),
+            description = terms[1].description,
+            checked = terms[1].checkedStatus,
+            fontSize = 13,
+            onCheckedChange = {
+                terms[1] = terms[1].copy(checkedStatus = it)
+            },
+            onShowDetail = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
+                activity.startActivity(intent)
+            }
+        )
+    }
+    Spacer(modifier = Modifier.height(20.dp))
 }
 

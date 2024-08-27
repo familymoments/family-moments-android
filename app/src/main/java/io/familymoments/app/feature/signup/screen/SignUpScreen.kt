@@ -13,14 +13,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,7 +45,6 @@ import io.familymoments.app.core.theme.AppTypography
 import io.familymoments.app.core.theme.FamilyMomentsTheme
 import io.familymoments.app.core.util.FileUtil
 import io.familymoments.app.feature.signup.uistate.SignUpInfoUiState
-import io.familymoments.app.feature.signup.uistate.SignUpTermUiState
 import io.familymoments.app.feature.signup.uistate.SignUpUiState
 import io.familymoments.app.feature.signup.uistate.SignUpValidatedUiState
 import io.familymoments.app.feature.signup.viewmodel.SignUpViewModel
@@ -203,7 +200,7 @@ fun SignUpScreenUI(
                 signUpInfoUiState = signUpInfoUiState.copy(imgFile = it)
             }
             Spacer(modifier = Modifier.height(53.dp))
-            TermsField { allEssentialTermsAgree = it }
+            TermsField(onAllEssentialTermsAgree = { allEssentialTermsAgree = it })
             StartButtonField(
                 signUpInfoUiState,
                 passwordSameCheck,
@@ -375,9 +372,10 @@ fun TermItem(
     description: Int,
     checked: CheckedStatus,
     fontSize: Int,
-    onCheckedChange: (CheckedStatus) -> Unit
+    onCheckedChange: (CheckedStatus) -> Unit = {},
+    onShowDetail: () -> Unit = {}
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable(onClick = onShowDetail)) {
         FMCheckBox(
             imageResources = imageResources,
             defaultStatus = checked,
@@ -391,52 +389,7 @@ fun TermItem(
     }
 }
 
-@Composable
-fun TermsList(
-    list: List<SignUpTermUiState>,
-    onTermCheckedChange: (Int, CheckedStatus) -> Unit,
-    onTermsCheckedChange: (Boolean) -> Unit
-) {
-    onTermsCheckedChange(list.filter { it.isEssential }.all { it.checkedStatus == CheckedStatus.CHECKED })
-    for (index in list.indices) {
-        TermItem(
-            imageResources = listOf(R.drawable.uncheck, R.drawable.check),
-            description = list[index].description,
-            checked = list[index].checkedStatus,
-            fontSize = 13,
-            onCheckedChange = { onTermCheckedChange(index, it) })
-    }
-}
 
-@Composable
-fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit) {
-
-    val terms = remember {
-        mutableStateListOf(
-            SignUpTermUiState(true, R.string.sign_up_service_term_agree, CheckedStatus.UNCHECKED),
-            SignUpTermUiState(true, R.string.sign_up_identification_term_agree, CheckedStatus.UNCHECKED),
-            SignUpTermUiState(false, R.string.sign_up_marketing_alarm_term_agree, CheckedStatus.UNCHECKED)
-        )
-    }
-
-    Column {
-        TermItem(
-            imageResources = listOf(R.drawable.circle_uncheck, R.drawable.circle_check),
-            description = R.string.sign_up_all_term_agree,
-            checked = if (terms.all { it.checkedStatus == CheckedStatus.CHECKED }) CheckedStatus.CHECKED else CheckedStatus.UNCHECKED,
-            fontSize = 16,
-            onCheckedChange = {
-                for (index in terms.indices) {
-                    terms[index] = terms[index].copy(checkedStatus = it)
-                }
-            })
-        HorizontalDivider(modifier = Modifier.padding(vertical = 11.dp), thickness = 1.dp, color = AppColors.grey2)
-        TermsList(list = terms, { index, checkedStatus ->
-            terms[index] = terms[index].copy(checkedStatus = checkedStatus)
-        }) { onAllEssentialTermsAgree(it) }
-    }
-    Spacer(modifier = Modifier.height(20.dp))
-}
 
 @Preview(showBackground = true, heightDp = 1500)
 @Composable
