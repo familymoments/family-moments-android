@@ -38,7 +38,8 @@ data class SignUpValidatedUiState(
 data class SignUpTermUiState(
     val isEssential: Boolean = false,
     val description: Int = 0,
-    val checkedStatus: CheckedStatus = CheckedStatus.UNCHECKED
+    val checkedStatus: CheckedStatus = CheckedStatus.UNCHECKED,
+    val url: String = ""
 )
 
 @Immutable

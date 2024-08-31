@@ -410,8 +410,8 @@ fun ProfileImageFieldPreview() {
 fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit = {}) {
     val terms = remember {
         mutableStateListOf(
-            SignUpTermUiState(true, R.string.sign_up_service_term_agree, CheckedStatus.UNCHECKED),
-            SignUpTermUiState(true, R.string.sign_up_identification_term_agree, CheckedStatus.UNCHECKED)
+            SignUpTermUiState(true, R.string.sign_up_service_term_agree, CheckedStatus.UNCHECKED, SERVICE_TERM_URL),
+            SignUpTermUiState(true, R.string.sign_up_identification_term_agree, CheckedStatus.UNCHECKED, PRIVACY_POLICY_URL)
         )
     }
 
@@ -431,32 +431,21 @@ fun TermsField(onAllEssentialTermsAgree: (Boolean) -> Unit = {}) {
 
         val activity = LocalContext.current as Activity
 
-        TermItem(
-            imageResources = listOf(R.drawable.uncheck, R.drawable.check),
-            description = terms[0].description,
-            checked = terms[0].checkedStatus,
-            fontSize = 13,
-            onCheckedChange = {
-                terms[0] = terms[0].copy(checkedStatus = it)
-            },
-            onShowDetail = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(SERVICE_TERM_URL))
-                activity.startActivity(intent)
-            }
-        )
-        TermItem(
-            imageResources = listOf(R.drawable.uncheck, R.drawable.check),
-            description = terms[1].description,
-            checked = terms[1].checkedStatus,
-            fontSize = 13,
-            onCheckedChange = {
-                terms[1] = terms[1].copy(checkedStatus = it)
-            },
-            onShowDetail = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
-                activity.startActivity(intent)
-            }
-        )
+        for (term in terms) {
+            TermItem(
+                imageResources = listOf(R.drawable.uncheck, R.drawable.check),
+                description = term.description,
+                checked = term.checkedStatus,
+                fontSize = 13,
+                onCheckedChange = {
+                    terms[terms.indexOf(term)] = term.copy(checkedStatus = it)
+                },
+                onShowDetail = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(term.url))
+                    activity.startActivity(intent)
+                }
+            )
+        }
     }
     Spacer(modifier = Modifier.height(20.dp))
 }
