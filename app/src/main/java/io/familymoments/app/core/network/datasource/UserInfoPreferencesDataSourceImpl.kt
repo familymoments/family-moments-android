@@ -59,8 +59,6 @@ class UserInfoPreferencesDataSourceImpl @Inject constructor(
 
     override suspend fun saveUserProfile(userProfile: UserProfile) {
         with(sharedPreferences.edit()) {
-            putString(USER_NAME_KEY, userProfile.name)
-            putString(USER_BIRTH_DATE_KEY, userProfile.birthDate)
             putString(USER_PROFILE_IMG_KEY, userProfile.profileImg)
             putString(USER_NICKNAME_KEY, userProfile.nickName)
             putString(USER_EMAIL_KEY, userProfile.email)
@@ -97,8 +95,6 @@ class UserInfoPreferencesDataSourceImpl @Inject constructor(
             USER_INFO_KEY_NOT_EXIST_ERROR
         )
         return UserProfile(
-            userName,
-            userBirthDate,
             userProfileImg,
             userNickname,
             userEmail,

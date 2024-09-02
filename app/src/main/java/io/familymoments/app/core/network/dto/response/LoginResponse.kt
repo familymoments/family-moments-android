@@ -14,7 +14,5 @@ data class LoginResponse(
 data class LoginResult(
     val familyId: Long? = null,
     val email: String = "",
-    val name: String = "",
     val nickname: String = "",
-    val strBirthDate: String = "",
 )

@@ -34,7 +34,7 @@ import io.familymoments.app.core.theme.AppTypography
 @Composable
 fun SignUpTextFieldArea(
     modifier: Modifier = Modifier,
-    title: String,
+    title: String = "",
     hint: String,
     onValueChange: (TextFieldValue) -> Unit = {},
     showCheckButton: Boolean = false,
@@ -47,7 +47,9 @@ fun SignUpTextFieldArea(
     isFocused: Boolean,
     showText: Boolean = true,
     enabled: Boolean = true,
-    initialValue: String = ""
+    initialValue: String = "",
+    checkButtonLabel: String = stringResource(id = R.string.sign_up_check_duplication_btn),
+    warningTextAreaHeight: Int = 20,
 ) {
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue(initialValue))
@@ -70,12 +72,15 @@ fun SignUpTextFieldArea(
         textColor = if (showText) AppColors.red1 else AppColors.black1
     }
     Column {
-        Text(
-            text = title,
-            color = AppColors.grey8,
-            style = AppTypography.SH3_16
-        )
-        Spacer(modifier = Modifier.height(7.dp))
+        if (title.isNotEmpty()) {
+            Text(
+                text = title,
+                color = AppColors.grey8,
+                style = AppTypography.SH3_16
+            )
+            Spacer(modifier = Modifier.height(7.dp))
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -100,7 +105,7 @@ fun SignUpTextFieldArea(
                 enabled = enabled
             )
             if (showCheckButton) {
-                CheckButton(checkButtonAvailable, textFieldValue, onCheckButtonClick)
+                CheckButton(checkButtonAvailable, textFieldValue, onCheckButtonClick, checkButtonLabel)
             }
 
         }
@@ -110,6 +115,7 @@ fun SignUpTextFieldArea(
                 text = warningText,
                 textFieldValue = textFieldValue,
                 validation = validated,
+                warningTextAreaHeight = warningTextAreaHeight,
                 colorChange = {
                     textColor = it
                     textFieldBorderColor = it
@@ -122,7 +128,8 @@ fun SignUpTextFieldArea(
 private fun CheckButton(
     checkButtonAvailable: Boolean,
     textFieldValue: TextFieldValue,
-    onCheckButtonClick: (TextFieldValue) -> Unit
+    onCheckButtonClick: (TextFieldValue) -> Unit,
+    label: String
 ) {
     ElevatedButton(
         modifier = Modifier
@@ -138,7 +145,7 @@ private fun CheckButton(
         contentPadding = PaddingValues(13.dp)
     ) {
         Text(
-            text = stringResource(id = R.string.sign_up_check_duplication_btn),
+            text = label,
             fontSize = 16.sp
         )
     }
@@ -146,11 +153,12 @@ private fun CheckButton(
 
 
 @Composable
-fun ShowWarningText(
+private fun ShowWarningText(
     text: String,
     textFieldValue: TextFieldValue,
     validation: Boolean,
-    colorChange: (Color) -> Unit
+    warningTextAreaHeight: Int,
+    colorChange: (Color) -> Unit,
 ) {
 
     if (textFieldValue.text.isNotEmpty() && !validation) {
@@ -165,7 +173,7 @@ fun ShowWarningText(
     }
     if (textFieldValue.text.isEmpty() || validation) {
         colorChange(AppColors.black1)
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(warningTextAreaHeight.dp))
     }
 }
 
@@ -178,7 +186,12 @@ private fun SignUpTextFieldPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun SignUpTextFieldPreviewDisabled() {
-    SignUpTextFieldArea(title = "이메일", hint = "example@gmail.com", isFocused = false, enabled = false, onValueChange = {})
+    SignUpTextFieldArea(
+        title = "이메일",
+        hint = "example@gmail.com",
+        isFocused = false,
+        enabled = false,
+        onValueChange = {})
 }
 
 @Preview(showBackground = true)
@@ -190,5 +203,10 @@ private fun SignUpTextFieldPreviewFocused() {
 @Preview(showBackground = true)
 @Composable
 private fun ShowWarningTextPreview() {
-    ShowWarningText(text = "이메일 형식이 올바르지 않습니다.", textFieldValue = TextFieldValue("example"), validation = false, colorChange = {})
+    ShowWarningText(
+        text = "이메일 형식이 올바르지 않습니다.",
+        textFieldValue = TextFieldValue("example"),
+        validation = false,
+        warningTextAreaHeight = 20,
+        colorChange = {})
 }

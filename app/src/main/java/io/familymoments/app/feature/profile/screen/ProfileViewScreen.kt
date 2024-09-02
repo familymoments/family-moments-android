@@ -234,7 +234,6 @@ fun ProfileViewScreenPreview() {
         UserProfileInfo(
             userProfile = UserProfile(
                 profileImg = "",
-                name = "홍길동",
                 nickName = "아부지",
                 email = "familyMoments@gmail.com"
             ),

@@ -17,9 +17,7 @@ class SocialSignUpActivity : BaseActivity<SignUpViewModel>(SignUpViewModel::clas
 
         val socialLoginResult = LoginResult(
             email = intent.getStringExtra("email") ?: "",
-            name = intent.getStringExtra("name") ?: "",
             nickname = intent.getStringExtra("nickname") ?: "",
-            strBirthDate = intent.getStringExtra("strBirthDate") ?: ""
         )
 
         SocialSignUpScreen(

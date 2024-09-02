@@ -4,10 +4,14 @@ import io.familymoments.app.core.network.Resource
 import io.familymoments.app.core.network.api.SignInService
 import io.familymoments.app.core.network.dto.request.CheckEmailRequest
 import io.familymoments.app.core.network.dto.request.CheckIdRequest
+import io.familymoments.app.core.network.dto.request.SendEmailVerificationCodeRequest
 import io.familymoments.app.core.network.dto.request.SignUpRequest
 import io.familymoments.app.core.network.dto.request.UserJoinReq
+import io.familymoments.app.core.network.dto.request.VerifyEmailVerificationCodeRequest
+import io.familymoments.app.core.network.dto.response.ApiResponse
 import io.familymoments.app.core.network.dto.response.CheckEmailResponse
 import io.familymoments.app.core.network.dto.response.CheckIdResponse
+import io.familymoments.app.core.network.dto.response.getResourceFlow
 import io.familymoments.app.core.network.repository.SignInRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -82,6 +86,16 @@ class SignInRepositoryImpl @Inject constructor(
         }
     }.catch { e ->
         emit(Resource.Fail(e))
+    }
+
+    override suspend fun sendEmailVerificationCode(email: String): Flow<Resource<ApiResponse<String>>> {
+        val response = signInService.sendEmailVerificationCode(SendEmailVerificationCodeRequest(email))
+        return getResourceFlow(response)
+    }
+
+    override suspend fun verifyEmailVerificationCode(email: String, code: String): Flow<Resource<ApiResponse<String>>> {
+        val response = signInService.verifyEmailVerificationCode(VerifyEmailVerificationCodeRequest(email, code))
+        return getResourceFlow(response)
     }
 
 }

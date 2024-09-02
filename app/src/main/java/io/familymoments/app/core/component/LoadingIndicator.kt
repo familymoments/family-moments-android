@@ -6,13 +6,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 
 @Composable
 fun LoadingIndicator(isLoading: Boolean) {
     if (isLoading) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().zIndex(1f)
         ) {
             CircularProgressIndicator()
         }

@@ -14,9 +14,7 @@ fun NavGraphBuilder.profileGraph(navController: NavController) {
             navigateToProfileEdit = { userProfile ->
                 navController.navigate(
                     Route.ProfileEdit.getRoute(
-                        name = userProfile.name,
                         nickname = userProfile.nickName,
-                        birthdate = userProfile.birthDate,
                         profileImg = userProfile.profileImg
                     )
                 )

@@ -103,61 +103,6 @@ fun IdField(
 }
 
 @Composable
-fun NameField(
-    default: String = "",
-    onValueChange: (String) -> Unit
-) {
-    var isFocused by remember {
-        mutableStateOf(false)
-    }
-    SignUpTextFieldArea(
-        modifier = Modifier.onFocusChanged {
-            isFocused = it.isFocused
-        },
-        title = stringResource(id = R.string.sign_up_name_field_title),
-        hint = stringResource(R.string.sign_up_name_field_hint),
-        initialValue = default,
-        onValueChange = { onValueChange(it.text) },
-        isFocused = isFocused
-    )
-
-    Spacer(modifier = Modifier.height(20.dp))
-}
-
-@Composable
-fun BirthDayField(
-    default: String = "",
-    checkBirthDayFormat: (String) -> Unit,
-    birthDayFormatValidated: Boolean,
-    onTextFieldChange: (String) -> Unit
-) {
-    var isFocused by remember {
-        mutableStateOf(false)
-    }
-
-    LaunchedEffect(Unit) {
-        checkBirthDayFormat(default)
-    }
-
-    SignUpTextFieldArea(
-        modifier = Modifier.onFocusChanged {
-            isFocused = it.isFocused
-        },
-        title = stringResource(id = R.string.sign_up_birthday_field_title),
-        hint = stringResource(R.string.sign_up_birthday_field_hint),
-        initialValue = default,
-        onValueChange = {
-            checkBirthDayFormat(it.text)
-            onTextFieldChange(it.text)
-        },
-        isFocused = isFocused,
-        validated = birthDayFormatValidated,
-        showWarningText = true,
-        warningText = stringResource(R.string.sign_up_birthday_check_validation_warning)
-    )
-}
-
-@Composable
 fun NicknameField(
     default: String = "",
     nicknameFormatValidated: Boolean,
@@ -360,26 +305,6 @@ fun IdFieldPreview() {
             checkIdDuplication = {},
             resetUserIdDuplicatedPass = {},
             onValueChange = {}
-        )
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun NameFieldPreview() {
-    FamilyMomentsTheme {
-        NameField {}
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun BirthDayFieldPreview() {
-    FamilyMomentsTheme {
-        BirthDayField(
-            checkBirthDayFormat = {},
-            birthDayFormatValidated = true,
-            onTextFieldChange = {}
         )
     }
 }

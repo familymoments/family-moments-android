@@ -295,5 +295,9 @@
     <string name="update_cycle_btn">업로드 주기 변경 완료</string>
     <string name="service_terms">서비스 이용약관</string>
     <string name="privacy_policy">개인정보 처리방침</string>
+    <string name="sign_up_verification_code_hint">인증번호</string>
+    <string name="sign_up_send_verification_code_label">인증받기</string>
+    <string name="sign_up_verify_verification_code_label">인증확인</string>
+    <string name="sign_up_expiration_tiem_label">남은 유효시간: %1$s</string>
 
 </resources>

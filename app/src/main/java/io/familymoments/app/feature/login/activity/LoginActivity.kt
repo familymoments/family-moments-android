@@ -44,9 +44,7 @@ class LoginActivity : BaseActivity<LoginViewModel>(LoginViewModel::class) {
             intent.putExtra("socialType", socialType)
             intent.putExtra("socialToken", loginUiState.socialToken)
             intent.putExtra("email", loginUiState.loginResult?.email)
-            intent.putExtra("name", loginUiState.loginResult?.name)
             intent.putExtra("nickname", loginUiState.loginResult?.nickname)
-            intent.putExtra("strBirthDate", loginUiState.loginResult?.strBirthDate)
             socialSignUpActivity.launch(intent)
         }
     }

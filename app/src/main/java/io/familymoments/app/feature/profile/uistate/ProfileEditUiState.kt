@@ -13,13 +13,9 @@ data class ProfileEditUiState(
 )
 
 data class ProfileEditInfoUiState(
-    val name: String = "",
     val nickname: String = "",
-    val birthdate: String = ""
 )
 
 data class ProfileEditValidated(
-    val nameValidated: Boolean = true,
     val nicknameValidated: Boolean = true,
-    val birthdateValidated: Boolean = true
 )

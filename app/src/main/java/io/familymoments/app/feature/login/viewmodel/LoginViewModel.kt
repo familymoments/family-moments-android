@@ -81,9 +81,7 @@ class LoginViewModel @Inject constructor(
                             loginResult = LoginResult(
                                 it.familyId,
                                 it.email ?: "",
-                                it.name ?: "",
                                 it.nickname ?: "",
-                                it.strBirthDate ?: ""
                             ),
                             socialType = LoginType.NAVER,
                             socialToken = token
@@ -117,7 +115,6 @@ class LoginViewModel @Inject constructor(
                             loginResult = LoginResult(
                                 it.familyId,
                                 it.email ?: "",
-                                strBirthDate = it.strBirthDate ?: ""
                             ),
                             socialType = LoginType.KAKAO,
                             socialToken = token
